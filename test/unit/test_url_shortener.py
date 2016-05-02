@@ -4,7 +4,7 @@ import unittest
 
 from nose_parameterized import parameterized
 
-from url_shortener import Slug
+from url_shortener import Slug, SlugValueError
 
 
 class SlugTest(unittest.TestCase):
@@ -37,11 +37,11 @@ class SlugTest(unittest.TestCase):
     def test_init_for_invalid_string(self):
         ''' The string contains forbidden characters '''
         string = 'abcd'
-        self.assertRaises(ValueError, Slug, None, string)
+        self.assertRaises(SlugValueError, Slug, None, string)
 
     def test_init_for_invalid_arg_set(self):
         ''' The arguments integer and string can't both be None '''
-        self.assertRaises(ValueError, Slug, None, None)
+        self.assertRaises(SlugValueError, Slug, None, None)
 
     @parameterized.expand(SLUGS_TO_INTEGERS)
     def test_init_for_generated_integer(self, string, expected_integer):

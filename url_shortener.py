@@ -36,7 +36,7 @@ class Slug(object):
         only of characters specified by the CHARS class property.
         If it is None, a value of corresponding property of the object
         will be based on the integer parameter
-        :raises ValueError: if the slug contains characters that are not
+        :raises SlugValueError: if the slug contains characters that are not
         in self.CHARS property, or if both string and integer params
         are None
         '''
@@ -44,9 +44,9 @@ class Slug(object):
             forbidden = [d for d in string if d not in self.CHARS]
             if forbidden:
                 msg_tpl = "The slug '{}' contains forbidden characters: '{}'"
-                raise ValueError(msg_tpl.format(string, forbidden))
+                raise SlugValueError(msg_tpl.format(string, forbidden))
         elif integer is None:
-            raise ValueError(
+            raise SlugValueError(
                 'The string and integer arguments cannot both be None'
             )
 
