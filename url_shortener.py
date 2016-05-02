@@ -2,6 +2,7 @@
 
 from bisect import bisect_left
 
+from flask import Flask
 from sqlalchemy import types
 
 
@@ -98,5 +99,8 @@ class IntegerSlug(types.TypeDecorator):
         return Slug(integer=value)
 
 
+app = Flask(__name__)
+
+
 if __name__ == '__main__':
-    pass
+    app.run()
