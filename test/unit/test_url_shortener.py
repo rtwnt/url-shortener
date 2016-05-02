@@ -5,7 +5,16 @@ from unittest.mock import Mock, patch
 
 from nose_parameterized import parameterized
 
-from url_shortener import Slug, SlugValueError, IntegerSlug
+from url_shortener import Slug, SlugValueError, IntegerSlug, _get_min_value
+
+
+class GetMinValueTest(unittest.TestCase):
+    @parameterized.expand([
+        ('two_digit_binary', 2, 2, 2),
+        ('three_digit_decimal', 10, 3, 100),
+    ])
+    def test_get_min_value_of_(self, _, base, digit_number, expected):
+        self.assertEqual(expected, _get_min_value(base, digit_number))
 
 
 class SlugTest(unittest.TestCase):

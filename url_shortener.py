@@ -12,7 +12,20 @@ class SlugValueError(ValueError):
     '''The value of slug is incorrect '''
 
 
+def _get_min_value(base, digit_number):
+    ''' Get the smallest number possible to be written
+    for given arguments
+
+    :param base: a base of numeral system used to write the number
+    :param digit_number: a number of digits used to write the number
+    :returns: the smallest numerical value of a numeral using given
+    base and number of digits
+    '''
+    return base**(digit_number - 1)
+
+
 class Slug(object):
+
     ''' An identifier for shortened url
 
     In has two values used as its representations: a string value
