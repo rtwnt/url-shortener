@@ -3,6 +3,10 @@
 from bisect import bisect_left
 
 
+class SlugValueError(ValueError):
+    '''The value of slug is incorrect '''
+
+
 class Slug(object):
     ''' An identifier for shortened url
 
