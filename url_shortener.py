@@ -4,6 +4,7 @@ import os
 from bisect import bisect_left
 
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import types
 
 
@@ -103,6 +104,7 @@ class IntegerSlug(types.TypeDecorator):
 app = Flask(__name__)
 DATABASE_URI_NAME = 'URL_SHORTENER_DATABASE_URI'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[DATABASE_URI_NAME]
+db = SQLAlchemy(app)
 
 
 if __name__ == '__main__':
