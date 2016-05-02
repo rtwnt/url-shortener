@@ -26,8 +26,8 @@ class Slug(object):
     the string and integer representations.
     '''
 
-    CHARS = '0123456789abcdefghijkmnopqrstuvwxyz'
-    BASE = len(CHARS)
+    _CHARS = '0123456789abcdefghijkmnopqrstuvwxyz'
+    _BASE = len(_CHARS)
 
     def __init__(self, integer=None, string=None):
         ''' Initialize new instance
@@ -46,7 +46,7 @@ class Slug(object):
         are None
         '''
         if string is not None:
-            forbidden = [d for d in string if d not in self.CHARS]
+            forbidden = [d for d in string if d not in self._CHARS]
             if forbidden:
                 msg_tpl = "The slug '{}' contains forbidden characters: '{}'"
                 raise SlugValueError(msg_tpl.format(string, forbidden))
@@ -61,8 +61,8 @@ class Slug(object):
         if integer is None:
             value = 0
             for exponent, char in enumerate(reversed(string)):
-                digit_value = bisect_left(self.CHARS, char)
-                value += digit_value*self.BASE**exponent
+                digit_value = bisect_left(self._CHARS, char)
+                value += digit_value*self._BASE**exponent
             self.integer = value
 
     def __str__(self):
@@ -77,8 +77,8 @@ class Slug(object):
             value = ''
             integer = self.integer
             while True:
-                integer, remainder = divmod(integer, self.BASE)
-                value = self.CHARS[remainder] + value
+                integer, remainder = divmod(integer, self._BASE)
+                value = self._CHARS[remainder] + value
                 if integer == 0:
                     break
             self._string = value

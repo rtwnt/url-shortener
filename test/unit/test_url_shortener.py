@@ -32,8 +32,8 @@ class SlugTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        Slug.CHARS = 'abc'
-        Slug.BASE = 3
+        Slug._CHARS = 'abc'
+        Slug._BASE = 3
 
     def test_init_for_invalid_string(self):
         ''' The string contains forbidden characters '''
