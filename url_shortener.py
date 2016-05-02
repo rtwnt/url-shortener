@@ -107,5 +107,29 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[DATABASE_URI_NAME]
 db = SQLAlchemy(app)
 
 
+class ShortenedUrl(db.Model):
+    ''' Represents a url for which a short alias has been created
+
+    :var slug: a value representing a registered url in short urls and
+    in database
+    '''
+    slug = db.Column(IntegerSlug, primary_key=True)
+    target = db.Column(db.String(2083), unique=True)
+    redirect = db.Column(db.Boolean(), default=True)
+
+    def __init__(self, target, redirect=True):
+        ''' Constructor
+
+        :param target: url represented by the instance
+        :param redirect: True if automatic redirection should be
+        performed when handling http requests for this url
+        '''
+        self.target = target
+        self.redirect = redirect
+
+    def __str__(self):
+        return self.target
+
+
 if __name__ == '__main__':
     app.run()
