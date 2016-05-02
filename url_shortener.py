@@ -2,6 +2,8 @@
 
 from bisect import bisect_left
 
+from sqlalchemy import types
+
 
 class SlugValueError(ValueError):
     '''The value of slug is incorrect '''
@@ -78,6 +80,22 @@ class Slug(object):
                     break
             self._string = value
         return self._string
+
+
+class IntegerSlug(types.TypeDecorator):
+    ''' Converts between database integers and
+    instances of Slug
+    '''
+
+    impl = types.Integer
+
+    def process_bind_param(self, value, dialect):
+        return value.integer
+
+    process_literal_param = process_bind_param
+
+    def process_result_value(self, value, dialect):
+        return Slug(integer=value)
 
 
 if __name__ == '__main__':
