@@ -24,8 +24,19 @@ def _get_min_value(base, digit_number):
     return base**(digit_number - 1)
 
 
-class Slug(object):
+def _get_max_value(base, digit_number):
+    ''' Get the largest number possible to be written
+    for given arguments
 
+    :param base: a base of numeral system used to write the number
+    :param digit_number: a number of digits used to write the number
+    :returns: the largest numerical value of a numeral using given
+    base and number of digits
+    '''
+    return (base - 1)*(1 - base**digit_number)/(1 - base)
+
+
+class Slug(object):
     ''' An identifier for shortened url
 
     In has two values used as its representations: a string value
