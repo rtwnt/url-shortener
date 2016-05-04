@@ -12,6 +12,10 @@ class SlugValueError(ValueError):
     '''The value of slug is incorrect '''
 
 
+class SlugLengthValueError(ValueError):
+    '''The value of slug-length related parameter is incorrect '''
+
+
 def _get_min_value(base, digit_number):
     ''' Get the smallest number possible to be written
     for given arguments
