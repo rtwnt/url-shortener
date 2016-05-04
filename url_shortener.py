@@ -2,6 +2,7 @@
 
 import os
 from bisect import bisect_left
+from random import randint
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -111,6 +112,63 @@ class Slug(object):
                     break
             self._string = value
         return self._string
+
+    @classmethod
+    def random_factory(cls, min_length, max_length):
+        ''' Get a function returning new instances of the class
+        with a random integer as argument
+
+        The arguments provide a range of lengths for string
+        representations of instances of Slug to be returned
+        by the factory. For these values, the method calculates
+        a range of integer values corresponding to them.
+
+        From that range, only integers smaller than maximum
+        32-bit integer can be used to generate new slugs.
+
+        :param min_length: a minimum number of characters for string
+        representation of the instances returned by the factory
+        :param max_length: a maximum number of characters for string
+        representation of the instances returned by the factory
+        :raises SlugLengthValueError: if:
+
+        * values of the parameters are less than zero, or
+        * max_length > min_length, or
+        * the whole range of slug string lengths, or just part
+        of it, is not available for generation due to integer values
+        corresponding to it being larger than maximum 32-bit
+        signed integer.
+
+        This value is assumed as maximum allowed for the integers used
+        in generation because we assume SQLAlchemy.types.Integer -
+        a base type for slug property of ShortenedUrl class - will
+        translate into 32 bit signed integer type of underlying
+        database engine used by the application.
+        :returns: a function returning instances of the class
+        based on random integers with a pre-calculated range
+        '''
+
+        if not 0 < min_length <= max_length:
+            raise SlugLengthValueError('The length limits are incorrect')
+        max_int_32 = 2**31 - 1
+        min_integer = _get_min_value(cls._BASE, min_length)
+        if min_integer > max_int_32:
+            raise SlugLengthValueError(
+                'The minimum length of a new slug is too large'
+            )
+
+        if (min_length < max_length and
+                _get_min_value(cls._BASE, max_length) > max_int_32):
+            raise SlugLengthValueError(
+                'The maximum length of a new slug is too large'
+            )
+
+        max_integer = min(max_int_32, _get_max_value(cls._BASE, max_length))
+
+        def factory():
+            random_integer = randint(min_integer, max_integer)
+            return cls(integer=random_integer)
+        return factory
 
 
 class IntegerSlug(types.TypeDecorator):
