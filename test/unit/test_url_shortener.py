@@ -110,22 +110,23 @@ class AliasTest(unittest.TestCase):
     INTEGERS = [[v] for v in ALIAS_INTEGER.values()]
     ALIASES_TO_INTEGERS = ALIAS_INTEGER.items()
 
-    @classmethod
-    def setUpClass(cls):
-        Alias._CHARS = 'abc'
-        Alias._BASE = 3
-
     def setUp(self):
-        self.get_min_value_patcher = patch('url_shortener._get_min_value')
-        self.get_min_value_mock = self.get_min_value_patcher.start()
-        self.get_min_value_mock.return_value = 1
-        self.get_max_value_patcher = patch('url_shortener._get_max_value')
-        self.get_max_value_mock = self.get_max_value_patcher.start()
-        self.get_max_value_mock.return_value = 2**31-10
+        self.numeral_system = Mock()
 
-    def tearDown(self):
-        self.get_min_value_patcher.stop()
-        self.get_max_value_patcher.stop()
+        def to_integer(string):
+            try:
+                return self.ALIAS_INTEGER[string]
+            except KeyError:
+                raise NumeralValueError
+
+        self.numeral_system.to_integer.side_effect = to_integer
+
+        def to_string(integer):
+            for alias, i in self.ALIASES_TO_INTEGERS:
+                if i == integer:
+                    return alias
+        self.numeral_system.to_string.side_effect = to_string
+        Alias._SYSTEM = self.numeral_system
 
     def test_init_for_invalid_string(self):
         ''' The string contains forbidden characters '''
@@ -209,14 +210,14 @@ class AliasTest(unittest.TestCase):
         min_length = 1
         max_length = 4
 
-        def get_min_value(_, digit_number):
+        def get_min_value(digit_number):
             min_values = {
                 min_length: min_int,
                 max_length: min_int_for_max_length
             }
             return min_values.get(digit_number)
 
-        self.get_min_value_mock.side_effect = get_min_value
+        self.numeral_system.get_min_value.side_effect = get_min_value
         self.assertRaises(
             AliasLengthValueError,
             Alias.random_factory,
@@ -241,10 +242,10 @@ class AliasTest(unittest.TestCase):
         If it's not, maximum int32 is used instead
         '''
         expected_min_int = 3
-        self.get_min_value_mock.return_value = expected_min_int
+        self.numeral_system.get_min_value.return_value = expected_min_int
         max_int_32 = 2**31-1
         expected_max_int = min(max_int_32, max_int)
-        self.get_max_value_mock.return_value = max_int
+        self.numeral_system.get_max_value.return_value = max_int
 
         factory = Alias.random_factory(1, 4)
         factory()
@@ -262,6 +263,8 @@ class AliasTest(unittest.TestCase):
         '''The Alias.random_factory class method is expected to return
         a callable object for correct arguments
         '''
+        self.numeral_system.get_min_value.return_value = 0
+        self.numeral_system.get_max_value.return_value = 10
         result = Alias.random_factory(min_length, max_length)
         self.assertTrue(callable(result))
 

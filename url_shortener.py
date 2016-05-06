@@ -118,15 +118,11 @@ class Alias(object):
     and an integer value, used in short urls and in database,
     respectively.
 
-    :var CHARS: string containing characters allowed to be used
-    in an alias. The characters are used as digits of a numerical system
-    used to convert between the string and integer representations.
-    :var BASE: a base of numeral system used to convert between
-    the string and integer representations.
+    :var _SYSTEM: an instance of NumeralSystem usted by the class and
+    its instances
     '''
 
-    _CHARS = '0123456789abcdefghijkmnopqrstuvwxyz'
-    _BASE = len(_CHARS)
+    _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
 
     def __init__(self, integer=None, string=None):
         ''' Initialize new instance
@@ -137,50 +133,37 @@ class Alias(object):
         the string parameter
         :param string: a value representing the alias as a string.
         It can not be None while integer is None, and it has to consist
-        only of characters specified by the CHARS class property.
+        only of characters used by the numeral system.
         If it is None, a value of corresponding property of the object
         will be based on the integer parameter
         :raises AliasValueError: if the alias contains characters that are not
-        in self.CHARS property, or if both string and integer params
-        are None
+        used by the numeral system, or if both string and integer
+        params are None
         '''
-        if string is not None:
-            forbidden = [d for d in string if d not in self._CHARS]
-            if forbidden:
-                msg_tpl = "The alias '{}' contains forbidden characters: '{}'"
-                raise AliasValueError(msg_tpl.format(string, forbidden))
-        elif integer is None:
-            raise AliasValueError(
-                'The string and integer arguments cannot both be None'
-            )
-
-        self._string = string
-
         self.integer = integer
         if integer is None:
-            value = 0
-            for exponent, char in enumerate(reversed(string)):
-                digit_value = bisect_left(self._CHARS, char)
-                value += digit_value*self._BASE**exponent
-            self.integer = value
+            if string is None:
+                raise AliasValueError(
+                    'The string and integer arguments cannot both be None'
+                )
+            try:
+                self.integer = self._SYSTEM.to_integer(string)
+            except NumeralValueError as ex:
+                raise AliasValueError(
+                    "The string '{}'  is not a valid alias ".format(string)
+                ) from ex
+        self._string = string
 
     def __str__(self):
         ''' Get string representation of the alias
 
         :returns: a string representing value of the alias as a numeral
-        of base specified for the class. If the object has been
+        in the numeral system. If the object has been
         initialized with integer as its only representation,
-        the numeral will be derived from it using the base.
+        the numeral will be derived from it using the system.
         '''
         if self._string is None:
-            value = ''
-            integer = self.integer
-            while True:
-                integer, remainder = divmod(integer, self._BASE)
-                value = self._CHARS[remainder] + value
-                if integer == 0:
-                    break
-            self._string = value
+            self._string = self._SYSTEM.to_string(self.integer)
         return self._string
 
     @classmethod
@@ -202,7 +185,7 @@ class Alias(object):
         representation of the instances returned by the factory
         :raises AliasLengthValueError: if:
 
-        * values of the parameters are less than zero, or
+        * values of any of the parameters are less than zero, or
         * max_length > min_length, or
         * the whole range of alias string lengths, or just part
         of it, is not available for generation due to integer values
@@ -221,19 +204,19 @@ class Alias(object):
         if not 0 < min_length <= max_length:
             raise AliasLengthValueError('The length limits are incorrect')
         max_int_32 = 2**31 - 1
-        min_integer = _get_min_value(cls._BASE, min_length)
+        min_integer = cls._SYSTEM.get_min_value(min_length)
         if min_integer > max_int_32:
             raise AliasLengthValueError(
                 'The minimum length of a new alias is too large'
             )
 
         if (min_length < max_length and
-                _get_min_value(cls._BASE, max_length) > max_int_32):
+                cls._SYSTEM.get_min_value(max_length) > max_int_32):
             raise AliasLengthValueError(
                 'The maximum length of a new alias is too large'
             )
 
-        max_integer = min(max_int_32, _get_max_value(cls._BASE, max_length))
+        max_integer = min(max_int_32, cls._SYSTEM.get_max_value(max_length))
 
         def factory():
             random_integer = randint(min_integer, max_integer)
