@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 from nose_parameterized import parameterized
 
 from url_shortener import (
-    Alias, AliasValueError, IntegerAlias, _get_min_value, _get_max_value,
-    AliasLengthValueError, NumeralSystem, NumeralValueError
+    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, NumeralSystem,
+    NumeralValueError
 )
 
 
@@ -68,24 +68,6 @@ class NumeralSystemTest(unittest.TestCase):
     ])
     def test_get_max_value_of_(self, _, system, length, expected):
         self.assertEqual(expected, system.get_max_value(length))
-
-
-class GetMinValueTest(unittest.TestCase):
-    @parameterized.expand([
-        ('two_digit_binary', 2, 2, 2),
-        ('three_digit_decimal', 10, 3, 100),
-    ])
-    def test_get_min_value_of_(self, _, base, digit_number, expected):
-        self.assertEqual(expected, _get_min_value(base, digit_number))
-
-
-class GetMaxValueTest(unittest.TestCase):
-    @parameterized.expand([
-        ('two_digit_binary', 2, 2, 3),
-        ('three_digit_decimal', 10, 3, 999),
-    ])
-    def test_get_max_value_of_(self, _, base, digit_number, expected):
-        self.assertEqual(expected, _get_max_value(base, digit_number))
 
 
 class AliasTest(unittest.TestCase):
