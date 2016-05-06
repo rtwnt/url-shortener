@@ -9,12 +9,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import types
 
 
-class SlugValueError(ValueError):
-    '''The value of slug is incorrect '''
+class AliasValueError(ValueError):
+    '''The value of alias is incorrect '''
 
 
-class SlugLengthValueError(ValueError):
-    '''The value of slug-length related parameter is incorrect '''
+class AliasLengthValueError(ValueError):
+    '''The value of alias-length related parameter is incorrect '''
 
 
 def _get_min_value(base, digit_number):
@@ -41,7 +41,7 @@ def _get_max_value(base, digit_number):
     return (base - 1)*(1 - base**digit_number)/(1 - base)
 
 
-class Slug(object):
+class Alias(object):
     ''' An identifier for shortened url
 
     In has two values used as its representations: a string value
@@ -49,7 +49,7 @@ class Slug(object):
     respectively.
 
     :var CHARS: string containing characters allowed to be used
-    in a slug. The characters are used as digits of a numerical system
+    in an alias. The characters are used as digits of a numerical system
     used to convert between the string and integer representations.
     :var BASE: a base of numeral system used to convert between
     the string and integer representations.
@@ -61,26 +61,26 @@ class Slug(object):
     def __init__(self, integer=None, string=None):
         ''' Initialize new instance
 
-        :param integer: a value representing the slug as an integer.
+        :param integer: a value representing the alias as an integer.
         It can not be None while string is None. If it is None, a
         corresponding property of the object will be based on
         the string parameter
-        :param string: a value representing the slug as a string.
+        :param string: a value representing the alias as a string.
         It can not be None while integer is None, and it has to consist
         only of characters specified by the CHARS class property.
         If it is None, a value of corresponding property of the object
         will be based on the integer parameter
-        :raises SlugValueError: if the slug contains characters that are not
+        :raises AliasValueError: if the alias contains characters that are not
         in self.CHARS property, or if both string and integer params
         are None
         '''
         if string is not None:
             forbidden = [d for d in string if d not in self._CHARS]
             if forbidden:
-                msg_tpl = "The slug '{}' contains forbidden characters: '{}'"
-                raise SlugValueError(msg_tpl.format(string, forbidden))
+                msg_tpl = "The alias '{}' contains forbidden characters: '{}'"
+                raise AliasValueError(msg_tpl.format(string, forbidden))
         elif integer is None:
-            raise SlugValueError(
+            raise AliasValueError(
                 'The string and integer arguments cannot both be None'
             )
 
@@ -95,9 +95,9 @@ class Slug(object):
             self.integer = value
 
     def __str__(self):
-        ''' Get string representation of the slug
+        ''' Get string representation of the alias
 
-        :returns: a string representing value of the slug as a numeral
+        :returns: a string representing value of the alias as a numeral
         of base specified for the class. If the object has been
         initialized with integer as its only representation,
         the numeral will be derived from it using the base.
@@ -119,29 +119,29 @@ class Slug(object):
         with a random integer as argument
 
         The arguments provide a range of lengths for string
-        representations of instances of Slug to be returned
+        representations of instances of Alias to be returned
         by the factory. For these values, the method calculates
         a range of integer values corresponding to them.
 
         From that range, only integers smaller than maximum
-        32-bit integer can be used to generate new slugs.
+        32-bit integer can be used to generate new aliases.
 
         :param min_length: a minimum number of characters for string
         representation of the instances returned by the factory
         :param max_length: a maximum number of characters for string
         representation of the instances returned by the factory
-        :raises SlugLengthValueError: if:
+        :raises AliasLengthValueError: if:
 
         * values of the parameters are less than zero, or
         * max_length > min_length, or
-        * the whole range of slug string lengths, or just part
+        * the whole range of alias string lengths, or just part
         of it, is not available for generation due to integer values
         corresponding to it being larger than maximum 32-bit
         signed integer.
 
         This value is assumed as maximum allowed for the integers used
         in generation because we assume SQLAlchemy.types.Integer -
-        a base type for slug property of ShortenedUrl class - will
+        a base type for alias property of ShortenedUrl class - will
         translate into 32 bit signed integer type of underlying
         database engine used by the application.
         :returns: a function returning instances of the class
@@ -149,18 +149,18 @@ class Slug(object):
         '''
 
         if not 0 < min_length <= max_length:
-            raise SlugLengthValueError('The length limits are incorrect')
+            raise AliasLengthValueError('The length limits are incorrect')
         max_int_32 = 2**31 - 1
         min_integer = _get_min_value(cls._BASE, min_length)
         if min_integer > max_int_32:
-            raise SlugLengthValueError(
-                'The minimum length of a new slug is too large'
+            raise AliasLengthValueError(
+                'The minimum length of a new alias is too large'
             )
 
         if (min_length < max_length and
                 _get_min_value(cls._BASE, max_length) > max_int_32):
-            raise SlugLengthValueError(
-                'The maximum length of a new slug is too large'
+            raise AliasLengthValueError(
+                'The maximum length of a new alias is too large'
             )
 
         max_integer = min(max_int_32, _get_max_value(cls._BASE, max_length))
@@ -171,9 +171,9 @@ class Slug(object):
         return factory
 
 
-class IntegerSlug(types.TypeDecorator):
+class IntegerAlias(types.TypeDecorator):
     ''' Converts between database integers and
-    instances of Slug
+    instances of Alias
     '''
 
     impl = types.Integer
@@ -184,7 +184,7 @@ class IntegerSlug(types.TypeDecorator):
     process_literal_param = process_bind_param
 
     def process_result_value(self, value, dialect):
-        return Slug(integer=value)
+        return Alias(integer=value)
 
 
 app = Flask(__name__)
@@ -196,10 +196,10 @@ db = SQLAlchemy(app)
 class ShortenedUrl(db.Model):
     ''' Represents a url for which a short alias has been created
 
-    :var slug: a value representing a registered url in short urls and
+    :var alias: a value representing a registered url in short urls and
     in database
     '''
-    slug = db.Column(IntegerSlug, primary_key=True)
+    alias = db.Column(IntegerAlias, primary_key=True)
     target = db.Column(db.String(2083), unique=True)
     redirect = db.Column(db.Boolean(), default=True)
 
