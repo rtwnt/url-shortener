@@ -17,6 +17,10 @@ class AliasLengthValueError(ValueError):
     '''The value of alias-length related parameter is incorrect '''
 
 
+class NumeralValueError(ValueError):
+    '''The value of a numeral is incorrect'''
+
+
 def _get_min_value(base, digit_number):
     ''' Get the smallest number possible to be written
     for given arguments
