@@ -21,6 +21,72 @@ class NumeralValueError(ValueError):
     '''The value of a numeral is incorrect'''
 
 
+class NumeralSystem(object):
+    ''' Represents a numeral system. Provides conversion methods
+    and other related operations
+
+    :param characters: characters to be used for numerals written
+    in the system
+    '''
+    def __init__(self, characters):
+        self._chars = characters
+        self._base = len(characters)
+
+    def to_string(self, integer):
+        ''' Convert the value to a numeral in the system
+
+        :param integer: a value to be converted
+        :returns: a string representing value of the integer as a numeral
+        in the numeral system
+        '''
+        value = ''
+        while True:
+            integer, remainder = divmod(integer, self._base)
+            value = self._chars[remainder] + value
+            if integer == 0:
+                break
+        return value
+
+    def to_integer(self, string):
+        ''' Convert given string to its value in the numeral system
+
+        :param string: a value to be converted
+        :raises NumeralValueError: if the string contains any
+        characters not used by the numeral system
+        :returns: an integer representing the value of the string
+        interpreted as a numeral in the system
+        '''
+        value = 0
+        for exponent, char in enumerate(reversed(string)):
+            digit_value = bisect_left(self._chars, char)
+            if digit_value == self._base or self._chars[digit_value] != char:
+                msg_tpl = (
+                    "The character '{}' is not used by the numeral system"
+                )
+                raise NumeralValueError(msg_tpl.format(char))
+            value += digit_value*self._base**exponent
+        return value
+
+    def get_min_value(self, length):
+        ''' Get a minimum value of a numeral of given length
+
+        :param length: a number of digits used to write the number
+        in the system
+        :returns: the smallest numerical value possible to be written
+        as numeral of given length in the system
+        '''
+        return self._base**(length - 1)
+
+    def get_max_value(self, length):
+        ''' Get a maximum value of a numeral of given length
+
+        :param length: a number of digits used to write the number
+        :returns: the largest numerical value possible to be written
+        as numeral of given length in the system
+        '''
+        return (self._base - 1)*(1 - self._base**length)/(1 - self._base)
+
+
 def _get_min_value(base, digit_number):
     ''' Get the smallest number possible to be written
     for given arguments

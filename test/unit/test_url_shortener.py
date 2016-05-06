@@ -7,8 +7,67 @@ from nose_parameterized import parameterized
 
 from url_shortener import (
     Alias, AliasValueError, IntegerAlias, _get_min_value, _get_max_value,
-    AliasLengthValueError
+    AliasLengthValueError, NumeralSystem, NumeralValueError
 )
+
+
+class NumeralSystemTest(unittest.TestCase):
+    ''' Tests for NumeralSystem class
+
+    :var BINARY: instance of NumeralSystem representing binary
+    numeral system
+    :var DECIMAL: instance of NumeralSystem representing decimal
+    numeral system
+    :var TWO_DIGIT_BINARY: a list containing name of a test, binary
+    numeral system object and integer for length parameter. Used for
+    testing get_min_value and get_max_value methods.
+    :var THREE_DIGIT_DECIMAL: a list containing name of a test, decimal
+    numeral system object and integer for length parameter. Used for
+    testing get_min_value and get_max_value methods.
+    :var CONVERSION_PARAMS: a list containing tuples, each with a name
+    of a test, instance of NumeralSystem to be used in test, an integer
+    and its corresponding value as a number written in the system. Used
+    for testing to_string and to_integer methods.
+    '''
+    BINARY = NumeralSystem('01')
+    DECIMAL = NumeralSystem('0123456789')
+    TWO_DIGIT_BINARY = ['two_digit_binary', BINARY, 2]
+    THREE_DIGIT_DECIMAL = ['three_digit_decimal', DECIMAL, 3]
+    CONVERSION_PARAMS = [
+        ('binary', BINARY, 3, '11'),
+        ('decimal', DECIMAL, 123, '123')
+    ]
+
+    @parameterized.expand(CONVERSION_PARAMS)
+    def test_to_string_from(self, _, system, integer, expected):
+        actual = system.to_string(integer)
+        self.assertEqual(expected, actual)
+
+    @parameterized.expand(CONVERSION_PARAMS)
+    def test_to_integer_from(self, _, system, expected, string):
+        actual = system.to_integer(string)
+        self.assertEqual(expected, actual)
+
+    @parameterized.expand([
+        ('binary', BINARY, '123'),
+        ('decimal', DECIMAL, '99A')
+    ])
+    def test_to_integer_from_invalid(self, _, system, string):
+        self.assertRaises(NumeralValueError, system.to_integer, string)
+
+    @parameterized.expand([
+        TWO_DIGIT_BINARY + [2],
+        THREE_DIGIT_DECIMAL + [100],
+    ])
+    def test_get_min_value_of_(self, _, system, length, expected):
+        self.assertEqual(expected, system.get_min_value(length))
+
+    @parameterized.expand([
+        TWO_DIGIT_BINARY + [3],
+        THREE_DIGIT_DECIMAL + [999],
+    ])
+    def test_get_max_value_of_(self, _, system, length, expected):
+        self.assertEqual(expected, system.get_max_value(length))
 
 
 class GetMinValueTest(unittest.TestCase):
