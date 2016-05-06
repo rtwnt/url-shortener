@@ -222,6 +222,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[DATABASE_URI_NAME]
 db = SQLAlchemy(app)
 
 
+random_alias_generator = Alias.random_factory(1, 4)
+
+
 class ShortenedUrl(db.Model):
     ''' Represents a url for which a short alias has been created
 
