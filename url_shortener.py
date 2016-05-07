@@ -6,7 +6,7 @@ from random import randint
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import types
+from sqlalchemy import types, event
 
 
 class AliasValueError(ValueError):
@@ -247,6 +247,11 @@ class ShortenedUrl(db.Model):
 
     def __str__(self):
         return self.target
+
+
+@event.listens_for(ShortenedUrl, 'before_insert')
+def assign_alias_before_insert(mapper, connection, target):
+    target.alias = random_alias_generator()
 
 
 if __name__ == '__main__':
