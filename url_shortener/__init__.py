@@ -217,8 +217,7 @@ class IntegerAlias(types.TypeDecorator):
 
 
 app = Flask(__name__)
-DATABASE_URI_NAME = 'URL_SHORTENER_DATABASE_URI'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[DATABASE_URI_NAME]
+app.config.from_object('url_shortener.config')
 db = SQLAlchemy(app)
 
 
