@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import unittest
 from unittest.mock import Mock, patch
 
 from nose_parameterized import parameterized
 
-from url_shortener import (
+from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, NumeralSystem,
     NumeralValueError
 )
@@ -211,7 +210,7 @@ class AliasTest(unittest.TestCase):
         ('smaller_than_max_int_32', 2**31-4),
         ('larger_than_max_int_32', 2**32)
     ])
-    @patch('url_shortener.randint')
+    @patch('url_shortener.models.randint')
     def test_random_factory_for_max_int(self, _, max_int, randint_mock):
         '''Alias.random_factory calculates lower and upper limits for
         integer representation of instances of Alias to be created by
@@ -278,7 +277,7 @@ class IntegerAliasTest(unittest.TestCase):
         actual = function(self.value, self.dialect)
         self.assertEqual(expected, actual)
 
-    @patch('url_shortener.Alias')
+    @patch('url_shortener.models.Alias')
     def test_process_result_value(self, patched_alias_class):
         ''' The process_result_value method should return an
         instance of Alias
@@ -289,7 +288,6 @@ class IntegerAliasTest(unittest.TestCase):
             self.dialect
         )
         self.assertEqual(expected, actual)
-
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
