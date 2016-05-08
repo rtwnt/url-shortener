@@ -233,17 +233,13 @@ class ShortenedUrl(db.Model):
     '''
     alias = db.Column(IntegerAlias, primary_key=True)
     target = db.Column(db.String(2083), unique=True)
-    redirect = db.Column(db.Boolean(), default=True)
 
-    def __init__(self, target, redirect=True):
+    def __init__(self, target):
         ''' Constructor
 
         :param target: url represented by the instance
-        :param redirect: True if automatic redirection should be
-        performed when handling http requests for this url
         '''
         self.target = target
-        self.redirect = redirect
 
     def __str__(self):
         return self.target
