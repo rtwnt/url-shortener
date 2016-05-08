@@ -9,6 +9,3 @@ app.config.from_object('url_shortener.config')
 db = SQLAlchemy(app)
 
 from . import event_handlers
-
-if __name__ == '__main__':
-    app.run()
