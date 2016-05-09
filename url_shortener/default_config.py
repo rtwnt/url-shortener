@@ -14,9 +14,11 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 generated alias
 :var MAX_NEW_ALIAS_LENGTH: a maximum number of characters in a newly
 generated alias
+:var SECRET_KEY: a secret key to be used by the application
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
 )
 MIN_NEW_ALIAS_LENGTH = 1
 MAX_NEW_ALIAS_LENGTH = 4
+SECRET_KEY = 'a secret key'
