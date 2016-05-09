@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-app.config.from_object('url_shortener.config')
+app.config.from_object('url_shortener.default_config')
 db = SQLAlchemy(app)
 
 from . import event_handlers
