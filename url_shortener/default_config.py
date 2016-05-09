@@ -9,7 +9,14 @@ some of the values specified here.
 
 The default value servers only as documentation, and it was taken from:
 http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
+
+:var MIN_NEW_ALIAS_LENGTH: a minimum number of characters in a newly
+generated alias
+:var MAX_NEW_ALIAS_LENGTH: a maximum number of characters in a newly
+generated alias
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
 )
+MIN_NEW_ALIAS_LENGTH = 1
+MAX_NEW_ALIAS_LENGTH = 4
