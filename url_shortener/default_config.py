@@ -15,6 +15,7 @@ generated alias
 :var MAX_NEW_ALIAS_LENGTH: a maximum number of characters in a newly
 generated alias
 :var SECRET_KEY: a secret key to be used by the application
+:var LOG_FILE: a name of file to which the application writes logs.
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -22,3 +23,4 @@ SQLALCHEMY_DATABASE_URI = (
 MIN_NEW_ALIAS_LENGTH = 1
 MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
+LOG_FILE = 'logs/current.log'
