@@ -7,3 +7,6 @@
 
 #virtualfish
 .venv
+
+#development documentation, notes, etc.
+.doc
