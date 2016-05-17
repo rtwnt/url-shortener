@@ -242,3 +242,7 @@ class ShortenedUrl(db.Model):
     @cached_property
     def short_url(self):
         return self._alternative_url('redirect_for')
+
+    @cached_property
+    def preview_url(self):
+        return self._alternative_url('preview')
