@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 from werkzeug.exceptions import HTTPException
 
-from url_shortener.views import shorten_url, redirect_for
+from url_shortener.views import shorten_url, redirect_for, preview
 
 
 class BaseViewTest(object):
@@ -175,6 +175,25 @@ class RedirectForTest(
 
     def test_returns_result_of_redirection(self):
         expected = self.redirect_mock.return_value
+        actual = self.function('xyz')
+        self.assertEqual(expected, actual)
+
+
+class PreviewTest(GetOr404CallerTestMixin, BaseViewTest, unittest.TestCase):
+
+    function = staticmethod(preview)
+
+    def test_renders_preview_template(self):
+        shortened_url = self.shortened_url_class_mock.get_or_404.return_value
+        self.function('xyz')
+        self.render_template_mock.assert_called_once_with(
+            'preview.html',
+            short_url=shortened_url.short_url,
+            target=shortened_url.target
+        )
+
+    def test_returns_rendered_template(self):
+        expected = self.render_template_mock.return_value
         actual = self.function('xyz')
         self.assertEqual(expected, actual)
 

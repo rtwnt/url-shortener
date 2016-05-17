@@ -54,3 +54,23 @@ def redirect_for(alias):
     '''
     shortened_url = ShortenedUrl.get_or_404(alias)
     return redirect(shortened_url.target)
+
+
+@app.route('/preview/<alias>')
+def preview(alias):
+    ''' Show the preview for given alias
+
+    The preview contains a short url and a target url
+    associated with it.
+
+    :param alias: a string value by which we search
+    for an associated url. If it is not found, a 404
+    error occurs.
+    :returns: a response generated from the preview template
+    '''
+    shortened_url = ShortenedUrl.get_or_404(alias)
+    return render_template(
+        'preview.html',
+        short_url=shortened_url.short_url,
+        target=shortened_url.target
+    )
