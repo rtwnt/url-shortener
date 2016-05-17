@@ -246,3 +246,17 @@ class ShortenedUrl(db.Model):
     @cached_property
     def preview_url(self):
         return self._alternative_url('preview')
+
+    @classmethod
+    def get_or_create(cls, target_url):
+        ''' Find an existing shortened url, or
+        create a new one
+
+        :param target_url: the target of shortened url
+        :return: an instance of ShortenedUrl, existing or one
+        to be registered
+        '''
+        shortened_url = cls.query.filter_by(target=target_url).one_or_none()
+        if shortened_url is None:
+            shortened_url = cls(target_url)
+        return shortened_url

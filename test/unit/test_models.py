@@ -3,10 +3,11 @@ import unittest
 from unittest.mock import Mock, patch
 
 from nose_parameterized import parameterized
+from sqlalchemy.orm.exc import MultipleResultsFound
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, NumeralSystem,
-    NumeralValueError
+    NumeralValueError, ShortenedUrl
 )
 
 
@@ -288,6 +289,47 @@ class IntegerAliasTest(unittest.TestCase):
             self.dialect
         )
         self.assertEqual(expected, actual)
+
+
+class ShortenedUrlTest(unittest.TestCase):
+    def setUp(self):
+        self.query_patcher = patch('url_shortener.models.ShortenedUrl.query')
+        self.query_mock = self.query_patcher.start()
+
+        self.alias_patcher = patch('url_shortener.models.Alias')
+        self.alias_mock = self.alias_patcher.start()
+
+    def tearDown(self):
+        self.query_patcher.stop()
+        self.alias_patcher.stop()
+
+    def test_get_or_create_filters_by_target(self):
+        target = 'http://xyz.com'
+        ShortenedUrl.get_or_create(target)
+        self.query_mock.filter_by.assert_called_once_with(target=target)
+
+    def test_get_or_create_gets_existing_url(self):
+        expected = self.query_mock.filter_by.return_value.one_or_none()
+        actual = ShortenedUrl.get_or_create('http://xyz.com')
+        self.assertEqual(expected, actual)
+
+    def test_get_or_create_creates_new_url(self):
+        target = 'http://xyz.com'
+        filtered = self.query_mock.filter_by.return_value
+        filtered.one_or_none.return_value = None
+        expected = target
+        actual = ShortenedUrl.get_or_create('http://xyz.com').target
+        self.assertEqual(expected, actual)
+
+    def test_get_or_create_finds_multiple_urls(self):
+        filtered = self.query_mock.filter_by.return_value
+        filtered.one_or_none.side_effect = MultipleResultsFound
+        self.assertRaises(
+            MultipleResultsFound,
+            ShortenedUrl.get_or_create,
+            'http://xyz.com'
+        )
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
