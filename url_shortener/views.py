@@ -79,3 +79,8 @@ def preview(alias):
 @app.errorhandler(404)
 def not_found(error):
     return render_template('not_found.html')
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('server_error.html')
