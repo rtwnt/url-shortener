@@ -22,6 +22,11 @@ class NumeralValueError(ValueError):
     '''The value of a numeral is incorrect'''
 
 
+class RegistrationRetryLimitExceeded(Exception):
+    '''The maximum number of attempts at retrying to register
+    a new short url has been exceeded '''
+
+
 class NumeralSystem(object):
     ''' Represents a numeral system. Provides conversion methods
     and other related operations
