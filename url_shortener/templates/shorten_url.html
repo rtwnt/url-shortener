@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+{% if new_shortened_url %}
+    {% with %}
+        {% set short_url = new_shortened_url.short_url %}
+        {% set preview_url = new_shortened_url.preview_url %}
+        <div class="success">
+            New short url:
+            <a href="{{ short_url }}">{{ short_url }}</a>
+            Preview available at:
+            <a href="{{ preview_url }}">{{ preview_url }}</a>
+        </div>
+    {% endwith %}
+{% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+<form method="POST" action="{{ url_for('shorten_url') }}">
+    {{ form.hidden_tag() }}
+    {{ form.url.label }}
+    {{ form.url(size=20) }}
+    <input type="submit" value="shorten url">
+</form>
+{% endblock %}
