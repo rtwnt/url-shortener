@@ -4,7 +4,7 @@ from bisect import bisect_left
 from random import randint
 
 from cached_property import cached_property
-from flask import url_for
+from flask import url_for, abort
 from sqlalchemy import types
 
 from . import db
@@ -260,3 +260,20 @@ class ShortenedUrl(db.Model):
         if shortened_url is None:
             shortened_url = cls(target_url)
         return shortened_url
+
+    @classmethod
+    def get_or_404(cls, alias):
+        ''' Find an existing shortened url, or abort
+        with 404 error code
+
+        :param alias: a string representation of alias
+        :raises AliasValueError: if the string representation
+        of alias is not valid
+        :return: an instance of ShortenedUrl representing an
+        existing shortened url
+        '''
+        try:
+            valid_alias = Alias(string=alias)
+        except AliasValueError:
+            abort(404)
+        return cls.query.get_or_404(valid_alias)
