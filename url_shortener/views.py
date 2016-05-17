@@ -40,3 +40,17 @@ def shorten_url():
         form=form,
         new_shortened_url=new_shortened_url
     )
+
+
+@app.route('/<alias>')
+def redirect_for(alias):
+    ''' Redirect to address assigned to given alias
+
+    :param alias: a string value by which we search for
+    an associated url. If it is not found, a 404 error
+    occurs
+    :returns: a redirect to target url of short url, if
+    found.
+    '''
+    shortened_url = ShortenedUrl.get_or_404(alias)
+    return redirect(shortened_url.target)
