@@ -16,6 +16,8 @@ generated alias
 generated alias
 :var SECRET_KEY: a secret key to be used by the application
 :var LOG_FILE: a name of file to which the application writes logs.
+:var REGISTRATION_RETRY_LIMIT: a maximum number of retries for
+registering a new shortened url
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -24,3 +26,4 @@ MIN_NEW_ALIAS_LENGTH = 1
 MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
 LOG_FILE = 'logs/current.log'
+REGISTRATION_RETRY_LIMIT = 10
