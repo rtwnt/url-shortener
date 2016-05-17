@@ -6,8 +6,9 @@ from random import randint
 from cached_property import cached_property
 from flask import url_for, abort
 from sqlalchemy import types
+from sqlalchemy.exc import IntegrityError
 
-from . import db
+from . import db, app
 
 
 class AliasValueError(ValueError):
@@ -282,3 +283,34 @@ class ShortenedUrl(db.Model):
         except AliasValueError:
             abort(404)
         return cls.query.get_or_404(valid_alias)
+
+
+def register(shortened_url):
+    ''' Register a shortened url object by persisting it
+
+    :param shortened_url: an instance of ShortenedUrl to be registered
+    :raises RegistrationRetryLimitExceeded: if the application exceeded
+    the maximum number of attempts at shortening a url,
+    without success.
+
+    Registered shortened urls get aliases chosen randomly from a set
+    of values with length falling between configurable minimum
+    and maximum values. If a significant number of aliases from
+    this set is already in use, exceeding the retry limit becomes more
+    and more likely.
+    '''
+    retry_limit = app.config['REGISTRATION_RETRY_LIMIT']
+    for _ in range(retry_limit):
+        try:
+            db.session.add(shortened_url)
+            db.session.commit()
+            return
+        except IntegrityError as ex:
+            db.session.rollback()
+            msg = (
+                'An integrity error occured during registration of'
+                ' shortened url: {}'.format(ex)
+            )
+            app.logger.warning(msg)
+    msg_tpl = 'Registration retry limit of {} has been reached'
+    raise RegistrationRetryLimitExceeded(msg_tpl.format(retry_limit))

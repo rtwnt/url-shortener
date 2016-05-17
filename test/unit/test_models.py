@@ -8,7 +8,8 @@ from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, NumeralSystem,
-    NumeralValueError, ShortenedUrl
+    NumeralValueError, ShortenedUrl, IntegrityError, register,
+    RegistrationRetryLimitExceeded
 )
 
 
@@ -362,6 +363,69 @@ class ShortenedUrlTest(unittest.TestCase):
     def test_get_or_404_raises_404_for_not_existing_alias(self):
         self.query_mock.get_or_404.side_effect = HTTPException
         self.assert_get_or_404_raises_HTTPError()
+
+
+def create_integrity_error():
+    return IntegrityError('message', 'statement', ['param_1'], Exception)
+
+
+class CommitSideEffects():
+    ''' A class providing side effects for mock of
+    db.session.commit function
+    '''
+    def __init__(self, limit):
+        self._limit = limit - 1
+        self._counter = 0
+
+    def __call__(self):
+        if self._counter == self._limit:
+            return
+        self._counter += 1
+        raise create_integrity_error()
+
+
+class RegisterTest(unittest.TestCase):
+    def setUp(self):
+        self.db_patcher = patch('url_shortener.models.db')
+        self.db_mock = self.db_patcher.start()
+
+        self.app_patcher = patch('url_shortener.models.app')
+        self.app_mock = self.app_patcher.start()
+        self.limit = 10
+        self.app_mock.config = {'REGISTRATION_RETRY_LIMIT': self.limit}
+
+        self.shortened_url = Mock()
+
+    def tearDown(self):
+        self.db_patcher.stop()
+        self.app_patcher.stop()
+
+    def _call(self):
+        register(self.shortened_url)
+
+    def test_adds_url_to_db_session(self):
+        self._call()
+        self.db_mock.session.add.assert_called_once_with(self.shortened_url)
+
+    def test_commits_changes(self):
+        self._call()
+        self.db_mock.session.commit.assert_called_once_with()
+
+    def _call_for_integrity_error(self):
+        self.db_mock.session.commit.side_effect = CommitSideEffects(self.limit)
+        self._call()
+
+    def test_rollback_for_integrity_error(self):
+        self._call_for_integrity_error()
+        self.db_mock.session.rollback.assert_any_call()
+
+    def test_logs_integrity_errors(self):
+        self._call_for_integrity_error()
+        self.assertTrue(self.app_mock.logger.warning.called)
+
+    def test_for_attempt_limit_exceeded(self):
+        self.db_mock.session.commit.side_effect = create_integrity_error()
+        self.assertRaises(RegistrationRetryLimitExceeded, self._call)
 
 
 if __name__ == "__main__":
