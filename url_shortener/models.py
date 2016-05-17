@@ -3,6 +3,7 @@
 from bisect import bisect_left
 from random import randint
 
+from cached_property import cached_property
 from flask import url_for
 from sqlalchemy import types
 
@@ -237,3 +238,7 @@ class ShortenedUrl(db.Model):
 
     def _alternative_url(self, endpoint):
         return url_for(endpoint, _external=True, alias=self.alias)
+
+    @cached_property
+    def short_url(self):
+        return self._alternative_url('redirect_for')
