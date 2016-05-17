@@ -3,6 +3,7 @@
 from bisect import bisect_left
 from random import randint
 
+from flask import url_for
 from sqlalchemy import types
 
 from . import db
@@ -233,3 +234,6 @@ class ShortenedUrl(db.Model):
 
     def __str__(self):
         return self.target
+
+    def _alternative_url(self, endpoint):
+        return url_for(endpoint, _external=True, alias=self.alias)
