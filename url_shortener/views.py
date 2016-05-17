@@ -74,3 +74,8 @@ def preview(alias):
         short_url=shortened_url.short_url,
         target=shortened_url.target
     )
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('not_found.html')
