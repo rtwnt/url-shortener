@@ -285,6 +285,13 @@ class IntegerAliasTest(unittest.TestCase):
         actual = function(self.value, self.dialect)
         self.assertEqual(expected, actual)
 
+    def test_process_result_value_creates_alias(self):
+        self.tested_instance.process_result_value(
+            self.value,
+            self.dialect
+        )
+        self.alias_class_mock.assert_called_once_with(integer=self.value)
+
     def test_process_result_value_returns_alias(self):
         ''' The process_result_value method should return an
         instance of Alias
