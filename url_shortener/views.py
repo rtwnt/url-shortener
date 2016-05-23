@@ -33,7 +33,7 @@ def shorten_url():
         for error in form.url.errors:
             flash(error, 'error')
     try:
-        new_shortened_url = ShortenedUrl.get_or_404(session['new_alias'])
+        new_shortened_url = ShortenedUrl.get_or_404(session.pop('new_alias'))
     except KeyError:
         new_shortened_url = None
     return render_template(
