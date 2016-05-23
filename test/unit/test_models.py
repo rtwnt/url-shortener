@@ -293,9 +293,6 @@ class IntegerAliasTest(unittest.TestCase):
         self.alias_class_mock.assert_called_once_with(integer=self.value)
 
     def test_process_result_value_returns_alias(self):
-        ''' The process_result_value method should return an
-        instance of Alias
-        '''
         expected = self.alias_class_mock.return_value
         actual = self.tested_instance.process_result_value(
             self.value,
