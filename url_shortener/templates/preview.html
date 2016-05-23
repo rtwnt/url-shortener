@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
+    {% if warning %}
+        <div class="warning">
+            Warning: {{ warning }}
+        </div>
+    {% endif %}
     {% with %}
         {% set short_url = shortened_url.short_url %}
         {% set target = shortened_url.target %}
