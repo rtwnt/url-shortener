@@ -4,6 +4,7 @@ from flask import session, redirect, url_for, flash, render_template
 from . import app
 from .forms import ShortenedUrlForm
 from .models import ShortenedUrl, register
+from .validation import not_spam
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -48,6 +49,29 @@ def render_preview(shortened_url, warning_message=None):
         shortened_url=shortened_url,
         warning=warning_message
     )
+
+
+def get_response(alias, alternative_action):
+    ''' Gets an appropriate response for given alias
+
+    If the alias refers to an url that is recognized as spam or
+    containing a blacklisted domain, a preview with information
+    on the result of the validation is shown. Otherwise, the function
+    returns a result of alternative_action for given alias
+
+    :param alias: a string representing an existing shortened url
+    :param alternative_action: a function receiving
+    shortened url object as its argument, used for generating
+    a response for request for a safe url
+    :returns: a response generated from rendering preview or
+    calling alternative_action
+    :raises werkzeug.exceptions.HTTPException: when there is no
+    shortened url for given alias
+    '''
+    shortened_url = ShortenedUrl.get_or_404(alias)
+    if not_spam.is_match(shortened_url.target):
+        return render_preview(shortened_url, not_spam.message)
+    return alternative_action(shortened_url)
 
 
 @app.route('/<alias>')
