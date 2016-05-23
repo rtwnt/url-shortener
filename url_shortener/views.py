@@ -84,8 +84,7 @@ def redirect_for(alias):
     :returns: a redirect to target url of short url, if
     found.
     '''
-    shortened_url = ShortenedUrl.get_or_404(alias)
-    return redirect(shortened_url.target)
+    return get_response(alias, lambda u: redirect(u.target))
 
 
 @app.route('/preview/<alias>')
