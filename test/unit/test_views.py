@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 from werkzeug.exceptions import HTTPException
 
-from url_shortener.views import shorten_url, preview, get_response
+from url_shortener.views import shorten_url, get_response
 
 
 class BaseViewTest(object):
@@ -142,41 +142,6 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         new_alias = 'xyz'
         self.session['new_alias'] = new_alias
         self.assert_returns_rendered_template()
-
-
-class GetOr404CallerTestMixin(object):
-    ''' Provides tests for functions that always query for existing
-    shortened url using ShortenedUrl.get_or_404 function
-
-    :var function: a function to be tested
-    '''
-    def test_queries_for_alias(self):
-        alias = 'xyz'
-        self.function(alias)
-        self.shortened_url_class_mock.get_or_404.assert_called_once_with(alias)
-
-    def test_raises_http_error(self):
-        self.shortened_url_class_mock.get_or_404.side_effect = HTTPException
-        self.assertRaises(HTTPException, self.function, 'xyz')
-
-
-class PreviewTest(GetOr404CallerTestMixin, BaseViewTest, unittest.TestCase):
-
-    function = staticmethod(preview)
-
-    def test_renders_preview_template(self):
-        shortened_url = self.shortened_url_class_mock.get_or_404.return_value
-        self.function('xyz')
-        self.render_template_mock.assert_called_once_with(
-            'preview.html',
-            short_url=shortened_url.short_url,
-            target=shortened_url.target
-        )
-
-    def test_returns_rendered_template(self):
-        expected = self.render_template_mock.return_value
-        actual = self.function('xyz')
-        self.assertEqual(expected, actual)
 
 
 class GetResponseTest(BaseViewTest, unittest.TestCase):

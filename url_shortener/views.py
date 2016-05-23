@@ -99,12 +99,7 @@ def preview(alias):
     error occurs.
     :returns: a response generated from the preview template
     '''
-    shortened_url = ShortenedUrl.get_or_404(alias)
-    return render_template(
-        'preview.html',
-        short_url=shortened_url.short_url,
-        target=shortened_url.target
-    )
+    return get_response(alias, render_preview)
 
 
 @app.errorhandler(404)
