@@ -285,7 +285,7 @@ class IntegerAliasTest(unittest.TestCase):
         actual = function(self.value, self.dialect)
         self.assertEqual(expected, actual)
 
-    def test_process_result_value(self):
+    def test_process_result_value_returns_alias(self):
         ''' The process_result_value method should return an
         instance of Alias
         '''
