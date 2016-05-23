@@ -42,6 +42,14 @@ def shorten_url():
     )
 
 
+def render_preview(shortened_url, warning_message=None):
+    return render_template(
+        'preview.html',
+        shortened_url=shortened_url,
+        warning=warning_message
+    )
+
+
 @app.route('/<alias>')
 def redirect_for(alias):
     ''' Redirect to address assigned to given alias
