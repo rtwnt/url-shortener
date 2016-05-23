@@ -289,7 +289,7 @@ class IntegerAliasTest(unittest.TestCase):
         ''' The process_result_value method should return an
         instance of Alias
         '''
-        expected = self.alias_class_mock(integer=self.value)
+        expected = self.alias_class_mock.return_value
         actual = self.tested_instance.process_result_value(
             self.value,
             self.dialect
