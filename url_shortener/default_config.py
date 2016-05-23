@@ -18,6 +18,8 @@ generated alias
 :var LOG_FILE: a name of file to which the application writes logs.
 :var REGISTRATION_RETRY_LIMIT: a maximum number of retries for
 registering a new shortened url
+:var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
+Google Safe Browsing API.
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -27,3 +29,4 @@ MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
 LOG_FILE = 'logs/current.log'
 REGISTRATION_RETRY_LIMIT = 10
+GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
