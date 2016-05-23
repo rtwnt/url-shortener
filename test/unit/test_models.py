@@ -266,6 +266,11 @@ class IntegerAliasTest(unittest.TestCase):
         self.tested_instance = IntegerAlias()
         self.value = Mock()
         self.dialect = Mock()
+        self.alias_class_patcher = patch('url_shortener.models.Alias')
+        self.alias_class_mock = self.alias_class_patcher.start()
+
+    def tearDown(self):
+        self.alias_class_patcher.stop()
 
     @parameterized.expand([
         ['process_bind_param'],
@@ -280,12 +285,11 @@ class IntegerAliasTest(unittest.TestCase):
         actual = function(self.value, self.dialect)
         self.assertEqual(expected, actual)
 
-    @patch('url_shortener.models.Alias')
-    def test_process_result_value(self, patched_alias_class):
+    def test_process_result_value(self):
         ''' The process_result_value method should return an
         instance of Alias
         '''
-        expected = patched_alias_class(integer=self.value)
+        expected = self.alias_class_mock(integer=self.value)
         actual = self.tested_instance.process_result_value(
             self.value,
             self.dialect
