@@ -24,16 +24,19 @@ def shorten_url():
     either directly or after redirection.
     '''
     form = ShortenedUrlForm()
+    KEY = 'requested_alias'
     if form.validate_on_submit():
         shortened_url = ShortenedUrl.get_or_create(form.url.data)
         register(shortened_url)
-        session['new_alias'] = str(shortened_url.alias)
+        session[KEY] = str(shortened_url.alias)
         return redirect(url_for(shorten_url.__name__))
     else:
         for error in form.url.errors:
             flash(error, 'error')
     try:
-        new_shortened_url = ShortenedUrl.get_or_404(session.pop('new_alias'))
+        new_shortened_url = ShortenedUrl.get_or_404(
+            session.pop(KEY)
+        )
     except KeyError:
         new_shortened_url = None
     return render_template(

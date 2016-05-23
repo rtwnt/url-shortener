@@ -82,10 +82,10 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
             self.shortened_url_class_mock.get_or_create.return_value
         )
         shorten_url()
-        self.assertTrue('new_alias' in self.session)
+        self.assertTrue('requested_alias' in self.session)
         self.assertEqual(
             str(shortened_url_mock.alias),
-            self.session['new_alias']
+            self.session['requested_alias']
         )
 
     def test_redirects_to_the_same_route(self):
@@ -122,7 +122,7 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
     def test_renders_form_template_after_shortening_url(self):
         self.form_mock.validate_on_submit.return_value = False
         new_alias = 'xyz'
-        self.session['new_alias'] = new_alias
+        self.session['requested_alias'] = new_alias
         new_shortened_url = (
             self.shortened_url_class_mock.get_or_404.return_value
         )
