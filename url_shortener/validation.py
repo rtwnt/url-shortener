@@ -37,3 +37,6 @@ class NotABlacklistMatch():
 
     def is_match(self, value):
         return self.blacklist.any_match([value])
+
+
+not_spam = NotABlacklistMatch(spam_tester, 'This value is recognized as spam')
