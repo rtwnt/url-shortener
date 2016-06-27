@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from url_shortener import app
+from url_shortener import app, event_handlers, views
 
 app.run()
 
