@@ -7,7 +7,7 @@ some of the values specified here.
 
 :var SQLALCHEMY_DATABASE_URI: uri of database to be used by the application.
 
-The default value servers only as documentation, and it was taken from:
+The default value serves only as documentation, and it was taken from:
 http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 
 :var MIN_NEW_ALIAS_LENGTH: a minimum number of characters in a newly
