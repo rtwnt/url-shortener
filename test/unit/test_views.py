@@ -147,7 +147,7 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 class GetResponseTest(BaseViewTest, unittest.TestCase):
     def setUp(self):
         self.validator_patcher = patch(
-            'url_shortener.views.not_spam'
+            'url_shortener.views.get_msg_if_blacklisted_or_spam'
         )
         self.validator_mock = self.validator_patcher.start()
 
@@ -185,7 +185,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         shortened_url_mock = (
             self.shortened_url_class_mock.get_or_404.return_value
         )
-        self.validator_mock.is_match.assert_called_once_with(
+        self.validator_mock.assert_called_once_with(
             shortened_url_mock.target
         )
 
@@ -193,7 +193,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         get_response('xyz', self.alternative_action)
         self.render_preview_mock.assert_called_once_with(
             self.shortened_url_class_mock.get_or_404.return_value,
-            self.validator_mock.message
+            self.validator_mock.return_value
         )
 
     def test_returns_preview_for_invalid_url(self):
@@ -202,7 +202,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_calls_alternative_action_for_valid_url(self):
-        self.validator_mock.is_match.return_value = False
+        self.validator_mock.return_value = None
         function = self.alternative_action
         get_response('xyz', function)
         function.assert_called_once_with(
@@ -210,7 +210,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         )
 
     def test_returns_result_of_alternative_action(self):
-        self.validator_mock.is_match.return_value = False
+        self.validator_mock.return_value = None
         function = self.alternative_action
         expected = function.return_value
         actual = get_response('xyz', function)
