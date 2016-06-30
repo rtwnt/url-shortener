@@ -9,19 +9,6 @@ from wtforms.validators import ValidationError
 from . import app
 
 
-class NotABlacklistMatch():
-    def __init__(self, blacklist, message=None):
-        self.blacklist = blacklist
-        self.message = message
-
-    def __call__(self, form, field):
-        if self.is_match(field.data):
-            raise ValidationError(self.message)
-
-    def is_match(self, value):
-        return self.blacklist.any_match([value])
-
-
 google_safe_browsing = GoogleSafeBrowsing(
     'url-shortener',
     '0.9',
@@ -39,8 +26,6 @@ spam_tester = GeneralizedUrlTester(
     )
 )
 
-
-not_spam = NotABlacklistMatch(spam_tester, 'This value is recognized as spam')
 
 filename = app.config['HOST_BLACKLIST_FILE']
 hosts = []
