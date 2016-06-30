@@ -80,22 +80,15 @@ def not_blacklisted_nor_spam(form, field):
     blacklisted nor a spam
 
     This function is a custom WTForms field validator using
-    blacklist_tester and spam_tester for validating data in the field.
-    If any of the url testers detects a match in the field data,
-    the function raises ValueError with a message depending on
-    the url tester last used.
+    get_msg_if_blacklisted_or_spam for validating data in the field.
+    If the message returned for the data is not None, the function
+    raises ValidationError with the message.
 
     :param form: a form whose field is to be validated
     :param field: a field containing data to be validated
-    :raises ValidationError: if the function recognizes data
-    in the form field as invalid.
+    :raises ValidationError: if the function returns a message
+    for the data
     '''
-    url = field.data
-    msg_map = {
-        blacklist_tester: 'This value is blacklisted',
-        spam_tester: 'This value has been recognized as spam'
-    }
-
-    for tester, msg in msg_map.items():
-        if tester.any_match([url]):
-            raise ValidationError(msg)
+    msg = get_msg_if_blacklisted_or_spam(field.data)
+    if msg is not None:
+        raise ValidationError(msg)
