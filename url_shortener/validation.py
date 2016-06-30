@@ -9,13 +9,13 @@ from wtforms.validators import ValidationError
 from . import app
 
 
+hp_hosts = HpHosts('url-shortener')
 google_safe_browsing = GoogleSafeBrowsing(
     'url-shortener',
     '0.9',
     app.config['GOOGLE_SAFE_BROWSING_API_KEY']
 )
 
-hp_hosts = HpHosts('url-shortener')
 spam_tester = GeneralizedUrlTester(
     UrlTesterChain(
         SPAMHAUS_DBL,
@@ -25,7 +25,6 @@ spam_tester = GeneralizedUrlTester(
         google_safe_browsing
     )
 )
-
 
 filename = app.config['HOST_BLACKLIST_FILE']
 hosts = []
