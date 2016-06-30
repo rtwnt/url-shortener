@@ -20,6 +20,8 @@ generated alias
 registering a new shortened url
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
+:var HOST_BLACKLIST_FILE: a name of file storing blacklisted hosts
+(hostnames and ip addresses). Each line must contain one host.
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -30,3 +32,4 @@ SECRET_KEY = 'a secret key'
 LOG_FILE = 'logs/current.log'
 REGISTRATION_RETRY_LIMIT = 10
 GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
+HOST_BLACKLIST_FILE = 'host_blacklist.txt'
