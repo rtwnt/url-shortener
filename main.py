@@ -20,7 +20,9 @@ __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Piotr Rusin'
 
 
-if not app.debug:
+log_file = app.config['LOG_FILE']
+
+if not app.debug and log_file is not None:
     import logging
     from logging.handlers import TimedRotatingFileHandler
     file_handler = TimedRotatingFileHandler(app.config['LOG_FILE'])
