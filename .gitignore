@@ -12,3 +12,7 @@
 .doc
 
 logs
+
+# Distribution / packaging
+dist/
+*.egg-info/
