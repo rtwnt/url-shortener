@@ -1,4 +1,0 @@
-[submodule "submodules/spam_lists_lib"]
-	path = submodules/spam_lists_lib
-	url = https://github.com/piotr-rusin/spam-lists.git
-	branch = master
