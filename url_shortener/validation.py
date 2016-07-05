@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from submodules.spam_lists_lib.spam_lists import (
+from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedUrlTester, UrlTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
 )
