@@ -31,7 +31,11 @@ registering a new shortened url
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
 :var HOST_BLACKLIST_FILE: a name of file storing blacklisted hosts
-(hostnames and ip addresses). Each line must contain one host.
+(hostnames and ip addresses). The value must be either None, or
+a name of an existing file containing blacklisted hosts in
+a sorted order.
+
+If the value is None, no host blacklist file will be used.
 '''
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
