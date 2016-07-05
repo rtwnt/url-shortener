@@ -16,6 +16,16 @@ generated alias
 generated alias
 :var SECRET_KEY: a secret key to be used by the application
 :var LOG_FILE: a name of file to which the application writes logs.
+The value can be None, in which case the application won't write logs
+to any file.
+
+If the value is set, it must consist of an existing directory (if any),
+but the file doesn't have to exist. The application uses timed roating
+file handler with interval of one day, so the file specified here will
+be created (if it doesn't exist yet) and used for one day. After that,
+it will be renamed, and another file with the same name will be created
+in the same directory and used.
+
 :var REGISTRATION_RETRY_LIMIT: a maximum number of retries for
 registering a new shortened url
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
