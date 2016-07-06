@@ -23,6 +23,43 @@ Features
    or recognized as spam
 -  displaying proper warning when previewing spam or blacklisted urls
 
+Installation
+------------
+
+Clone from GitHub and install using pip:
+
+.. code:: bash
+
+    $ git clone https://github.com/piotr-rusin/url-shortener
+    $ cd url-shortener
+    $ pip install .
+
+To be able to run tests, install test extras:
+
+.. code:: bash
+
+    $ pip install url-shortener[test]
+
+You can also install dev extras, currently containing pylint_ and
+restview_:
+
+.. _pylint: https://www.pylint.org/
+.. _restview: https://mg.pov.lt/restview/
+
+.. code:: bash
+
+    $ pip install url-shortener[dev]
+
+It is necessary to override default configuration by setting
+URL_SHORTENER_CONFIGURATION environment variable to name of a custom
+configuration file. This file must provide its own value of
+SQLALCHEMY_DATABASE_URI, SECRET_KEY and GOOGLE_SAFE_BROWSING_API_KEY options.
+
+For more details, read `docstring in url_shortener.default_config.py`__
+
+.. __: https://github.com/piotr-rusin/url-shortener/blob/master/
+   url_shortener/default_config.py
+
 License
 -------
 
