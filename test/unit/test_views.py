@@ -41,7 +41,7 @@ class RedirectPatchMixin(object):
         super(RedirectPatchMixin, self).tearDown()
 
 
-class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
+class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
     def setUp(self):
         self.form_class_patcher = patch('url_shortener.views.ShortenedUrlForm')
         self.form_class_mock = self.form_class_patcher.start()
@@ -59,7 +59,7 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.flash_patcher = patch('url_shortener.views.flash')
         self.flash_mock = self.flash_patcher.start()
 
-        super(ShortenUrlTest, self).setUp()
+        super(ShortenURLTest, self).setUp()
 
     def tearDown(self):
         self.form_class_patcher.stop()
@@ -68,7 +68,7 @@ class ShortenUrlTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.session_patcher.stop()
         self.flash_patcher.stop()
 
-        super(ShortenUrlTest, self).tearDown()
+        super(ShortenURLTest, self).tearDown()
 
     def test_registers_new_short_url(self):
         shortened_url_mock = (
