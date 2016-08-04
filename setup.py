@@ -58,7 +58,7 @@ setup(
         'Environment :: Web Environment',
         'Framework :: Flask',
         'Natural Language :: English',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.4',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
