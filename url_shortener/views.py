@@ -2,8 +2,8 @@
 from flask import session, redirect, url_for, flash, render_template
 
 from . import app
-from .models import ShortenedUrl, register
 from .forms import ShortenedURLForm
+from .models import ShortenedURL, register
 from .validation import get_msg_if_blacklisted_or_spam
 
 
@@ -26,7 +26,7 @@ def shorten_url():
     form = ShortenedURLForm()
     KEY = 'requested_alias'
     if form.validate_on_submit():
-        shortened_url = ShortenedUrl.get_or_create(form.url.data)
+        shortened_url = ShortenedURL.get_or_create(form.url.data)
         register(shortened_url)
         session[KEY] = str(shortened_url.alias)
         return redirect(url_for(shorten_url.__name__))
@@ -35,7 +35,7 @@ def shorten_url():
             for error in field_errors:
                 flash(error, 'error')
     try:
-        new_shortened_url = ShortenedUrl.get_or_404(
+        new_shortened_url = ShortenedURL.get_or_404(
             session.pop(KEY)
         )
     except KeyError:
@@ -72,7 +72,7 @@ def get_response(alias, alternative_action):
     :raises werkzeug.exceptions.HTTPException: when there is no
     shortened url for given alias
     '''
-    shortened_url = ShortenedUrl.get_or_404(alias)
+    shortened_url = ShortenedURL.get_or_404(alias)
     msg = get_msg_if_blacklisted_or_spam(shortened_url.target)
     if msg is not None:
         return render_preview(shortened_url, msg)

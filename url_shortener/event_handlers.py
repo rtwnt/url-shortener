@@ -5,7 +5,7 @@ SQLAlchemy event handlers
 '''
 from sqlalchemy import event
 
-from .models import Alias, ShortenedUrl
+from .models import Alias, ShortenedURL
 from . import app
 
 
@@ -15,6 +15,6 @@ random_alias_generator = Alias.random_factory(
 )
 
 
-@event.listens_for(ShortenedUrl, 'before_insert')
+@event.listens_for(ShortenedURL, 'before_insert')
 def assign_alias_before_insert(mapper, connection, target):
     target.alias = random_alias_generator()

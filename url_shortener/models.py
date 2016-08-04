@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' This module contains ShortenedUrl class and related classes '''
+''' This module contains ShortenedURL class and related classes '''
 from bisect import bisect_left
 from random import randint
 
@@ -177,7 +177,7 @@ class Alias(object):
 
         This value is assumed as maximum allowed for the integers used
         in generation because we assume SQLAlchemy.types.Integer -
-        a base type for alias property of ShortenedUrl class - will
+        a base type for alias property of ShortenedURL class - will
         translate into 32 bit signed integer type of underlying
         database engine used by the application.
         :returns: a function returning instances of the class
@@ -223,7 +223,7 @@ class IntegerAlias(types.TypeDecorator):
         return Alias(integer=value)
 
 
-class ShortenedUrl(db.Model):
+class ShortenedURL(db.Model):
     ''' Represents a url for which a short alias has been created
 
     :var alias: a value representing a registered url in short urls and
@@ -259,7 +259,7 @@ class ShortenedUrl(db.Model):
         create a new one
 
         :param target_url: the target of shortened url
-        :return: an instance of ShortenedUrl, existing or one
+        :return: an instance of ShortenedURL, existing or one
         to be registered
         '''
         shortened_url = cls.query.filter_by(target=target_url).one_or_none()
@@ -275,7 +275,7 @@ class ShortenedUrl(db.Model):
         :param alias: a string representation of alias
         :raises AliasValueError: if the string representation
         of alias is not valid
-        :return: an instance of ShortenedUrl representing an
+        :return: an instance of ShortenedURL representing an
         existing shortened url
         '''
         try:
@@ -288,7 +288,7 @@ class ShortenedUrl(db.Model):
 def register(shortened_url):
     ''' Register a shortened url object by persisting it
 
-    :param shortened_url: an instance of ShortenedUrl to be registered
+    :param shortened_url: an instance of ShortenedURL to be registered
     :raises RegistrationRetryLimitExceeded: if the application exceeded
     the maximum number of attempts at shortening a url,
     without success.

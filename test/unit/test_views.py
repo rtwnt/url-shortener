@@ -16,7 +16,7 @@ class BaseViewTest(object):
         self.render_template_mock = self.render_template_patcher.start()
 
         self.shortened_url_class_patcher = patch(
-            'url_shortener.views.ShortenedUrl'
+            'url_shortener.views.ShortenedURL'
         )
         self.shortened_url_class_mock = (
             self.shortened_url_class_patcher.start()
