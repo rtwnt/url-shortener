@@ -301,7 +301,7 @@ class IntegerAliasTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class ShortenedUrlTest(unittest.TestCase):
+class ShortenedURLTest(unittest.TestCase):
     def setUp(self):
         self.query_patcher = patch('url_shortener.models.ShortenedUrl.query')
         self.query_mock = self.query_patcher.start()
