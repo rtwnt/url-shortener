@@ -6,7 +6,7 @@ from wtforms import StringField, validators
 from .validation import not_blacklisted_nor_spam
 
 
-class ShortenedUrlForm(Form):
+class ShortenedURLForm(Form):
     url = StringField(
         'Url to be shortened',
         [

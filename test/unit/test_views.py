@@ -43,7 +43,7 @@ class RedirectPatchMixin(object):
 
 class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
     def setUp(self):
-        self.form_class_patcher = patch('url_shortener.views.ShortenedUrlForm')
+        self.form_class_patcher = patch('url_shortener.views.ShortenedURLForm')
         self.form_class_mock = self.form_class_patcher.start()
         self.form_mock = self.form_class_mock()
 
