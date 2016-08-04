@@ -63,7 +63,7 @@ For more details, read `docstring in url_shortener.default_config.py`__
 License
 -------
 
-| Apache 2.0
+| MIT
 | See LICENSE__
 
 .. __: https://github.com/piotr-rusin/spam-lists/blob/master/LICENSE
