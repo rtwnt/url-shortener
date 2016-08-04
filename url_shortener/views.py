@@ -31,8 +31,9 @@ def shorten_url():
         session[KEY] = str(shortened_url.alias)
         return redirect(url_for(shorten_url.__name__))
     else:
-        for error in form.url.errors:
-            flash(error, 'error')
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, 'error')
     try:
         new_shortened_url = ShortenedUrl.get_or_404(
             session.pop(KEY)
