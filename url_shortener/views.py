@@ -9,13 +9,13 @@ from .validation import get_msg_if_blacklisted_or_spam
 
 @app.route('/', methods=['GET', 'POST'])
 def shorten_url():
-    '''Display form and handle request for url shortening
+    '''Display form and handle request for URL shortening
 
-    If short url is successfully created or found for the
-    given url, its alias property is saved in session, and
+    If short URL is successfully created or found for the
+    given URL, its alias property is saved in session, and
     the function redirects to its route. After redirection,
     the alias is used to query for newly created shortened
-    url, and information about it is presented.
+    URL, and information about it is presented.
 
     If there are any errors for data entered by the user into
     the input tex field, they are displayed.
@@ -58,19 +58,19 @@ def render_preview(shortened_url, warning_message=None):
 def get_response(alias, alternative_action):
     ''' Gets an appropriate response for given alias
 
-    If the alias refers to an url that is recognized as spam or
+    If the alias refers to a URL that is recognized as spam or
     containing a blacklisted domain, a preview with information
     on the result of the validation is shown. Otherwise, the function
     returns a result of alternative_action for given alias
 
-    :param alias: a string representing an existing shortened url
+    :param alias: a string representing an existing shortened URL
     :param alternative_action: a function receiving
-    shortened url object as its argument, used for generating
-    a response for request for a safe url
+    shortened URL object as its argument, used for generating
+    a response for request for a safe URL
     :returns: a response generated from rendering preview or
     calling alternative_action
     :raises werkzeug.exceptions.HTTPException: when there is no
-    shortened url for given alias
+    shortened URL for given alias
     '''
     shortened_url = ShortenedURL.get_or_404(alias)
     msg = get_msg_if_blacklisted_or_spam(shortened_url.target)
@@ -84,9 +84,9 @@ def redirect_for(alias):
     ''' Redirect to address assigned to given alias
 
     :param alias: a string value by which we search for
-    an associated url. If it is not found, a 404 error
+    an associated URL. If it is not found, a 404 error
     occurs
-    :returns: a redirect to target url of short url, if
+    :returns: a redirect to target URL of short URL, if
     found.
     '''
     return get_response(alias, lambda u: redirect(u.target))
@@ -96,11 +96,11 @@ def redirect_for(alias):
 def preview(alias):
     ''' Show the preview for given alias
 
-    The preview contains a short url and a target url
+    The preview contains a short URL and a target URL
     associated with it.
 
     :param alias: a string value by which we search
-    for an associated url. If it is not found, a 404
+    for an associated URL. If it is not found, a 404
     error occurs.
     :returns: a response generated from the preview template
     '''

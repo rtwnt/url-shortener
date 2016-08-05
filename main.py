@@ -4,7 +4,7 @@ url-shortener
 ==============
 
 An application for generating and storing shorter aliases for
-requested urls. Uses `spam-lists`__ to prevent generating a short url
+requested URLs. Uses `spam-lists`__ to prevent generating a short URL
 for an address recognized as spam, or to warn a user a pre-existing
 short alias has a target that has been later recognized as spam.
 

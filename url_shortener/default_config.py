@@ -27,7 +27,7 @@ it will be renamed, and another file with the same name will be created
 in the same directory and used.
 
 :var REGISTRATION_RETRY_LIMIT: a maximum number of retries for
-registering a new shortened url
+registering a new shortened URL
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
 :var HOST_BLACKLIST_FILE: a name of file storing blacklisted hosts

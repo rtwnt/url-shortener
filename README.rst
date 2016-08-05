@@ -1,7 +1,7 @@
 url-shortener
 ================
 
-A url shortener application using Flask_, `Flask-SQLAlchemy`_, `Flask-WTF`_
+A URL shortener application using Flask_, `Flask-SQLAlchemy`_, `Flask-WTF`_
 and `spam-lists`_.
 
 .. _Flask: http://flask.pocoo.org/
@@ -12,16 +12,16 @@ and `spam-lists`_.
 Features
 --------
 
--  reusing alias for a requested short url if its target has already been
+-  reusing alias for a requested short URL if its target has already been
    registered
--  a preview page for registered short urls
+-  a preview page for registered short URLs
 -  configurable range of character numbers for newly registered aliases
 -  logging using logging.handlers.TimedRotatingFileHandler
--  preventing registration of urls recognized as spam or having a blaclisted
+-  preventing registration of URLs recognized as spam or having a blaclisted
    host
--  always previewing registered urls that have been later blacklisted
+-  always previewing registered URLs that have been later blacklisted
    or recognized as spam
--  displaying proper warning when previewing spam or blacklisted urls
+-  displaying proper warning when previewing spam or blacklisted URLs
 
 Installation
 ------------

@@ -8,10 +8,10 @@ from .validation import not_blacklisted_nor_spam
 
 class ShortenedURLForm(Form):
     url = StringField(
-        'Url to be shortened',
+        'URL to be shortened',
         [
             validators.DataRequired(),
-            validators.URL(message="A valid url is required"),
+            validators.URL(message="A valid URL is required"),
             not_blacklisted_nor_spam
         ]
     )

@@ -42,12 +42,12 @@ blacklist_tester = GeneralizedUrlTester(
 
 
 def get_msg_if_blacklisted_or_spam(url):
-    ''' Get a message if given url has blacklisted host
+    ''' Get a message if given URL has blacklisted host
     or is recognized as spam
 
-    :param url: a url value to be tested
+    :param url: a URL value to be tested
     :returns: a string message if any of the testers recognize
-    the url as match, or None
+    the URL as match, or None
     '''
     msg_map = {
         blacklist_tester: 'This value is blacklisted',

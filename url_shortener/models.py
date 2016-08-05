@@ -25,7 +25,7 @@ class NumeralValueError(ValueError):
 
 class RegistrationRetryLimitExceeded(Exception):
     '''The maximum number of attempts at retrying to register
-    a new short url has been exceeded '''
+    a new short URL has been exceeded '''
 
 
 class NumeralSystem(object):
@@ -95,10 +95,10 @@ class NumeralSystem(object):
 
 
 class Alias(object):
-    ''' An identifier for shortened url
+    ''' An identifier for shortened URL
 
     In has two values used as its representations: a string value
-    and an integer value, used in short urls and in database,
+    and an integer value, used in short URLs and in database,
     respectively.
 
     :var _SYSTEM: an instance of NumeralSystem usted by the class and
@@ -224,9 +224,9 @@ class IntegerAlias(types.TypeDecorator):
 
 
 class ShortenedURL(db.Model):
-    ''' Represents a url for which a short alias has been created
+    ''' Represents a URL for which a short alias has been created
 
-    :var alias: a value representing a registered url in short urls and
+    :var alias: a value representing a registered URL in short URLs and
     in database
     '''
     alias = db.Column(IntegerAlias, primary_key=True)
@@ -235,7 +235,7 @@ class ShortenedURL(db.Model):
     def __init__(self, target):
         ''' Constructor
 
-        :param target: url represented by the instance
+        :param target: URL represented by the instance
         '''
         self.target = target
 
@@ -255,10 +255,10 @@ class ShortenedURL(db.Model):
 
     @classmethod
     def get_or_create(cls, target_url):
-        ''' Find an existing shortened url, or
+        ''' Find an existing shortened URL, or
         create a new one
 
-        :param target_url: the target of shortened url
+        :param target_url: the target of shortened URL
         :return: an instance of ShortenedURL, existing or one
         to be registered
         '''
@@ -269,14 +269,14 @@ class ShortenedURL(db.Model):
 
     @classmethod
     def get_or_404(cls, alias):
-        ''' Find an existing shortened url, or abort
+        ''' Find an existing shortened URL, or abort
         with 404 error code
 
         :param alias: a string representation of alias
         :raises AliasValueError: if the string representation
         of alias is not valid
         :return: an instance of ShortenedURL representing an
-        existing shortened url
+        existing shortened URL
         '''
         try:
             valid_alias = Alias(string=alias)
@@ -286,14 +286,14 @@ class ShortenedURL(db.Model):
 
 
 def register(shortened_url):
-    ''' Register a shortened url object by persisting it
+    ''' Register a shortened URL object by persisting it
 
     :param shortened_url: an instance of ShortenedURL to be registered
     :raises RegistrationRetryLimitExceeded: if the application exceeded
-    the maximum number of attempts at shortening a url,
+    the maximum number of attempts at shortening a URL,
     without success.
 
-    Registered shortened urls get aliases chosen randomly from a set
+    Registered shortened URLs get aliases chosen randomly from a set
     of values with length falling between configurable minimum
     and maximum values. If a significant number of aliases from
     this set is already in use, exceeding the retry limit becomes more
@@ -309,7 +309,7 @@ def register(shortened_url):
             db.session.rollback()
             msg = (
                 'An integrity error occured during registration of'
-                ' shortened url: {}'.format(ex)
+                ' shortened URL: {}'.format(ex)
             )
             app.logger.warning(msg)
     msg_tpl = 'Registration retry limit of {} has been reached'

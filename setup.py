@@ -41,7 +41,7 @@ tests_require = ['nose-parameterized']
 setup(
     name=name,
     version=version,
-    description='A url shortener application',
+    description='A URL shortener application',
     long_description=readme,
     author=author,
     author_email=email,
