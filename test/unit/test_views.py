@@ -101,7 +101,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     def test_flashes_errors(self):
         errors = [Mock() for _ in range(3)]
-        self.form_mock.url.errors = errors
+        self.form_mock.errors.values.return_value = [errors]
         self.form_mock.validate_on_submit.return_value = False
         shorten_url()
         for i in errors:
