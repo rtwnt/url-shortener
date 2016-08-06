@@ -91,7 +91,7 @@ class NumeralSystem(object):
         :returns: the largest numerical value possible to be written
         as numeral of given length in the system
         '''
-        return (self._base - 1)*(1 - self._base**length)/(1 - self._base)
+        return self.get_min_value(length + 1) - 1
 
 
 class Alias(object):
