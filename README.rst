@@ -46,7 +46,7 @@ restview_:
 
     $ pip install url-shortener[dev]
 
-It is necessary to override default configuration by setting :code:`URL_SHORTENER_CONFIGURATION` environment variable to a name of a custom configuration file. This file must provide its own value of :code:`SQLALCHEMY_DATABASE_URI`, :code:`SECRET_KEY` and :code:`GOOGLE_SAFE_BROWSING_API_KEY options`.
+It is necessary to override default configuration by setting :code:`URL_SHORTENER_CONFIGURATION` environment variable to a name of a custom configuration file. This file must provide its own value of :code:`SQLALCHEMY_DATABASE_URI`, :code:`SECRET_KEY` and :code:`GOOGLE_SAFE_BROWSING_API_KEY` options.
 
 For more details, read `docstring in url_shortener.default_config.py`__
 
