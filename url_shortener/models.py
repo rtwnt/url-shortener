@@ -75,21 +75,21 @@ class NumeralSystem(object):
         return value
 
     def get_min_value(self, length):
-        ''' Get a minimum value of a numeral of given length
+        ''' Get a minimum integer value of a numeral of given length
 
         :param length: a number of digits used to write the number
         in the system
-        :returns: the smallest numerical value possible to be written
-        as numeral of given length in the system
+        :returns: the smallest integer value possible to be written
+        as a numeral of given length in the system
         '''
         return self._base**(length - 1)
 
     def get_max_value(self, length):
-        ''' Get a maximum value of a numeral of given length
+        ''' Get a maximum integer value of a numeral of given length
 
         :param length: a number of digits used to write the number
-        :returns: the largest numerical value possible to be written
-        as numeral of given length in the system
+        :returns: the largest integer value possible to be written
+        as a numeral of given length in the system
         '''
         return self.get_min_value(length + 1) - 1
 
