@@ -16,17 +16,17 @@ from url_shortener.models import (
 class NumeralSystemTest(unittest.TestCase):
     """ Tests for NumeralSystem class
 
-    :var BINARY: instance of NumeralSystem representing binary
+    :cvar BINARY: instance of NumeralSystem representing binary
     numeral system
-    :var DECIMAL: instance of NumeralSystem representing decimal
+    :cvar DECIMAL: instance of NumeralSystem representing decimal
     numeral system
-    :var TWO_DIGIT_BINARY: a list containing name of a test, binary
+    :cvar TWO_DIGIT_BINARY: a list containing name of a test, binary
     numeral system object and integer for length parameter. Used for
     testing get_min_value and get_max_value methods.
-    :var THREE_DIGIT_DECIMAL: a list containing name of a test, decimal
+    :cvar THREE_DIGIT_DECIMAL: a list containing name of a test, decimal
     numeral system object and integer for length parameter. Used for
     testing get_min_value and get_max_value methods.
-    :var CONVERSION_PARAMS: a list containing tuples, each with a name
+    :cvar CONVERSION_PARAMS: a list containing tuples, each with a name
     of a test, instance of NumeralSystem to be used in test, an integer
     and its corresponding value as a number written in the system. Used
     for testing to_string and to_integer methods.
@@ -75,12 +75,12 @@ class NumeralSystemTest(unittest.TestCase):
 class AliasTest(unittest.TestCase):
     """ Tests for Alias class
 
-    :var ALIAS_INTEGER: maps string values of aliases used in tests to
+    :cvar ALIAS_INTEGER: maps string values of aliases used in tests to
     corresponding integers.
-    :var INTEGERS: a list of lists, each containing one of the integers
+    :cvar INTEGERS: a list of lists, each containing one of the integers
     specified in ALIAS_INTEGER. Used as an argument for
     parameterized.expand()
-    :var ALIASES_TO_INTEGERS: a list containing tuples, each with a pair of
+    :cvar ALIASES_TO_INTEGERS: a list containing tuples, each with a pair of
     alias string and its corresponding integer. Used as an argument for
     parameterized.expand()
     """
@@ -256,10 +256,10 @@ class AliasTest(unittest.TestCase):
 class IntegerAliasTest(unittest.TestCase):
     """ Tests for IntegerAlias class
 
-    :var tested_instance: an instance of the class to be tested
-    :var value: a mock used as value parameter to be passed
+    :ivar tested_instance: an instance of the class to be tested
+    :ivar value: a mock used as value parameter to be passed
     to tested methods
-    :var dialect: a mock used as dialect parameter to be passed
+    :ivar dialect: a mock used as dialect parameter to be passed
     to tested methods
     """
     def setUp(self):

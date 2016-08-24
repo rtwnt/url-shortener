@@ -101,7 +101,7 @@ class Alias(object):
     and an integer value, used in short URLs and in database,
     respectively.
 
-    :var _SYSTEM: an instance of NumeralSystem usted by the class and
+    :cvar _SYSTEM: an instance of NumeralSystem usted by the class and
     its instances
     """
 
@@ -226,7 +226,7 @@ class IntegerAlias(types.TypeDecorator):
 class ShortenedURL(db.Model):
     """ Represents a URL for which a short alias has been created
 
-    :var alias: a value representing a registered URL in short URLs and
+    :cvar alias: a value representing a registered URL in short URLs and
     in database
     """
     alias = db.Column(IntegerAlias, primary_key=True)
