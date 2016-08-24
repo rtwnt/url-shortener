@@ -42,13 +42,13 @@ blacklist_tester = GeneralizedUrlTester(
 
 
 def get_msg_if_blacklisted_or_spam(url):
-    ''' Get a message if given URL has blacklisted host
+    """ Get a message if given URL has blacklisted host
     or is recognized as spam
 
     :param url: a URL value to be tested
     :returns: a string message if any of the testers recognize
     the URL as match, or None
-    '''
+    """
     msg_map = {
         blacklist_tester: 'This value is blacklisted',
         spam_tester: 'This value has been recognized as spam'
@@ -60,7 +60,7 @@ def get_msg_if_blacklisted_or_spam(url):
 
 
 def not_blacklisted_nor_spam(form, field):
-    ''' Check if the data in the field is not
+    """ Check if the data in the field is not
     blacklisted nor a spam
 
     This function is a custom WTForms field validator using
@@ -72,7 +72,7 @@ def not_blacklisted_nor_spam(form, field):
     :param field: a field containing data to be validated
     :raises ValidationError: if the function returns a message
     for the data
-    '''
+    """
     msg = get_msg_if_blacklisted_or_spam(field.data)
     if msg is not None:
         raise ValidationError(msg)

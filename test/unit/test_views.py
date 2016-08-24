@@ -8,7 +8,7 @@ from url_shortener.views import shorten_url, get_response
 
 
 class BaseViewTest(object):
-    ''' A class providing mocks used by all tested view functions '''
+    """ A class providing mocks used by all tested view functions """
     def setUp(self):
         self.render_template_patcher = patch(
             'url_shortener.views.render_template'
@@ -28,7 +28,7 @@ class BaseViewTest(object):
 
 
 class RedirectPatchMixin(object):
-    ''' A mixin providing a mock for flask.redirect function '''
+    """ A mixin providing a mock for flask.redirect function """
     def setUp(self):
         self.redirect_patcher = patch('url_shortener.views.redirect')
         self.redirect_mock = self.redirect_patcher.start()

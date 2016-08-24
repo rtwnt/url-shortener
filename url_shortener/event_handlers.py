@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-''' This module contains functions used as
+""" This module contains functions used as
 SQLAlchemy event handlers
-'''
+"""
 from sqlalchemy import event
 
 from .models import Alias, ShortenedURL

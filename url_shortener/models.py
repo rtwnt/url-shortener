@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' This module contains ShortenedURL class and related classes '''
+""" This module contains ShortenedURL class and related classes """
 from bisect import bisect_left
 from random import randint
 
@@ -12,40 +12,40 @@ from . import db, app
 
 
 class AliasValueError(ValueError):
-    '''The value of alias is incorrect '''
+    """The value of alias is incorrect """
 
 
 class AliasLengthValueError(ValueError):
-    '''The value of alias-length related parameter is incorrect '''
+    """The value of alias-length related parameter is incorrect """
 
 
 class NumeralValueError(ValueError):
-    '''The value of a numeral is incorrect'''
+    """The value of a numeral is incorrect"""
 
 
 class RegistrationRetryLimitExceeded(Exception):
-    '''The maximum number of attempts at retrying to register
-    a new short URL has been exceeded '''
+    """The maximum number of attempts at retrying to register
+    a new short URL has been exceeded """
 
 
 class NumeralSystem(object):
-    ''' Represents a numeral system. Provides conversion methods
+    """ Represents a numeral system. Provides conversion methods
     and other related operations
 
     :param characters: characters to be used for numerals written
     in the system
-    '''
+    """
     def __init__(self, characters):
         self._chars = characters
         self._base = len(characters)
 
     def to_string(self, integer):
-        ''' Convert the value to a numeral in the system
+        """ Convert the value to a numeral in the system
 
         :param integer: a value to be converted
         :returns: a string representing value of the integer as a numeral
         in the numeral system
-        '''
+        """
         value = ''
         while True:
             integer, remainder = divmod(integer, self._base)
@@ -55,14 +55,14 @@ class NumeralSystem(object):
         return value
 
     def to_integer(self, string):
-        ''' Convert given string to its value in the numeral system
+        """ Convert given string to its value in the numeral system
 
         :param string: a value to be converted
         :raises NumeralValueError: if the string contains any
         characters not used by the numeral system
         :returns: an integer representing the value of the string
         interpreted as a numeral in the system
-        '''
+        """
         value = 0
         for exponent, char in enumerate(reversed(string)):
             digit_value = bisect_left(self._chars, char)
@@ -75,27 +75,27 @@ class NumeralSystem(object):
         return value
 
     def get_min_value(self, length):
-        ''' Get a minimum integer value of a numeral of given length
+        """ Get a minimum integer value of a numeral of given length
 
         :param length: a number of digits used to write the number
         in the system
         :returns: the smallest integer value possible to be written
         as a numeral of given length in the system
-        '''
+        """
         return self._base**(length - 1)
 
     def get_max_value(self, length):
-        ''' Get a maximum integer value of a numeral of given length
+        """ Get a maximum integer value of a numeral of given length
 
         :param length: a number of digits used to write the number
         :returns: the largest integer value possible to be written
         as a numeral of given length in the system
-        '''
+        """
         return self.get_min_value(length + 1) - 1
 
 
 class Alias(object):
-    ''' An identifier for shortened URL
+    """ An identifier for shortened URL
 
     In has two values used as its representations: a string value
     and an integer value, used in short URLs and in database,
@@ -103,12 +103,12 @@ class Alias(object):
 
     :var _SYSTEM: an instance of NumeralSystem usted by the class and
     its instances
-    '''
+    """
 
     _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
 
     def __init__(self, integer=None, string=None):
-        ''' Initialize new instance
+        """ Initialize new instance
 
         :param integer: a value representing the alias as an integer.
         It can not be None while string is None. If it is None, a
@@ -122,7 +122,7 @@ class Alias(object):
         :raises AliasValueError: if the alias contains characters that are not
         used by the numeral system, or if both string and integer
         params are None
-        '''
+        """
         self.integer = integer
         if integer is None:
             if string is None:
@@ -138,20 +138,20 @@ class Alias(object):
         self._string = string
 
     def __str__(self):
-        ''' Get string representation of the alias
+        """ Get string representation of the alias
 
         :returns: a string representing value of the alias as a numeral
         in the numeral system. If the object has been
         initialized with integer as its only representation,
         the numeral will be derived from it using the system.
-        '''
+        """
         if self._string is None:
             self._string = self._SYSTEM.to_string(self.integer)
         return self._string
 
     @classmethod
     def random_factory(cls, min_length, max_length):
-        ''' Get a function returning new instances of the class
+        """ Get a function returning new instances of the class
         with a random integer as argument
 
         The arguments provide a range of lengths for string
@@ -182,7 +182,7 @@ class Alias(object):
         database engine used by the application.
         :returns: a function returning instances of the class
         based on random integers with a pre-calculated range
-        '''
+        """
 
         if not 0 < min_length <= max_length:
             raise AliasLengthValueError('The length limits are incorrect')
@@ -208,9 +208,9 @@ class Alias(object):
 
 
 class IntegerAlias(types.TypeDecorator):
-    ''' Converts between database integers and
+    """ Converts between database integers and
     instances of Alias
-    '''
+    """
 
     impl = types.Integer
 
@@ -224,19 +224,19 @@ class IntegerAlias(types.TypeDecorator):
 
 
 class ShortenedURL(db.Model):
-    ''' Represents a URL for which a short alias has been created
+    """ Represents a URL for which a short alias has been created
 
     :var alias: a value representing a registered URL in short URLs and
     in database
-    '''
+    """
     alias = db.Column(IntegerAlias, primary_key=True)
     target = db.Column(db.String(2083), unique=True)
 
     def __init__(self, target):
-        ''' Constructor
+        """ Constructor
 
         :param target: URL represented by the instance
-        '''
+        """
         self.target = target
 
     def __str__(self):
@@ -255,13 +255,13 @@ class ShortenedURL(db.Model):
 
     @classmethod
     def get_or_create(cls, target_url):
-        ''' Find an existing shortened URL, or
+        """ Find an existing shortened URL, or
         create a new one
 
         :param target_url: the target of shortened URL
         :return: an instance of ShortenedURL, existing or one
         to be registered
-        '''
+        """
         shortened_url = cls.query.filter_by(target=target_url).one_or_none()
         if shortened_url is None:
             shortened_url = cls(target_url)
@@ -269,7 +269,7 @@ class ShortenedURL(db.Model):
 
     @classmethod
     def get_or_404(cls, alias):
-        ''' Find an existing shortened URL, or abort
+        """ Find an existing shortened URL, or abort
         with 404 error code
 
         :param alias: a string representation of alias
@@ -277,7 +277,7 @@ class ShortenedURL(db.Model):
         of alias is not valid
         :return: an instance of ShortenedURL representing an
         existing shortened URL
-        '''
+        """
         try:
             valid_alias = Alias(string=alias)
         except AliasValueError:
@@ -286,7 +286,7 @@ class ShortenedURL(db.Model):
 
 
 def register(shortened_url):
-    ''' Register a shortened URL object by persisting it
+    """ Register a shortened URL object by persisting it
 
     :param shortened_url: an instance of ShortenedURL to be registered
     :raises RegistrationRetryLimitExceeded: if the application exceeded
@@ -298,7 +298,7 @@ def register(shortened_url):
     and maximum values. If a significant number of aliases from
     this set is already in use, exceeding the retry limit becomes more
     and more likely.
-    '''
+    """
     retry_limit = app.config['REGISTRATION_RETRY_LIMIT']
     for _ in range(retry_limit):
         try:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' Default configuration for the application
+""" Default configuration for the application
 
 This data must be supplemented with custom configuration to which
 URL_SHORTENER_CONFIGURATION environment variable points, overriding
@@ -42,7 +42,7 @@ provided by Google: https://developers.google.com/recaptcha/docs/start
 
 :var RECAPTCHA_PRIVATE_KEY: a value used as a private key for reCAPTCHA,
 provided by Google: https://developers.google.com/recaptcha/docs/start
-'''
+"""
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
 )

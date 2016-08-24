@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 url-shortener
 ==============
 
@@ -9,7 +9,7 @@ for an address recognized as spam, or to warn a user a pre-existing
 short alias has a target that has been later recognized as spam.
 
 .. __: https://github.com/piotr-rusin/spam-lists
-'''
+"""
 from url_shortener import app, event_handlers, views
 
 __title__ = 'url-shortener'
