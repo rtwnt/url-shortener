@@ -50,8 +50,8 @@ def get_msg_if_blacklisted_or_spam(url):
     the URL as match, or None
     """
     msg_map = {
-        blacklist_tester: 'This value is blacklisted',
-        spam_tester: 'This value has been recognized as spam'
+        blacklist_tester: 'The host of target URL is blacklisted',
+        spam_tester: 'The URL has been recognized as spam'
     }
 
     for tester, msg in msg_map.items():
