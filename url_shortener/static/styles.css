@@ -56,5 +56,38 @@ input[type="submit"] {
 /** Theme **/
 
 body {
+    background-color: #FFF8F0;
     font-family: 'Open Sans', sans-serif;
+}
+
+header {
+    background-color: #392F5A;
+    color: #FFF8F0;
+}
+
+h1 {
+    font-size: 1.1em;
+}
+
+footer {
+    background-color: #F4D06F;
+}
+
+.flashes {
+    list-style-type: none;
+}
+
+.warning, .error, .success {
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+.warning, .error {
+    background-color: #FFB2AA;
+    border-color: #AA4439;
+}
+
+.success {
+    background-color: #C5E89B;
+    border-color: #6D9B34;
 }
