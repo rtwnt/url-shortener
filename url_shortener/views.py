@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from flask import session, redirect, url_for, flash, render_template
 
 from . import app
@@ -6,6 +8,11 @@ from .forms import ShortenedURLForm
 from .models import ShortenedURL, register
 from .validation import get_msg_if_blacklisted_or_spam
 
+
+@app.context_processor
+def inject_year():
+    now = datetime.datetime.now()
+    return dict(year=now.year)
 
 @app.route('/', methods=['GET', 'POST'])
 def shorten_url():
