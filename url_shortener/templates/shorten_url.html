@@ -23,7 +23,7 @@
 {% endwith %}
 <form method="POST" action="{{ url_for('shorten_url') }}">
     {{ form.hidden_tag() }}
-    {{ form.url(size=20) }}
+    {{ form.url() }}
     {{ form.recaptcha }}
     <input type="submit" value="Shorten">
 </form>
