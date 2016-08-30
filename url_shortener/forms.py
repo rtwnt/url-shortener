@@ -10,14 +10,14 @@ class ShortenedURLForm(Form):
     url = StringField(
         validators=[
             validators.DataRequired(),
-            validators.URL(message="A valid URL is required"),
+            validators.URL(message='A valid URL is required'),
             not_blacklisted_nor_spam
         ]
     )
     recaptcha = RecaptchaField(
         validators=[
             Recaptcha(
-                "Please click on the reCAPTCHA field to prove you are a human"
+                'Please click on the reCAPTCHA field to prove you are a human'
             )
         ]
     )
