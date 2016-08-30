@@ -12,7 +12,8 @@ class ShortenedURLForm(Form):
             validators.DataRequired(),
             validators.URL(message='A valid URL is required'),
             not_blacklisted_nor_spam
-        ]
+        ],
+        render_kw={'placeholder': 'Original URL'}
     )
     recaptcha = RecaptchaField(
         validators=[
