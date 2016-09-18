@@ -46,16 +46,6 @@ To be able to run tests, install test extras:
 
     $ pip install url-shortener[test]
 
-You can also install dev extras, currently containing pylint_ and
-restview_:
-
-.. _pylint: https://www.pylint.org/
-.. _restview: https://mg.pov.lt/restview/
-
-.. code:: bash
-
-    $ pip install url-shortener[dev]
-
 It is necessary to override default configuration by setting :code:`URL_SHORTENER_CONFIGURATION` environment variable to a name of a custom configuration file. This file must provide its own value of the following options:
 
 -  SQLALCHEMY_DATABASE_URI

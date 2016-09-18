@@ -69,7 +69,6 @@ setup(
     keywords='url-shortener',
     tests_require=tests_require,
     extras_require={
-        'test': tests_require,
-        'dev': ['pylint', 'restview']
+        'test': tests_require
     },
 )
