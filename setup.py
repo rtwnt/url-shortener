@@ -30,6 +30,7 @@ with open('README.rst', 'r', 'utf-8') as f:
 
 install_requires = [
     'Flask',
+    'Flask-Migrate',
     'Flask-SQLAlchemy',
     'Flask-WTF',
     'cached-property',
