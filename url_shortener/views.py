@@ -14,6 +14,7 @@ def inject_year():
     now = datetime.datetime.now()
     return dict(year=now.year)
 
+
 @app.route('/', methods=['GET', 'POST'])
 def shorten_url():
     """Display form and handle request for URL shortening
