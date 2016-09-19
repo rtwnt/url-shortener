@@ -19,7 +19,7 @@ python-editor==1.0.1
 requests==2.11.1
 requests-file==1.4
 six==1.10.0
-spam-lists==1.0.0b7
+spam-lists==1.0.0
 SQLAlchemy==1.0.15
 tldextract==2.0.1
 validators==0.11.0
