@@ -103,9 +103,16 @@ class Alias(object):
 
     :cvar _SYSTEM: an instance of NumeralSystem usted by the class and
     its instances
+
+    :cvar _chars: a string consisting of characters to be used
+    in a string value of an alias.
+    :cvar _base: a base of numeral system used to interpret string
+    values as integers.
     """
 
     _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
+    _chars = '0123456789abcdefghijkmnopqrstuvwxyz'
+    _base = len(_chars)
 
     def __init__(self, integer=None, string=None):
         """ Initialize new instance
