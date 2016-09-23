@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from spam_lists import (
-    GoogleSafeBrowsing, HpHosts, GeneralizedUrlTester, UrlTesterChain,
+    GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
 )
 
@@ -16,8 +16,8 @@ google_safe_browsing = GoogleSafeBrowsing(
     app.config['GOOGLE_SAFE_BROWSING_API_KEY']
 )
 
-spam_tester = GeneralizedUrlTester(
-    UrlTesterChain(
+spam_tester = GeneralizedURLTester(
+    URLTesterChain(
         SPAMHAUS_DBL,
         SPAMHAUS_ZEN,
         SURBL_MULTI,
@@ -32,7 +32,7 @@ if filename is not None:
     with open(filename) as f:
         hosts = f.read().splitlines()
 
-blacklist_tester = GeneralizedUrlTester(
+blacklist_tester = GeneralizedURLTester(
     SortedHostCollection(
         'blacklist',
         'blacklisted',
