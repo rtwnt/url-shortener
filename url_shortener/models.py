@@ -221,6 +221,17 @@ class Alias(object):
             cls._get_max_int(max_length)
         )
 
+    @classmethod
+    def create_random(cls):
+        """ Get a randomly generated instance of the class
+
+        The method uses pre-configured class properties
+        cls._min_new_int and cls._max_new_int as paramteres for
+        pseudo-random integer generation.
+        """
+        random_integer = randint(cls._min_new_int, cls._max_new_int)
+        return cls(integer=random_integer)
+
     def __str__(self):
         """ Get string representation of the alias
 
