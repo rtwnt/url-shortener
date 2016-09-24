@@ -11,6 +11,7 @@ short alias has a target that has been later recognized as spam.
 .. __: https://github.com/piotr-rusin/spam-lists
 """
 from url_shortener import app, event_handlers, views
+from url_shortener.models import Alias
 
 __title__ = 'url-shortener'
 __version__ = '0.9.0.dev1'
@@ -28,5 +29,10 @@ if not app.debug and log_file is not None:
     file_handler = TimedRotatingFileHandler(log_file, when='d')
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
+
+Alias.init_random_factory(
+    app.config['MIN_NEW_ALIAS_LENGTH'],
+    app.config['MAX_NEW_ALIAS_LENGTH']
+)
 
 app.run()
