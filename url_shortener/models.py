@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ This module contains ShortenedURL class and related classes """
 from bisect import bisect_left
+from math import log, floor
 from random import randint
 
 from cached_property import cached_property
@@ -115,12 +116,18 @@ class Alias(object):
     a base type for alias property of ShortenedURL class - will
     translate into 32 bit signed integer type of underlying
     database engine used by the application.
+
+    :cvar _max_allowed_length: maximum number of characters for
+    newly generated alias strings for which there are at least
+    some strings whose corresponding integer values are smaller
+    or equal to _max_int_32.
     """
 
     _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
     _chars = '0123456789abcdefghijkmnopqrstuvwxyz'
     _base = len(_chars)
     _max_int_32 = 2**31 - 1
+    _max_allowed_length = floor(log(_max_int_32, _base)) + 1
 
     def __init__(self, integer=None, string=None):
         """ Initialize new instance
