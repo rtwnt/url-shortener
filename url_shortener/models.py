@@ -102,9 +102,6 @@ class Alias(object):
     and an integer value, used in short URLs and in database,
     respectively.
 
-    :cvar _SYSTEM: an instance of NumeralSystem usted by the class and
-    its instances
-
     :cvar _chars: a string consisting of characters to be used
     in a string value of an alias.
     :cvar _base: a base of numeral system used to interpret string
@@ -123,7 +120,6 @@ class Alias(object):
     or equal to _max_int_32.
     """
 
-    _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
     _chars = '0123456789abcdefghijkmnopqrstuvwxyz'
     _base = len(_chars)
     _max_int_32 = 2**31 - 1
@@ -138,12 +134,12 @@ class Alias(object):
         the string parameter
         :param string: a value representing the alias as a string.
         It can not be None while integer is None, and it has to consist
-        only of characters used by the numeral system.
+        only of characters specified in self._chars string.
         If it is None, a value of corresponding property of the object
         will be based on the integer parameter
-        :raises AliasValueError: if the alias contains characters that are not
-        used by the numeral system, or if both string and integer
-        params are None
+        :raises AliasValueError: if the alias contains characters that
+        are not part of self._chars string, or if both string and
+        integer params are None
         """
         self.integer = integer
         if integer is None:
@@ -151,12 +147,17 @@ class Alias(object):
                 raise AliasValueError(
                     'The string and integer arguments cannot both be None'
                 )
-            try:
-                self.integer = self._SYSTEM.to_integer(string)
-            except NumeralValueError as ex:
-                raise AliasValueError(
-                    "The string '{}'  is not a valid alias ".format(string)
-                ) from ex
+
+            self.integer = 0
+            for exponent, char in enumerate(reversed(string)):
+                digit_value = bisect_left(self._chars, char)
+                if (digit_value == self._base or
+                        self._chars[digit_value] != char):
+                    raise AliasValueError(
+                        "The string '{}' contains an unexpected"
+                        " character: '{}' ".format(string, char)
+                    )
+                self.integer += digit_value*self._base**exponent
         self._string = string
 
     @classmethod
@@ -236,12 +237,17 @@ class Alias(object):
         """ Get string representation of the alias
 
         :returns: a string representing value of the alias as a numeral
-        in the numeral system. If the object has been
-        initialized with integer as its only representation,
-        the numeral will be derived from it using the system.
+        in the base cls._base system.
         """
         if self._string is None:
-            self._string = self._SYSTEM.to_string(self.integer)
+            value = ''
+            integer = self.integer
+            while True:
+                integer, remainder = divmod(integer, self._base)
+                value = self._chars[remainder] + value
+                if integer == 0:
+                    break
+            self._string = value
         return self._string
 
 

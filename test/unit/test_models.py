@@ -85,36 +85,19 @@ class AliasTest(unittest.TestCase):
     parameterized.expand()
     """
     ALIAS_INTEGER = {
-        'baa': 1*3**2,
-        'ccb': 2*3**2+2*3+1,
-        'caca': 2*3**3+2*3,
-        'ccc': 2*3**2+2*3+2,
-        'a': 0
+        '100': 1*Alias._base**2,
+        '221': 2*Alias._base**2+2*Alias._base+1,
+        '2020': 2*Alias._base**3+2*Alias._base,
+        '222': 2*Alias._base**2+2*Alias._base+2,
+        '0': 0,
+        Alias._chars[-1]+'00': (Alias._base-1)*Alias._base**2
     }
     INTEGERS = [[v] for v in ALIAS_INTEGER.values()]
     ALIASES_TO_INTEGERS = ALIAS_INTEGER.items()
 
-    def setUp(self):
-        self.numeral_system = Mock()
-
-        def to_integer(string):
-            try:
-                return self.ALIAS_INTEGER[string]
-            except KeyError:
-                raise NumeralValueError
-
-        self.numeral_system.to_integer.side_effect = to_integer
-
-        def to_string(integer):
-            for alias, i in self.ALIASES_TO_INTEGERS:
-                if i == integer:
-                    return alias
-        self.numeral_system.to_string.side_effect = to_string
-        Alias._SYSTEM = self.numeral_system
-
     def test_init_for_invalid_string(self):
         """ The string contains forbidden characters """
-        string = 'abcd'
+        string = 'ABC'
         self.assertRaises(AliasValueError, Alias, None, string)
 
     def test_init_for_invalid_arg_set(self):
