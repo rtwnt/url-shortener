@@ -35,7 +35,7 @@ class AliasType(type):
         return alias_class
 
 
-class Alias(object):
+class Alias(metaclass=AliasType):
     """ An identifier for shortened URL
 
     In has two values used as its representations: a string value
