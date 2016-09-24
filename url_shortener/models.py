@@ -20,10 +20,6 @@ class AliasLengthValueError(ValueError):
     """The value of alias-length related parameter is incorrect """
 
 
-class NumeralValueError(ValueError):
-    """The value of a numeral is incorrect"""
-
-
 class RegistrationRetryLimitExceeded(Exception):
     """The maximum number of attempts at retrying to register
     a new short URL has been exceeded """
