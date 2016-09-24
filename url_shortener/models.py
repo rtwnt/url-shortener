@@ -159,6 +159,17 @@ class Alias(object):
                 ) from ex
         self._string = string
 
+    @classmethod
+    def _get_min_int(cls, length):
+        """ Get minimum integer value for alias string of given length
+
+        :param length: a number of digits used to write the value
+        to be returned in a base cls._base system
+        :returns: the smallest integer value possible to be written
+        as a numeral of given length in the system
+        """
+        return cls._base**(length - 1)
+
     def __str__(self):
         """ Get string representation of the alias
 
