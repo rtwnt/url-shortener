@@ -170,6 +170,17 @@ class Alias(object):
         """
         return cls._base**(length - 1)
 
+    @classmethod
+    def _get_max_int(cls, length):
+        """ Get maximum integer value for alias string of given length
+
+        :param length: a number of digits used to write the value
+        to be returned in a base cls._base system
+        :returns: the largest integer value possible to be written
+        as a numeral of given length in the system
+        """
+        return cls._get_min_int(length + 1) - 1
+
     def __str__(self):
         """ Get string representation of the alias
 
