@@ -25,6 +25,16 @@ class RegistrationRetryLimitExceeded(Exception):
     a new short URL has been exceeded """
 
 
+class AliasType(type):
+    def __new__(cls, *args, **kwargs):
+        alias_class = type.__new__(cls, *args, **kwargs)
+        alias_class.init_random_factory(
+            app.config['MIN_NEW_ALIAS_LENGTH'],
+            app.config['MAX_NEW_ALIAS_LENGTH']
+        )
+        return alias_class
+
+
 class Alias(object):
     """ An identifier for shortened URL
 
