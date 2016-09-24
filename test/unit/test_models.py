@@ -156,9 +156,15 @@ class AliasTest(unittest.TestCase):
         ('including_max_allowed_length', 1, Alias._max_allowed_length)
     ])
     def test_init_random_factory_for_args(self, _, min_length, max_length):
-        """ Alias.init_random_factory expects two arguments: min_length
-        and max_length, referring to minimum and maximum lengths
-        for new randomly generated aliases.
+        """ For valid arguments, Alias.init_random_factory is expected
+        to calculate minimum and maximum integer values for all new
+        instances of Alias returned by Alias.create_random, and set
+        them to _min_new_int and _max_new_int class attributes,
+        respectively.
+
+        The values must fulfill two condtions:
+        * Alias._min_new_int <= Alias._max_new_int (obviously)
+        * Alias._max_new_int >= Alias._max_int_32
         """
         Alias.init_random_factory(min_length, max_length)
         self.assertTrue(
