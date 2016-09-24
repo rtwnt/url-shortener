@@ -7,69 +7,9 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
-    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, NumeralSystem,
-    NumeralValueError, ShortenedURL, IntegrityError, register,
-    RegistrationRetryLimitExceeded
+    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, ShortenedURL,
+    IntegrityError, register, RegistrationRetryLimitExceeded
 )
-
-
-class NumeralSystemTest(unittest.TestCase):
-    """ Tests for NumeralSystem class
-
-    :cvar BINARY: instance of NumeralSystem representing binary
-    numeral system
-    :cvar DECIMAL: instance of NumeralSystem representing decimal
-    numeral system
-    :cvar TWO_DIGIT_BINARY: a list containing name of a test, binary
-    numeral system object and integer for length parameter. Used for
-    testing get_min_value and get_max_value methods.
-    :cvar THREE_DIGIT_DECIMAL: a list containing name of a test, decimal
-    numeral system object and integer for length parameter. Used for
-    testing get_min_value and get_max_value methods.
-    :cvar CONVERSION_PARAMS: a list containing tuples, each with a name
-    of a test, instance of NumeralSystem to be used in test, an integer
-    and its corresponding value as a number written in the system. Used
-    for testing to_string and to_integer methods.
-    """
-    BINARY = NumeralSystem('01')
-    DECIMAL = NumeralSystem('0123456789')
-    TWO_DIGIT_BINARY = ['two_digit_binary', BINARY, 2]
-    THREE_DIGIT_DECIMAL = ['three_digit_decimal', DECIMAL, 3]
-    CONVERSION_PARAMS = [
-        ('binary', BINARY, 3, '11'),
-        ('decimal', DECIMAL, 123, '123')
-    ]
-
-    @parameterized.expand(CONVERSION_PARAMS)
-    def test_to_string_from(self, _, system, integer, expected):
-        actual = system.to_string(integer)
-        self.assertEqual(expected, actual)
-
-    @parameterized.expand(CONVERSION_PARAMS)
-    def test_to_integer_from(self, _, system, expected, string):
-        actual = system.to_integer(string)
-        self.assertEqual(expected, actual)
-
-    @parameterized.expand([
-        ('binary', BINARY, '123'),
-        ('decimal', DECIMAL, '99A')
-    ])
-    def test_to_integer_from_invalid(self, _, system, string):
-        self.assertRaises(NumeralValueError, system.to_integer, string)
-
-    @parameterized.expand([
-        TWO_DIGIT_BINARY + [2],
-        THREE_DIGIT_DECIMAL + [100],
-    ])
-    def test_get_min_value_of_(self, _, system, length, expected):
-        self.assertEqual(expected, system.get_min_value(length))
-
-    @parameterized.expand([
-        TWO_DIGIT_BINARY + [3],
-        THREE_DIGIT_DECIMAL + [999],
-    ])
-    def test_get_max_value_of_(self, _, system, length, expected):
-        self.assertEqual(expected, system.get_max_value(length))
 
 
 class AliasTest(unittest.TestCase):
