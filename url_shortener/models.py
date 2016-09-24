@@ -181,6 +181,46 @@ class Alias(object):
         """
         return cls._get_min_int(length + 1) - 1
 
+    @classmethod
+    def init_random_factory(cls, min_length, max_length):
+        """ Configure factory of randomly generated instances
+        of the class
+
+        The arguments provide a range of lengths for string
+        representations of instances of Alias to be returned by
+        a random alias factory provided by the class. For these values,
+        the method calculates a range of integer values corresponding
+        to them.
+
+        From that range, only integers smaller than cls._max_int_32
+        can be used to generate new aliases.
+
+        :param min_length: a minimum number of characters for string
+        representation of the instances returned by the factory
+        :param max_length: a maximum number of characters for string
+        representation of the instances returned by the factory
+        :raises AliasLengthValueError: if:
+
+        * values of any of the parameters are less than zero, or
+        * min_length > max_length, or
+        * the whole range of alias string lengths, or just part
+        of it, is not available for generation due to integer values
+        corresponding to it being larger than cls._max_int_32
+        """
+        if not 0 < min_length <= max_length:
+            raise AliasLengthValueError('The length limits are incorrect')
+        if cls._max_int_32 < cls._get_min_int(max_length):
+            raise AliasLengthValueError(
+                'The maximum length of a new alias is too large. The maximum'
+                ' acceptable length is: {}'.format(cls._max_allowed_length)
+            )
+
+        cls._min_new_int = cls._get_min_int(min_length)
+        cls._max_new_int = min(
+            cls._max_int_32,
+            cls._get_max_int(max_length)
+        )
+
     def __str__(self):
         """ Get string representation of the alias
 

@@ -252,6 +252,46 @@ class AliasTest(unittest.TestCase):
         result = Alias.random_factory(min_length, max_length)
         self.assertTrue(callable(result))
 
+    @parameterized.expand([
+        ('min_length_less_than_zero', -1, 3),
+        ('min_and_max_length_less_than_zero', -3, -2),
+        ('max_length_less_than_zero', 1, -1),
+        ('max_length_less_than_min', 3, 2),
+        ('min_int_of_max_length_larger_than_min_32_int', 3, 10)
+    ])
+    def test_init_random_factory_for(self, _, min_length, max_length):
+        """ Alias.init_random_factory expects two arguments: min_length
+        and max_length, referring to minimum and maximum lengths
+        for new randomly generated aliases.
+
+        If any of these values is smaller than zero, or if the
+        minimum value is larger than the maximum one,
+        AliasLengthValueError is expected to be raised
+        """
+        self.assertRaises(
+            AliasLengthValueError,
+            Alias.init_random_factory,
+            min_length,
+            max_length
+        )
+
+    @parameterized.expand([
+        ('non-equal', 1, 2),
+        ('equal', 2, 2),
+        ('including_max_allowed_length', 1, Alias._max_allowed_length)
+    ])
+    def test_init_random_factory_for_args(self, _, min_length, max_length):
+        """ Alias.init_random_factory expects two arguments: min_length
+        and max_length, referring to minimum and maximum lengths
+        for new randomly generated aliases.
+        """
+        Alias.init_random_factory(min_length, max_length)
+        self.assertTrue(
+            hasattr(Alias, '_min_new_int') and hasattr(Alias, '_max_new_int')
+        )
+        self.assertLessEqual(Alias._min_new_int, Alias._max_new_int)
+        self.assertLessEqual(Alias._max_new_int, Alias._max_int_32)
+
 
 class IntegerAliasTest(unittest.TestCase):
     """ Tests for IntegerAlias class
