@@ -108,11 +108,19 @@ class Alias(object):
     in a string value of an alias.
     :cvar _base: a base of numeral system used to interpret string
     values as integers.
+    :cvar _max_int_32: a maximum value of a 32 bit signed integer.
+
+    This value is assumed as maximum allowed for the integers used
+    in generation because we assume SQLAlchemy.types.Integer -
+    a base type for alias property of ShortenedURL class - will
+    translate into 32 bit signed integer type of underlying
+    database engine used by the application.
     """
 
     _SYSTEM = NumeralSystem('0123456789abcdefghijkmnopqrstuvwxyz')
     _chars = '0123456789abcdefghijkmnopqrstuvwxyz'
     _base = len(_chars)
+    _max_int_32 = 2**31 - 1
 
     def __init__(self, integer=None, string=None):
         """ Initialize new instance
