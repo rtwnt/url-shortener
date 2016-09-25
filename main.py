@@ -10,7 +10,7 @@ short alias has a target that has been later recognized as spam.
 
 .. __: https://github.com/piotr-rusin/spam-lists
 """
-from url_shortener import app, event_handlers, views
+from url_shortener import app, views
 from url_shortener.models import Alias
 
 __title__ = 'url-shortener'

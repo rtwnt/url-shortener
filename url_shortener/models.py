@@ -6,7 +6,7 @@ from random import randint
 
 from cached_property import cached_property
 from flask import url_for, abort
-from sqlalchemy import types
+from sqlalchemy import types, event
 from sqlalchemy.exc import IntegrityError
 
 from . import db, app
@@ -267,6 +267,11 @@ class ShortenedURL(db.Model):
         except AliasValueError:
             abort(404)
         return cls.query.get_or_404(valid_alias)
+
+
+@event.listens_for(ShortenedURL, 'before_insert')
+def assign_alias_before_insert(mapper, connection, target):
+    target.alias = Alias.create_random()
 
 
 def register(shortened_url):
