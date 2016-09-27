@@ -90,3 +90,72 @@ def sorted_host_list_from_file(name, classification, filename):
         hosts = f.read().splitlines()
 
     return SortedHostCollection(name, classification, hosts)
+
+
+class BlacklistValidator(object):
+    """A URL spam detector using configurable blacklists
+
+    :ivar _msg_map: a dictionary mapping blacklists used by an instance
+    of the class to validation messages associated with them
+    """
+
+    def __init__(self, composite_blacklist):
+        """ Initialize a new instance
+
+        :param composite_blacklist: an object representing multiple
+        blacklist used by an instance of this class
+
+        It must have lookup_matching(urls) method accepting a sequence
+        of URLs and returning an iterator returning other obejcts, each
+        with a source property storing one of the blacklists used by
+        the validator - the one containing the item that matches one
+        of the URLs.
+
+        It must also have a url_tester property with another property:
+        url_testers. The last property represents a chain of blacklist
+        objects used by the composite. This property must have
+        insert(index, item) method, where :
+        * index is a position at which a new blacklist object is
+        inserted
+        * object is a blacklist object to be inserted
+        """
+        self._composite_blacklist = composite_blacklist
+        self._msg_map = {}
+
+    def prepend_blacklist(self, blacklist, message):
+        """Prepend an object representing a blacklist to
+        the URL tester chain
+
+        :param blacklist: represents a blacklist to be used to
+        recognize spam URLs. This object must have
+        lookup_matching(urls) method
+        :param message: a validation message associated with
+        the blacklist
+        """
+        self._composite_blacklist.url_tester.url_testers.insert(0, blacklist)
+        self._msg_map[blacklist] = message
+
+    def get_msg_if_blacklisted(self, url):
+        """ Get a message if URL or one of its redirect addresses
+        is blacklisted
+
+        :param url: a URL address as a string
+        :returns: a string message if the URL or its redirect addresses
+        match content of any of the blacklists, or None
+        """
+        for match in self._composite_blacklist.lookup_matching([url]):
+            return self._msg_map[match.source]
+
+    def assert_not_blacklisted(self, form, field):
+        """Assert the URL value from the field is not blacklisted
+
+        This method is a custom WTForms field validator.
+
+        :param form: a form whose field is to be validated
+        :param field: a field containing data to be validated
+        :raises ValidationError: if the function returns a message
+        for the data
+        """
+        msg = self.get_msg_if_blacklisted(field.data)
+        if msg is not None:
+            raise ValidationError(msg)
