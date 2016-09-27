@@ -159,3 +159,8 @@ class BlacklistValidator(object):
         msg = self.get_msg_if_blacklisted(field.data)
         if msg is not None:
             raise ValidationError(msg)
+
+
+common_blacklist_validator = BlacklistValidator(
+    GeneralizedURLTester(URLTesterChain())
+)
