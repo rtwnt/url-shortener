@@ -75,3 +75,18 @@ def not_blacklisted_nor_spam(form, field):
     msg = get_msg_if_blacklisted_or_spam(field.data)
     if msg is not None:
         raise ValidationError(msg)
+
+
+def sorted_host_list_from_file(name, classification, filename):
+    """Create a sorted host list based on contents of a file
+
+    :param name: name of a host list to be created
+    :param classification: a string describing classification of all
+    items stored by the host list
+    :returns: a host list as an instance of SortedHostCollection
+    """
+    hosts = []
+    with open(filename) as f:
+        hosts = f.read().splitlines()
+
+    return SortedHostCollection(name, classification, hosts)
