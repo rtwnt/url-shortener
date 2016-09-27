@@ -3,7 +3,6 @@ from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
 )
-
 from wtforms.validators import ValidationError
 
 from . import app
