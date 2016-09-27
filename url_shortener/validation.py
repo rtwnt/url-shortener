@@ -122,8 +122,8 @@ class BlacklistValidator(object):
         self._composite_blacklist = composite_blacklist
         self._msg_map = {}
 
-    def prepend_blacklist(self, blacklist, message):
-        """Prepend an object representing a blacklist to
+    def append_blacklist(self, blacklist, message):
+        """Append an object representing a blacklist to
         the URL tester chain
 
         :param blacklist: represents a blacklist to be used to
@@ -132,7 +132,7 @@ class BlacklistValidator(object):
         :param message: a validation message associated with
         the blacklist
         """
-        self._composite_blacklist.url_tester.url_testers.insert(0, blacklist)
+        self._composite_blacklist.url_tester.url_testers.append(blacklist)
         self._msg_map[blacklist] = message
 
     def get_msg_if_blacklisted(self, url):

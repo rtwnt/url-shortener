@@ -19,30 +19,29 @@ class BlacklistValidatorTest(unittest.TestCase):
         self.tested_instance = BlacklistValidator(self.cb_mock)
         self.tested_instance.redirect_resolver = Mock()
 
-    def test_prepend_blacklist_adds_blacklist(self):
-        """ prepend_blacklist method is expected to call
-        inser(index, object) method of underlying url teser chain
-        object with index = 0 and object being a blacklist object
-        to be added
+    def test_append_blacklist_adds_blacklist(self):
+        """append_blacklist method is expected to call
+        append(object) method of underlying url tester chain
+        object, passing the blacklist to be added as its argument
         """
         blacklist = Mock()
         message = 'A message'
 
-        self.tested_instance.prepend_blacklist(blacklist, message)
+        self.tested_instance.append_blacklist(blacklist, message)
 
-        insert = self.cb_mock.url_tester.url_testers.insert
-        insert.assert_called_once_with(0, blacklist)
+        append = self.cb_mock.url_tester.url_testers.append
+        append.assert_called_once_with(blacklist)
 
-    def test_prepend_blacklist_adds_message(self):
-        """ prepend_blacklist method is expected to add a message
-        associated with the blacklist object being added to valdiator's
-        _msg_map property, with blacklist object being the key and
-        the message being a value.
+    def test_append_blacklist_adds_message(self):
+        """append_blacklist method is expected to add a message
+        associated with the blacklist object being added. Relationship
+        between the blacklist and the message is expected to be stored
+        in _msg_map property of the tested instance.
         """
         blacklist = Mock()
         message = 'A message'
 
-        self.tested_instance.prepend_blacklist(blacklist, message)
+        self.tested_instance.append_blacklist(blacklist, message)
 
         self.assertDictContainsSubset(
             {blacklist: message},
