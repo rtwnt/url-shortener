@@ -106,7 +106,7 @@ class BlacklistValidator(object):
         blacklist used by an instance of this class
 
         It must have lookup_matching(urls) method accepting a sequence
-        of URLs and returning an iterator returning other obejcts, each
+        of URLs and returning an iterator returning other objects, each
         with a source property storing one of the blacklists used by
         the validator - the one containing the item that matches one
         of the URLs.
