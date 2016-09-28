@@ -168,6 +168,8 @@ class BlacklistValidator(object):
 
 
 common_blacklist_validator = BlacklistValidator(
-    GeneralizedURLTester(URLTesterChain()),
+    GeneralizedURLTester(
+        URLTesterChain(SURBL_MULTI, SPAMHAUS_ZEN, SPAMHAUS_DBL, hp_hosts)
+    ),
     'The URL has been recognized as spam.'
 )
