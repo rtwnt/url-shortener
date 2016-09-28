@@ -149,7 +149,7 @@ class BlacklistValidator(object):
         match content of any of the blacklists, or None
         """
         for match in self._composite_blacklist.lookup_matching([url]):
-            return self._msg_map[match.source]
+            return self._msg_map.get(match.source, self.default_message)
 
     def assert_not_blacklisted(self, form, field):
         """Assert the URL value from the field is not blacklisted

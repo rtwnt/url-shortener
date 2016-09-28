@@ -83,7 +83,8 @@ class BlacklistValidatorTest(unittest.TestCase):
         the result of validating the URL
         """
         blacklist = Mock()
-        self.tested_instance._msg_map[blacklist] = expected_message
+        if expected_message != self.DEFAULT_MESSAGE:
+            self.tested_instance._msg_map[blacklist] = expected_message
 
         first = Mock()
         first.address = url
@@ -91,12 +92,15 @@ class BlacklistValidatorTest(unittest.TestCase):
 
         self.cb_mock.lookup_matching.return_value = first, Mock()
 
-    def test_get_msg_if_blacklisted_returns_msg(self):
+    @parameterized.expand([
+        ('a_message', 'A message'),
+        ('default_message', DEFAULT_MESSAGE)
+    ])
+    def test_get_msg_if_blacklisted_returns(self, _, expected_message):
         """ get_msg_if_blacklisted is expected to return a message
         when it detects a blacklisted URL
         """
         url = 'http://first.com'
-        expected_message = 'A message'
         self.set_up_matching_url(url, expected_message)
 
         actual_message = self.tested_instance.get_msg_if_blacklisted(url)
