@@ -12,11 +12,20 @@ class BlacklistValidatorTest(unittest.TestCase):
     dependency of Mock
     :ivar tested_instance: instance of BlacklistValidator to be used
     for testing
+
+    :cvar DEFAULT_MESSAGE: a string to be passed as a default message
+    to constructor of tested instance
     """
+
+    DEFAULT_MESSAGE = 'A default message'
+
     def setUp(self):
         self.cb_mock = Mock()
         self.cb_mock.lookup_matching.return_value = []
-        self.tested_instance = BlacklistValidator(self.cb_mock)
+        self.tested_instance = BlacklistValidator(
+            self.cb_mock,
+            self.DEFAULT_MESSAGE
+        )
         self.tested_instance.redirect_resolver = Mock()
 
     def test_append_blacklist_adds_blacklist(self):

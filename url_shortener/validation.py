@@ -99,7 +99,7 @@ class BlacklistValidator(object):
     of the class to validation messages associated with them
     """
 
-    def __init__(self, composite_blacklist):
+    def __init__(self, composite_blacklist, default_message):
         """ Initialize a new instance
 
         :param composite_blacklist: an object representing multiple
@@ -118,9 +118,13 @@ class BlacklistValidator(object):
         * index is a position at which a new blacklist object is
         inserted
         * object is a blacklist object to be inserted
+        :param default_message: a default validation message to be provided
+        when a URL matches a blacklist that does not have its specific
+        validation message
         """
         self._composite_blacklist = composite_blacklist
         self._msg_map = {}
+        self.default_message = default_message
 
     def append_blacklist(self, blacklist, message):
         """Append an object representing a blacklist to
@@ -162,5 +166,6 @@ class BlacklistValidator(object):
 
 
 common_blacklist_validator = BlacklistValidator(
-    GeneralizedURLTester(URLTesterChain())
+    GeneralizedURLTester(URLTesterChain()),
+    'The URL has been recognized as spam.'
 )
