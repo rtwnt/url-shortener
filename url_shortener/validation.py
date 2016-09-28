@@ -126,18 +126,19 @@ class BlacklistValidator(object):
         self._msg_map = {}
         self.default_message = default_message
 
-    def append_blacklist(self, blacklist, message):
+    def append_blacklist(self, blacklist, message=None):
         """Append an object representing a blacklist to
         the URL tester chain
 
         :param blacklist: represents a blacklist to be used to
         recognize spam URLs. This object must have
         lookup_matching(urls) method
-        :param message: a validation message associated with
-        the blacklist
+        :param message: a custom, blacklist-specific validation message
+        to be associated with the blacklist
         """
         self._composite_blacklist.url_tester.url_testers.append(blacklist)
-        self._msg_map[blacklist] = message
+        if message is not None:
+            self._msg_map[blacklist] = message
 
     def get_msg_if_blacklisted(self, url):
         """ Get a message if URL or one of its redirect addresses

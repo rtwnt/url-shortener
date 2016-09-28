@@ -2,6 +2,8 @@
 import unittest
 from unittest.mock import Mock
 
+from nose_parameterized import parameterized
+
 from url_shortener.validation import BlacklistValidator, ValidationError
 
 
@@ -28,13 +30,16 @@ class BlacklistValidatorTest(unittest.TestCase):
         )
         self.tested_instance.redirect_resolver = Mock()
 
-    def test_append_blacklist_adds_blacklist(self):
+    @parameterized.expand([
+        ('', None),
+        ('when_passing_a_message', 'A message')
+    ])
+    def test_append_blacklist_adds_blacklist(self, _, message):
         """append_blacklist method is expected to call
         append(object) method of underlying url tester chain
         object, passing the blacklist to be added as its argument
         """
         blacklist = Mock()
-        message = 'A message'
 
         self.tested_instance.append_blacklist(blacklist, message)
 
@@ -56,6 +61,17 @@ class BlacklistValidatorTest(unittest.TestCase):
             {blacklist: message},
             self.tested_instance._msg_map
         )
+
+    def test_append_blacklist_does_not_add_message(self):
+        """append_blacklist method is expected not to add a
+        blacklist-specific validation message when the value passed as
+        message is None
+        """
+        blacklist = Mock()
+
+        self.tested_instance.append_blacklist(blacklist)
+
+        self.assertNotIn(blacklist, self.tested_instance._msg_map)
 
     def set_up_matching_url(self, url, expected_message='A message'):
         """ Prepare a spam URL value recognized by tested instance
