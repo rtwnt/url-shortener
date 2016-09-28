@@ -34,42 +34,41 @@ class BlacklistValidatorTest(unittest.TestCase):
         ('', None),
         ('when_passing_a_message', 'A message')
     ])
-    def test_append_blacklist_adds_blacklist(self, _, message):
-        """append_blacklist method is expected to call
-        append(object) method of underlying url tester chain
-        object, passing the blacklist to be added as its argument
+    def test_prepend(self, _, message):
+        """prepend method is expected to call insert(index, object) method
+        of underlying list of url testers, passing 0 as the first argument
+        and a blacklist object as the second
         """
         blacklist = Mock()
 
-        self.tested_instance.append_blacklist(blacklist, message)
+        self.tested_instance.prepend(blacklist, message)
 
-        append = self.cb_mock.url_tester.url_testers.append
-        append.assert_called_once_with(blacklist)
+        insert = self.cb_mock.url_tester.url_testers.insert
+        insert.assert_called_once_with(0, blacklist)
 
-    def test_append_blacklist_adds_message(self):
-        """append_blacklist method is expected to add a message
-        associated with the blacklist object being added. Relationship
-        between the blacklist and the message is expected to be stored
-        in _msg_map property of the tested instance.
+    def test_prepend_adds_message(self):
+        """prepend method is expected to add a message associated with
+        the blacklist object being added. Relationship between
+        the blacklist and the message is expected to be stored in
+        _msg_map property of the tested instance.
         """
         blacklist = Mock()
         message = 'A message'
 
-        self.tested_instance.append_blacklist(blacklist, message)
+        self.tested_instance.prepend(blacklist, message)
 
         self.assertDictContainsSubset(
             {blacklist: message},
             self.tested_instance._msg_map
         )
 
-    def test_append_blacklist_does_not_add_message(self):
-        """append_blacklist method is expected not to add a
-        blacklist-specific validation message when the value passed as
-        message is None
+    def test_prepend_does_not_add_message(self):
+        """prepend method is expected not to add a blacklist-specific
+        validation message when the value passed as message is None
         """
         blacklist = Mock()
 
-        self.tested_instance.append_blacklist(blacklist)
+        self.tested_instance.prepend(blacklist)
 
         self.assertNotIn(blacklist, self.tested_instance._msg_map)
 
