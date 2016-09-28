@@ -13,7 +13,7 @@ def read_attributes(string, *names):
 
     return [read(n) for n in names]
 
-with open('main.py', 'r') as fd:
+with open('url_shortener/__init__.py', 'r') as fd:
     content = fd.read()
     name, version, author, email, _license = read_attributes(
         content,
