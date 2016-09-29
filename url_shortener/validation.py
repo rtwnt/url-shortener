@@ -83,6 +83,9 @@ def sorted_host_list_from_file(name, classification, filename):
     :param name: name of a host list to be created
     :param classification: a string describing classification of all
     items stored by the host list
+    :param filename: name of a file from which hosts fill be
+    extracted. Each line of the file must contain one IP address
+    or a hostname.
     :returns: a host list as an instance of SortedHostCollection
     """
     hosts = []
