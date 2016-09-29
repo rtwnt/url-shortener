@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from url_shortener import app, views
+from url_shortener import app, before_app_run, views
 from url_shortener.models import Alias
 
 
@@ -17,4 +17,5 @@ Alias.init_random_factory(
     app.config['MAX_NEW_ALIAS_LENGTH']
 )
 
+before_app_run.send(app)
 app.run()
