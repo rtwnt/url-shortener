@@ -30,5 +30,5 @@ app.config.from_object('url_shortener.default_config')
 
 # See http://flask-sqlalchemy.pocoo.org/2.1/config/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
+
 db = SQLAlchemy(app)

@@ -17,5 +17,7 @@ Alias.init_random_factory(
     app.config['MAX_NEW_ALIAS_LENGTH']
 )
 
+app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
+
 before_app_run.send(app)
 app.run()
