@@ -34,7 +34,8 @@ install_requires = [
     'Flask-SQLAlchemy',
     'Flask-WTF',
     'cached-property',
-    'spam-lists'
+    'spam-lists',
+    'blinker'
 ]
 
 tests_require = ['nose-parameterized']
