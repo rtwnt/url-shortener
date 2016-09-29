@@ -6,7 +6,7 @@ from flask import session, redirect, url_for, flash, render_template
 from . import app
 from .forms import ShortenedURLForm
 from .models import ShortenedURL, register
-from .validation import get_msg_if_blacklisted_or_spam
+from .validation import url_validator
 
 
 @app.context_processor
@@ -81,7 +81,9 @@ def get_response(alias, alternative_action):
     shortened URL for given alias
     """
     shortened_url = ShortenedURL.get_or_404(alias)
-    msg = get_msg_if_blacklisted_or_spam(shortened_url.target)
+    msg = url_validator.get_msg_if_blacklisted(
+        shortened_url.target
+    )
     if msg is not None:
         return render_preview(shortened_url, msg)
     return alternative_action(shortened_url)

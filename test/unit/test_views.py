@@ -147,7 +147,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 class GetResponseTest(BaseViewTest, unittest.TestCase):
     def setUp(self):
         self.validator_patcher = patch(
-            'url_shortener.views.get_msg_if_blacklisted_or_spam'
+            'url_shortener.views.url_validator.get_msg_if_blacklisted'
         )
         self.validator_mock = self.validator_patcher.start()
 
