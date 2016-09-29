@@ -91,8 +91,11 @@ def sorted_host_list_from_file(name, classification, filename):
     hosts = []
     with open(filename) as f:
         hosts = f.read().splitlines()
+    host_list = SortedHostCollection(name, classification, [])
+    for item in hosts:
+        host_list.add(item)
 
-    return SortedHostCollection(name, classification, hosts)
+    return host_list
 
 
 class BlacklistValidator(object):
