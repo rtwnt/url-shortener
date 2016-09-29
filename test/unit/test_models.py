@@ -164,8 +164,16 @@ class IntegerAliasTest(unittest.TestCase):
 
 class ShortenedURLTest(unittest.TestCase):
     def setUp(self):
-        self.query_patcher = patch('url_shortener.models.ShortenedURL.query')
-        self.query_mock = self.query_patcher.start()
+        ModelMock = type('ModelMock', (), {'query': Mock()})
+        self.bases_patcher = patch.object(
+            ShortenedURL,
+            '__bases__',
+            (ModelMock,)
+        )
+        self.bases_patcher.start()
+        self.bases_patcher.is_local = True
+
+        self.query_mock = ShortenedURL.query
 
         self.alias_patcher = patch('url_shortener.models.Alias')
         self.alias_mock = self.alias_patcher.start()
@@ -174,7 +182,7 @@ class ShortenedURLTest(unittest.TestCase):
         self.abort_mock = self.abort_patcher.start()
 
     def tearDown(self):
-        self.query_patcher.stop()
+        self.bases_patcher.stop()
         self.alias_patcher.stop()
         self.abort_patcher.stop()
 
