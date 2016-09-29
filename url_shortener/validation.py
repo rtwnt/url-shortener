@@ -173,7 +173,7 @@ class BlacklistValidator(object):
             raise ValidationError(msg)
 
 
-common_blacklist_validator = BlacklistValidator(
+url_validator = BlacklistValidator(
     GeneralizedURLTester(
         URLTesterChain(SURBL_MULTI, SPAMHAUS_ZEN, SPAMHAUS_DBL, hp_hosts)
     ),
