@@ -5,7 +5,7 @@ from spam_lists import (
 )
 from wtforms.validators import ValidationError
 
-from . import app, before_app_run, __version__, __title__
+from . import app, custom_config_loaded, __version__, __title__
 
 
 hp_hosts = HpHosts('url-shortener')
@@ -181,7 +181,7 @@ url_validator = BlacklistValidator(
 )
 
 
-@before_app_run.connect_via(app)
+@custom_config_loaded.connect_via(app)
 def configure_url_validator(sender, **kwargs):
     app.logger.info('Configuring URL validation...')
 

@@ -23,7 +23,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 url_shortener_signals = Namespace()
-before_app_run = url_shortener_signals.signal('before-app-run')
+custom_config_loaded = url_shortener_signals.signal('custom-config-loaded')
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')

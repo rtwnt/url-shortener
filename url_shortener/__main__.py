@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from url_shortener import app, before_app_run, views
+from url_shortener import app, custom_config_loaded, views
 from url_shortener.models import Alias
 
 
@@ -18,6 +18,6 @@ Alias.init_random_factory(
 )
 
 app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
+custom_config_loaded.send(app)
 
-before_app_run.send(app)
 app.run()
