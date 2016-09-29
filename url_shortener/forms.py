@@ -3,7 +3,7 @@ from flask_wtf import Form
 from flask_wtf.recaptcha import RecaptchaField, Recaptcha
 from wtforms import StringField, validators
 
-from .validation import not_blacklisted_nor_spam
+from .validation import url_validator
 
 
 class ShortenedURLForm(Form):
@@ -11,7 +11,7 @@ class ShortenedURLForm(Form):
         validators=[
             validators.DataRequired(message='A target URL is required.'),
             validators.URL(message='A valid URL is required.'),
-            not_blacklisted_nor_spam
+            url_validator.assert_not_blacklisted
         ],
         render_kw={'placeholder': 'Original URL'}
     )
