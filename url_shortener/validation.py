@@ -19,7 +19,6 @@ def sorted_host_list_from_file(name, classification, filename):
     or a hostname.
     :returns: a host list as an instance of SortedHostCollection
     """
-    hosts = []
     with open(filename) as f:
         hosts = f.read().splitlines()
     host_list = SortedHostCollection(name, classification, [])
