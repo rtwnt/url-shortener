@@ -8,9 +8,6 @@ from wtforms.validators import ValidationError
 from . import app, custom_config_loaded, __version__, __title__
 
 
-hp_hosts = HpHosts('url-shortener')
-
-
 def sorted_host_list_from_file(name, classification, filename):
     """Create a sorted host list based on contents of a file
 
@@ -107,6 +104,7 @@ class BlacklistValidator(object):
             raise ValidationError(msg)
 
 
+hp_hosts = HpHosts(__title__)
 url_validator = BlacklistValidator(
     GeneralizedURLTester(
         URLTesterChain(SURBL_MULTI, SPAMHAUS_ZEN, SPAMHAUS_DBL, hp_hosts)
