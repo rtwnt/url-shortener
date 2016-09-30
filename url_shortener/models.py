@@ -6,7 +6,7 @@ from random import randint
 
 from cached_property import cached_property
 from flask import url_for, abort
-from sqlalchemy import types, event
+from sqlalchemy import types, event, inspect
 from sqlalchemy.exc import IntegrityError
 
 from . import db, app, custom_config_loaded
@@ -275,7 +275,7 @@ def assign_alias_before_insert(mapper, connection, target):
 
 
 def register(shortened_url):
-    """ Register a shortened URL object by persisting it
+    """ Register a shortened URL object by persisting it if it is new
 
     :param shortened_url: an instance of ShortenedURL to be registered
     :raises RegistrationRetryLimitExceeded: if the application exceeded
@@ -288,6 +288,10 @@ def register(shortened_url):
     this set is already in use, exceeding the retry limit becomes more
     and more likely.
     """
+    state = inspect(shortened_url)
+    if not state.transient:
+        return
+
     retry_limit = app.config['REGISTRATION_RETRY_LIMIT']
     for _ in range(retry_limit):
         try:

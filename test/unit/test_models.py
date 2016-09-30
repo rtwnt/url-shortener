@@ -263,6 +263,11 @@ class CommitSideEffects():
 
 class RegisterTest(unittest.TestCase):
     def setUp(self):
+        self.inspect_patcher = patch('url_shortener.models.inspect')
+        inspect_mock = self.inspect_patcher.start()
+        self.state_mock = inspect_mock.return_value
+        self.state_mock.transient = True
+
         self.db_patcher = patch('url_shortener.models.db')
         self.db_mock = self.db_patcher.start()
 
@@ -274,11 +279,18 @@ class RegisterTest(unittest.TestCase):
         self.shortened_url = Mock()
 
     def tearDown(self):
+        self.inspect_patcher.stop()
         self.db_patcher.stop()
         self.app_patcher.stop()
 
     def _call(self):
         register(self.shortened_url)
+
+    def test_does_nothing_for_not_transient_url(self):
+        self.state_mock.transient = False
+        self._call()
+        self.db_mock.session.add.assert_not_called()
+        self.db_mock.session.commit.assert_not_called()
 
     def test_adds_url_to_db_session(self):
         self._call()
