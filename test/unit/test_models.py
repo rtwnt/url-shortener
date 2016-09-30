@@ -8,7 +8,7 @@ from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, ShortenedURL,
-    IntegrityError, register, RegistrationRetryLimitExceeded
+    IntegrityError, register_if_new, RegistrationRetryLimitExceeded
 )
 
 
@@ -261,7 +261,7 @@ class CommitSideEffects():
         raise create_integrity_error()
 
 
-class RegisterTest(unittest.TestCase):
+class RegisterIfNewTest(unittest.TestCase):
     def setUp(self):
         self.inspect_patcher = patch('url_shortener.models.inspect')
         inspect_mock = self.inspect_patcher.start()
@@ -284,7 +284,7 @@ class RegisterTest(unittest.TestCase):
         self.app_patcher.stop()
 
     def _call(self):
-        register(self.shortened_url)
+        register_if_new(self.shortened_url)
 
     def test_does_nothing_for_not_transient_url(self):
         self.state_mock.transient = False

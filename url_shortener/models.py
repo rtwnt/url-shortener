@@ -274,7 +274,7 @@ def assign_alias_before_insert(mapper, connection, target):
     target.alias = Alias.create_random()
 
 
-def register(shortened_url):
+def register_if_new(shortened_url):
     """ Register a shortened URL object by persisting it if it is new
 
     :param shortened_url: an instance of ShortenedURL to be registered

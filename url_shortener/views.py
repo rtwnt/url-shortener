@@ -5,7 +5,7 @@ from flask import session, redirect, url_for, flash, render_template
 
 from . import app
 from .forms import ShortenedURLForm
-from .models import ShortenedURL, register
+from .models import ShortenedURL, register_if_new
 from .validation import url_validator
 
 
@@ -35,7 +35,7 @@ def shorten_url():
     KEY = 'requested_alias'
     if form.validate_on_submit():
         shortened_url = ShortenedURL.get_or_create(form.url.data)
-        register(shortened_url)
+        register_if_new(shortened_url)
         session[KEY] = str(shortened_url.alias)
         return redirect(url_for(shorten_url.__name__))
     else:
