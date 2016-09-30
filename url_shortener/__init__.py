@@ -18,12 +18,8 @@ __email__ = "piotr.rusin88@gmail.com"
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Piotr Rusin'
 
-from blinker import Namespace
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
-url_shortener_signals = Namespace()
-custom_config_loaded = url_shortener_signals.signal('custom-config-loaded')
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')
