@@ -28,10 +28,7 @@ class RegistrationRetryLimitExceeded(Exception):
 class AliasType(type):
     def __new__(cls, *args, **kwargs):
         alias_class = type.__new__(cls, *args, **kwargs)
-        alias_class.init_random_factory(
-            app.config['MIN_NEW_ALIAS_LENGTH'],
-            app.config['MAX_NEW_ALIAS_LENGTH']
-        )
+        alias_class.init_random_factory(1, 2)
         return alias_class
 
 
