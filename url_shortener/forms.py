@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from flask_wtf.recaptcha import RecaptchaField, Recaptcha
 from wtforms import StringField, validators
 
 from .validation import url_validator
 
 
-class ShortenedURLForm(Form):
+class ShortenedURLForm(FlaskForm):
     url = StringField(
         validators=[
             validators.DataRequired(message='A target URL is required.'),
