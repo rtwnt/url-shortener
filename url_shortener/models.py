@@ -9,7 +9,7 @@ from flask import url_for, abort
 from sqlalchemy import types, inspect
 from sqlalchemy.exc import IntegrityError
 
-from . import db, app, custom_config_loaded
+from . import db, app
 
 
 class AliasValueError(ValueError):
@@ -308,11 +308,10 @@ def register_if_new(shortened_url):
     raise RegistrationRetryLimitExceeded(msg_tpl.format(retry_limit))
 
 
-@custom_config_loaded.connect_via(app)
-def configure_random_factory(sender, **kwargs):
-    min_length = sender.config['MIN_NEW_ALIAS_LENGTH']
-    max_length = sender.config['MAX_NEW_ALIAS_LENGTH']
+def configure_random_factory(app_object):
+    min_length = app_object.config['MIN_NEW_ALIAS_LENGTH']
+    max_length = app_object.config['MAX_NEW_ALIAS_LENGTH']
     Alias.init_random_factory(min_length, max_length)
 
     msg_tpl = 'Length of newly generated aliases: from {} to {} characters.'
-    app.logger.info(msg_tpl.format(min_length, max_length))
+    app_object.logger.info(msg_tpl.format(min_length, max_length))

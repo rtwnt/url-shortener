@@ -5,7 +5,7 @@ from spam_lists import (
 )
 from wtforms.validators import ValidationError
 
-from . import app, custom_config_loaded, __version__, __title__
+from . import __version__, __title__
 
 
 def sorted_host_list_from_file(name, classification, filename):
@@ -112,21 +112,20 @@ url_validator = BlacklistValidator(
 )
 
 
-@custom_config_loaded.connect_via(app)
-def configure_url_validator(sender, **kwargs):
-    app.logger.info('Configuring URL validation...')
+def configure_url_validator(app_object):
+    app_object.logger.info('Configuring URL validation...')
 
-    gsb_api_key = sender.config['GOOGLE_SAFE_BROWSING_API_KEY']
+    gsb_api_key = app_object.config['GOOGLE_SAFE_BROWSING_API_KEY']
     url_validator.prepend(
         GoogleSafeBrowsing(__title__, __version__, gsb_api_key)
     )
-    app.logger.info('Google Safe Browsing API client loaded.')
+    app_object.logger.info('Google Safe Browsing API client loaded.')
 
-    filename = sender.config['HOST_BLACKLIST_FILE']
+    filename = app_object.config['HOST_BLACKLIST_FILE']
     if filename is not None:
         url_validator.prepend(
             sorted_host_list_from_file('blacklist', 'blacklisted', filename),
             'The host of target URL is blacklisted.'
         )
         msg = 'Custom host blacklist loaded from {}.'.format(filename)
-        app.logger.info(msg)
+        app_object.logger.info(msg)
