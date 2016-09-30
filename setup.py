@@ -35,7 +35,6 @@ install_requires = [
     'Flask-WTF',
     'cached-property',
     'spam-lists',
-    'blinker'
 ]
 
 tests_require = ['nose-parameterized']
