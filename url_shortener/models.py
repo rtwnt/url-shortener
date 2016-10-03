@@ -294,13 +294,8 @@ def register_if_new(shortened_url):
             db.session.add(shortened_url)
             db.session.commit()
             return
-        except IntegrityError as ex:
+        except IntegrityError:
             db.session.rollback()
-            msg = (
-                'An integrity error occured during registration of'
-                ' shortened URL: {}'.format(ex)
-            )
-            app.logger.warning(msg)
     msg_tpl = 'Registration retry limit of {} has been reached'
     raise RegistrationRetryLimitExceeded(msg_tpl.format(retry_limit))
 

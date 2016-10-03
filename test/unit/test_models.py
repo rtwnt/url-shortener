@@ -317,10 +317,6 @@ class RegisterIfNewTest(unittest.TestCase):
         self._call_for_integrity_error()
         self.db_mock.session.rollback.assert_any_call()
 
-    def test_logs_integrity_errors(self):
-        self._call_for_integrity_error()
-        self.assertTrue(self.app_mock.logger.warning.called)
-
     def test_for_attempt_limit_exceeded(self):
         self.db_mock.session.commit.side_effect = create_integrity_error()
         self.assertRaises(RegistrationRetryLimitExceeded, self._call)
