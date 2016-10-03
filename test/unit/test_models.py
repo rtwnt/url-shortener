@@ -117,48 +117,46 @@ class AliasTest(unittest.TestCase):
 class IntegerAliasTest(unittest.TestCase):
     """ Tests for IntegerAlias class
 
+    :ivar alias_class_patcher: an object used to patch Alias
+    class object used by tested methods
+    :ivar alias_class_mock: a mock of Alias class object to
+    be used during testing
     :ivar tested_instance: an instance of the class to be tested
-    :ivar value: a mock used as value parameter to be passed
-    to tested methods
-    :ivar dialect: a mock used as dialect parameter to be passed
-    to tested methods
     """
     def setUp(self):
-        self.tested_instance = IntegerAlias()
-        self.value = Mock()
-        self.dialect = Mock()
         self.alias_class_patcher = patch('url_shortener.models.Alias')
         self.alias_class_mock = self.alias_class_patcher.start()
+
+        self.tested_instance = IntegerAlias()
 
     def tearDown(self):
         self.alias_class_patcher.stop()
 
-    @parameterized.expand([
-        ['process_bind_param'],
-        ['process_literal_param']
-    ])
-    def test_(self, method_name):
-        """ The method should return an integer value of the
-        Alias object passed to them as value param
-        """
+    def call(self, method_name, value=Mock()):
         function = getattr(self.tested_instance, method_name)
-        expected = self.value.integer
-        actual = function(self.value, self.dialect)
+        return function(value, Mock())
+
+    @parameterized.expand([
+        ('process_bind_param'),
+        ('process_literal_param')
+    ])
+    def test_getting_integer_with(self, function_name):
+        value = Mock()
+        expected = value.integer
+        actual = self.call(function_name, value)
+
         self.assertEqual(expected, actual)
 
     def test_process_result_value_creates_alias(self):
-        self.tested_instance.process_result_value(
-            self.value,
-            self.dialect
-        )
-        self.alias_class_mock.assert_called_once_with(integer=self.value)
+        value = Mock()
+        self.call('process_result_value', value)
+
+        self.alias_class_mock.assert_called_once_with(integer=value)
 
     def test_process_result_value_returns_alias(self):
+        actual = self.call('process_result_value')
         expected = self.alias_class_mock.return_value
-        actual = self.tested_instance.process_result_value(
-            self.value,
-            self.dialect
-        )
+
         self.assertEqual(expected, actual)
 
 
