@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from flask import session, redirect, url_for, flash, render_template
+from flask import (
+    session, redirect, url_for, flash, render_template, Markup
+)
 
 from . import app
 from .forms import ShortenedURLForm
-from .models import ShortenedURL, register_if_new
+from .models import (
+    ShortenedURL, register_if_new, RegistrationRetryLimitExceeded
+)
 from .validation import url_validator
 
 
@@ -35,9 +39,19 @@ def shorten_url():
     KEY = 'requested_alias'
     if form.validate_on_submit():
         shortened_url = ShortenedURL.get_or_create(form.url.data)
-        register_if_new(shortened_url)
-        session[KEY] = str(shortened_url.alias)
-        return redirect(url_for(shorten_url.__name__))
+        try:
+            register_if_new(shortened_url)
+            session[KEY] = str(shortened_url.alias)
+            return redirect(url_for(shorten_url.__name__))
+        except RegistrationRetryLimitExceeded as ex:
+            app.logger.error(ex)
+            msg_tpl = Markup(
+                'Failed to generate a unique short alias for requested URL.'
+                ' Please, try again.<br> If you see this error again,'
+                ' <a href="{}">send us a message</a>'
+            )
+            msg = msg_tpl.format(app.config['ADMIN_EMAIL'])
+            flash(msg, 'error')
     else:
         for field_errors in form.errors.values():
             for error in field_errors:

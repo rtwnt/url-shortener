@@ -42,6 +42,9 @@ provided by Google: https://developers.google.com/recaptcha/docs/start
 
 :var RECAPTCHA_PRIVATE_KEY: a value used as a private key for reCAPTCHA,
 provided by Google: https://developers.google.com/recaptcha/docs/start
+
+:var ADMIN_EMAIL: email address of administrator(s) of the service provided
+by an installation of this application
 """
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -55,3 +58,4 @@ GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
 HOST_BLACKLIST_FILE = None
 RECAPTCHA_PUBLIC_KEY = 'public-recaptcha-key'
 RECAPTCHA_PRIVATE_KEY = 'private-recaptcha-key'
+ADMIN_EMAIL = 'admin@your-domain.com'
