@@ -235,6 +235,19 @@ class ShortenedURL(db.Model):
         return self._alternative_url('preview')
 
     @classmethod
+    def get(cls, alias):
+        """ Find an existing shortened URL, or return None
+
+        :param alias: a string representation of alias
+        :raises AliasValueError: if the string representation
+        of alias is not valid
+        :return: an instance of ShortenedURL representing
+        an existing shortened URL, or None if no shortened URL
+        has been found
+        """
+        return cls.query.get(Alias(string=alias))
+
+    @classmethod
     def get_or_create(cls, target_url):
         """ Find an existing shortened URL, or
         create a new one

@@ -184,6 +184,22 @@ class ShortenedURLTest(unittest.TestCase):
         self.alias_patcher.stop()
         self.abort_patcher.stop()
 
+    def test_get_creates_alias(self):
+        alias = 'abc'
+        ShortenedURL.get(alias)
+        self.alias_mock.assert_called_once_with(string=alias)
+
+    def test_get_queries_for_alias(self):
+        ShortenedURL.get('abc')
+        self.query_mock.get.assert_called_once_with(
+            self.alias_mock.return_value
+        )
+
+    def test_get_returns_query_result(self):
+        expected = self.query_mock.get.return_value
+        actual = ShortenedURL.get('abc')
+        self.assertEqual(expected, actual)
+
     def test_get_or_create_filters_by_target(self):
         target = 'http://xyz.com'
         ShortenedURL.get_or_create(target)
