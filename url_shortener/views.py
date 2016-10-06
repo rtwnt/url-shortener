@@ -56,17 +56,16 @@ def shorten_url():
         for field_errors in form.errors.values():
             for error in field_errors:
                 flash(error, 'error')
-    try:
-        new_shortened_url = ShortenedURL.get_or_404(
-            session.pop(KEY)
+    alias = session.pop(KEY, None)
+    if alias is not None:
+        new_url = ShortenedURL.get(alias)
+        msg_tpl = Markup(
+            'New short URL: <a href="{0}">{0}</a><br>Preview'
+            ' available at: <a href="{1}">{1}</a>'
         )
-    except KeyError:
-        new_shortened_url = None
-    return render_template(
-        'shorten_url.html',
-        form=form,
-        new_shortened_url=new_shortened_url
-    )
+        msg = msg_tpl.format(new_url.short_url, new_url.preview_url)
+        flash(msg, 'success')
+    return render_template('shorten_url.html', form=form)
 
 
 def render_preview(shortened_url, warning_message=None):

@@ -1,17 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-{% if new_shortened_url %}
-    {% with %}
-        {% set short_url = new_shortened_url.short_url %}
-        {% set preview_url = new_shortened_url.preview_url %}
-        <div class="success">
-            New short URL:
-            <a href="{{ short_url }}">{{ short_url }}</a><br>
-            Preview available at:
-            <a href="{{ preview_url }}">{{ preview_url }}</a>
-        </div>
-    {% endwith %}
-{% endif %}
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <ul class="flashes">

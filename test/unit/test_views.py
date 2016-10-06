@@ -161,26 +161,64 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         for i in errors:
             self.flash_mock.assert_any_call(i, 'error')
 
-    def assert_renders_form_template(self, expected_new_shortened_url):
+    def set_up_new_url(self, new_alias='xyz'):
+        self.session['requested_alias'] = new_alias
+        self.form_mock.validate_on_submit.return_value = False
+
+    def test_fetches_new_url(self):
+        """ When session contains alias of a previously generated
+        short URL, shorten_url is expected to fetch this URL
+        from database
+        """
+        new_alias = 'xyz'
+        self.set_up_new_url(new_alias)
+
+        shorten_url()
+
+        self.shortened_url_class_mock.get.assert_called_once_with(
+            new_alias
+        )
+
+    def test_prepares_success_message(self):
+        """ When session contains alias of a previously generated
+        short URL, shorten_url is expected to prepare a
+        proper message
+        """
+        self.set_up_new_url()
+        new_url_mock = self.shortened_url_class_mock.get.return_value
+
+        shorten_url()
+
+        self.markup_mock.return_value.format.assert_called_once_with(
+            new_url_mock.short_url,
+            new_url_mock.preview_url
+        )
+
+    def test_flashes_success_message(self):
+        """ When session contains alias of a previously generated
+        short URL, shorten_url is expected to flash the success message
+        """
+        self.set_up_new_url()
+        message_mock = self.markup_mock.return_value.format.return_value
+
+        shorten_url()
+
+        self.flash_mock.assert_called_once_with(message_mock, 'success')
+
+    def assert_renders_form_template(self):
         shorten_url()
         self.render_template_mock.assert_called_once_with(
             'shorten_url.html',
-            form=self.form_mock,
-            new_shortened_url=expected_new_shortened_url
+            form=self.form_mock
         )
 
     def test_renders_form_template(self):
         self.form_mock.validate_on_submit.return_value = False
-        self.assert_renders_form_template(None)
+        self.assert_renders_form_template()
 
     def test_renders_form_template_after_shortening_url(self):
-        self.form_mock.validate_on_submit.return_value = False
-        new_alias = 'xyz'
-        self.session['requested_alias'] = new_alias
-        new_shortened_url = (
-            self.shortened_url_class_mock.get_or_404.return_value
-        )
-        self.assert_renders_form_template(new_shortened_url)
+        self.set_up_new_url()
+        self.assert_renders_form_template()
 
     def assert_returns_rendered_template(self):
         expected = self.render_template_mock.return_value
@@ -192,9 +230,8 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.assert_returns_rendered_template()
 
     def test_returns_rendered_template_after_shortening_url(self):
-        self.form_mock.validate_on_submit.return_value = False
-        new_alias = 'xyz'
-        self.session['new_alias'] = new_alias
+        self.set_up_new_url()
+
         self.assert_returns_rendered_template()
 
 
