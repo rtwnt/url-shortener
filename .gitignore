@@ -3,6 +3,10 @@
 .pydevproject
 .settings/
 
+#coverage.py
+.coverage
+htmlcov
+
 *.pyc
 
 #virtualfish
