@@ -90,7 +90,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         shorten_url()
         self.shorten_if_new_mock.assert_called_once_with(
             shortened_url_mock,
-            self.app_mock.config['REGISTRATION_RETRY_LIMIT']
+            self.app_mock.config['ATTEMPT_LIMIT']
         )
 
     def test_saves_new_alias_in_session(self):

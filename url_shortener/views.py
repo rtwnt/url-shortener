@@ -42,7 +42,7 @@ def shorten_url():
         try:
             shorten_if_new(
                 shortened_url,
-                app.config['REGISTRATION_RETRY_LIMIT']
+                app.config['SHORTENING_ATTEMPT_LIMIT']
             )
             session[KEY] = str(shortened_url.alias)
             return redirect(url_for(shorten_url.__name__))
