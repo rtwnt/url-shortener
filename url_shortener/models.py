@@ -308,7 +308,7 @@ def register_if_new(shortened_url):
             return
         except IntegrityError:
             db.session.rollback()
-    msg_tpl = 'Registration retry limit of {} has been reached'
+    msg_tpl = 'Failed to shorten a URL in {} attempts'
     raise URLNotShortenedError(msg_tpl.format(retry_limit))
 
 
