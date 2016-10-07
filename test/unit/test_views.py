@@ -49,10 +49,10 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.form_class_mock = self.form_class_patcher.start()
         self.form_mock = self.form_class_mock()
 
-        self.register_if_new_patcher = patch(
-            'url_shortener.views.register_if_new'
+        self.shorten_if_new_patcher = patch(
+            'url_shortener.views.shorten_if_new'
         )
-        self.register_if_new_mock = self.register_if_new_patcher.start()
+        self.shorten_if_new_mock = self.shorten_if_new_patcher.start()
 
         self.app_patcher = patch('url_shortener.views.app')
         self.app_mock = self.app_patcher.start()
@@ -74,7 +74,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     def tearDown(self):
         self.form_class_patcher.stop()
-        self.register_if_new_patcher.stop()
+        self.shorten_if_new_patcher.stop()
         self.app_patcher.stop()
         self.markup_patcher.stop()
         self.url_for_patcher.stop()
@@ -88,7 +88,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
             self.shortened_url_class_mock.get_or_create.return_value
         )
         shorten_url()
-        self.register_if_new_mock.assert_called_once_with(shortened_url_mock)
+        self.shorten_if_new_mock.assert_called_once_with(shortened_url_mock)
 
     def test_saves_new_alias_in_session(self):
         shortened_url_mock = (
@@ -108,22 +108,22 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.redirect_mock.assert_called_once_with(redirect_url)
 
     def test_logs_error_on_failure(self):
-        """ When register_if_new raises URLNotShortenedError,
+        """ When shorten_if_new raises URLNotShortenedError,
         shorten_url is expected to log it.
         """
         side_effect = URLNotShortenedError()
-        self.register_if_new_mock.side_effect = side_effect
+        self.shorten_if_new_mock.side_effect = side_effect
 
         shorten_url()
 
         self.app_mock.logger.error.assert_called_once_with(side_effect)
 
     def test_prepares_failure_message(self):
-        """ When register_if_new raises URLNotShortenedError,
+        """ When shorten_if_new raises URLNotShortenedError,
         shorten_url is expected to prepare a message on the failure.
         The message is expected to include admin email address.
         """
-        self.register_if_new_mock.side_effect = URLNotShortenedError
+        self.shorten_if_new_mock.side_effect = URLNotShortenedError
         email = 'admin@urlshortener.com'
 
         def getitem(index):
@@ -137,10 +137,10 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         msg_tpl_mock.format.assert_called_once_with(email)
 
     def test_flashes_failure_message(self):
-        """ When register_if_new raises URLNotShortenedError,
+        """ When shorten_if_new raises URLNotShortenedError,
         shorten_url is expected to flash a message on the failure
         """
-        self.register_if_new_mock.side_effect = URLNotShortenedError
+        self.shorten_if_new_mock.side_effect = URLNotShortenedError
         msg_tpl_mock = self.markup_mock.return_value
         msg_mock = msg_tpl_mock.format.return_value
 

@@ -278,13 +278,14 @@ class ShortenedURL(db.Model):
         return cls.query.get_or_404(valid_alias)
 
 
-def register_if_new(shortened_url):
-    """ Register a shortened URL object if it is new
+def shorten_if_new(url):
+    """ Shorten a URL object if it is new
 
-    The registration is performed by assigning a randomly generated
-    alias to the shortened URL and then persisting it.
+    The shortening is performed by assigning a randomly generated
+    alias to the URL and then persisting it.
 
-    :param shortened_url: an instance of ShortenedURL to be registered
+    :param url: an instance of ShortenedURL representing a URL to be
+    shortened and registered
     :raises URLNotShortenedError: if the application exceeded
     the maximum number of attempts at shortening a URL,
     without success.
@@ -295,15 +296,15 @@ def register_if_new(shortened_url):
     this set is already in use, exceeding the retry limit becomes more
     and more likely.
     """
-    state = inspect(shortened_url)
+    state = inspect(url)
     if not state.transient:
         return
 
     retry_limit = app.config['REGISTRATION_RETRY_LIMIT']
     for _ in range(retry_limit):
-        shortened_url.alias = Alias.create_random()
+        url.alias = Alias.create_random()
         try:
-            db.session.add(shortened_url)
+            db.session.add(url)
             db.session.commit()
             return
         except IntegrityError:
