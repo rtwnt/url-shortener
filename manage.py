@@ -5,6 +5,8 @@ from flask_migrate import Migrate, MigrateCommand
 from url_shortener import app
 from url_shortener.models import db
 
+app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
+
 migrate = Migrate(app, db)
 manager = Manager(app)
 
