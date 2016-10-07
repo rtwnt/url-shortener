@@ -323,6 +323,22 @@ class ShortenIfNewTest(unittest.TestCase):
         self.db_mock.session.commit.side_effect = CommitSideEffects(self.limit)
         self._call()
 
+    def test_assigns_random_alias_for_integrity_error(self):
+        self._call_for_integrity_error()
+        self.assertEqual(
+            self.alias_mock.create_random.call_count,
+            self.limit
+        )
+
+    def test_adds_url_to_db_session_for_integrity_error(self):
+        self._call_for_integrity_error()
+        self.assertEqual(self.db_mock.session.add.call_count, self.limit)
+        self.db_mock.session.add.assert_called_with(self.shortened_url)
+
+    def test_commits_changes_for_integrity_error(self):
+        self._call_for_integrity_error()
+        self.assertEqual(self.db_mock.session.commit.call_count, self.limit)
+
     def test_rollback_for_integrity_error(self):
         self._call_for_integrity_error()
         self.assertEqual(
