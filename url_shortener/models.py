@@ -9,7 +9,7 @@ from flask import url_for, abort
 from sqlalchemy import types, inspect
 from sqlalchemy.exc import IntegrityError
 
-from . import db, app
+from . import db
 
 
 class AliasValueError(ValueError):
@@ -278,7 +278,7 @@ class ShortenedURL(db.Model):
         return cls.query.get_or_404(valid_alias)
 
 
-def shorten_if_new(url):
+def shorten_if_new(url, attempt_limit):
     """ Shorten a URL object if it is new
 
     The shortening is performed by assigning a randomly generated
@@ -286,6 +286,7 @@ def shorten_if_new(url):
 
     :param url: an instance of ShortenedURL representing a URL to be
     shortened and registered
+    :param attempt_limit: number of attempts at shortening a URL
     :raises URLNotShortenedError: if the application exceeded
     the maximum number of attempts at shortening a URL,
     without success.
@@ -300,8 +301,7 @@ def shorten_if_new(url):
     if not state.transient:
         return
 
-    retry_limit = app.config['REGISTRATION_RETRY_LIMIT']
-    for _ in range(retry_limit):
+    for _ in range(attempt_limit):
         url.alias = Alias.create_random()
         try:
             db.session.add(url)
@@ -310,7 +310,7 @@ def shorten_if_new(url):
         except IntegrityError:
             db.session.rollback()
     msg_tpl = 'Failed to shorten a URL in {} attempts'
-    raise URLNotShortenedError(msg_tpl.format(retry_limit))
+    raise URLNotShortenedError(msg_tpl.format(attempt_limit))
 
 
 def configure_random_factory(app_object):

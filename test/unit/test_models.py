@@ -288,10 +288,7 @@ class ShortenIfNewTest(unittest.TestCase):
         self.db_patcher = patch('url_shortener.models.db')
         self.db_mock = self.db_patcher.start()
 
-        self.app_patcher = patch('url_shortener.models.app')
-        self.app_mock = self.app_patcher.start()
         self.limit = 10
-        self.app_mock.config = {'REGISTRATION_RETRY_LIMIT': self.limit}
 
         self.shortened_url = Mock()
 
@@ -299,10 +296,9 @@ class ShortenIfNewTest(unittest.TestCase):
         self.inspect_patcher.stop()
         self.alias_patcher.stop()
         self.db_patcher.stop()
-        self.app_patcher.stop()
 
     def _call(self):
-        shorten_if_new(self.shortened_url)
+        shorten_if_new(self.shortened_url, self.limit)
 
     def test_does_nothing_for_not_transient_url(self):
         self.state_mock.transient = False
@@ -329,7 +325,10 @@ class ShortenIfNewTest(unittest.TestCase):
 
     def test_rollback_for_integrity_error(self):
         self._call_for_integrity_error()
-        self.db_mock.session.rollback.assert_any_call()
+        self.assertEqual(
+            self.db_mock.session.rollback.call_count,
+            self.limit - 1
+        )
 
     def test_for_shortening_failure(self):
         self.db_mock.session.commit.side_effect = create_integrity_error()
