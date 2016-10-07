@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch, MagicMock
 from werkzeug.exceptions import HTTPException
 
 from url_shortener.views import (
-    shorten_url, get_response, RegistrationRetryLimitExceeded
+    shorten_url, get_response, URLNotShortenedError
 )
 
 
@@ -108,10 +108,10 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.redirect_mock.assert_called_once_with(redirect_url)
 
     def test_logs_error_on_failure(self):
-        """ When register_if_new raises RegistrationRetryLimitExceeeded
-        error, shorten_url is expected to log it.
+        """ When register_if_new raises URLNotShortenedError,
+        shorten_url is expected to log it.
         """
-        side_effect = RegistrationRetryLimitExceeded()
+        side_effect = URLNotShortenedError()
         self.register_if_new_mock.side_effect = side_effect
 
         shorten_url()
@@ -119,11 +119,11 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.app_mock.logger.error.assert_called_once_with(side_effect)
 
     def test_prepares_failure_message(self):
-        """ When register_if_new raises RegistrationRetryLimitExceeeded
-        error, shorten_url is expected to prepare a message on the failure.
+        """ When register_if_new raises URLNotShortenedError,
+        shorten_url is expected to prepare a message on the failure.
         The message is expected to include admin email address.
         """
-        self.register_if_new_mock.side_effect = RegistrationRetryLimitExceeded
+        self.register_if_new_mock.side_effect = URLNotShortenedError
         email = 'admin@urlshortener.com'
 
         def getitem(index):
@@ -137,10 +137,10 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         msg_tpl_mock.format.assert_called_once_with(email)
 
     def test_flashes_failure_message(self):
-        """ When register_if_new raises RegistrationRetryLimitExceeeded
-        error, shorten_url is expected to flash a message on the failure
+        """ When register_if_new raises URLNotShortenedError,
+        shorten_url is expected to flash a message on the failure
         """
-        self.register_if_new_mock.side_effect = RegistrationRetryLimitExceeded
+        self.register_if_new_mock.side_effect = URLNotShortenedError
         msg_tpl_mock = self.markup_mock.return_value
         msg_mock = msg_tpl_mock.format.return_value
 

@@ -8,7 +8,7 @@ from flask import (
 from . import app
 from .forms import ShortenedURLForm
 from .models import (
-    ShortenedURL, register_if_new, RegistrationRetryLimitExceeded
+    ShortenedURL, register_if_new, URLNotShortenedError
 )
 from .validation import url_validator
 
@@ -43,7 +43,7 @@ def shorten_url():
             register_if_new(shortened_url)
             session[KEY] = str(shortened_url.alias)
             return redirect(url_for(shorten_url.__name__))
-        except RegistrationRetryLimitExceeded as ex:
+        except URLNotShortenedError as ex:
             app.logger.error(ex)
             msg_tpl = Markup(
                 'Failed to generate a unique short alias for requested URL.'

@@ -20,9 +20,8 @@ class AliasLengthValueError(ValueError):
     """The value of alias-length related parameter is incorrect """
 
 
-class RegistrationRetryLimitExceeded(Exception):
-    """The maximum number of attempts at retrying to register
-    a new short URL has been exceeded """
+class URLNotShortenedError(Exception):
+    """Failed to shorten a URL"""
 
 
 class AliasType(type):
@@ -286,7 +285,7 @@ def register_if_new(shortened_url):
     alias to the shortened URL and then persisting it.
 
     :param shortened_url: an instance of ShortenedURL to be registered
-    :raises RegistrationRetryLimitExceeded: if the application exceeded
+    :raises URLNotShortenedError: if the application exceeded
     the maximum number of attempts at shortening a URL,
     without success.
 
@@ -310,7 +309,7 @@ def register_if_new(shortened_url):
         except IntegrityError:
             db.session.rollback()
     msg_tpl = 'Registration retry limit of {} has been reached'
-    raise RegistrationRetryLimitExceeded(msg_tpl.format(retry_limit))
+    raise URLNotShortenedError(msg_tpl.format(retry_limit))
 
 
 def configure_random_factory(app_object):

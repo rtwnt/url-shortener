@@ -8,7 +8,7 @@ from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, ShortenedURL,
-    IntegrityError, register_if_new, RegistrationRetryLimitExceeded
+    IntegrityError, register_if_new, URLNotShortenedError
 )
 
 
@@ -331,9 +331,9 @@ class RegisterIfNewTest(unittest.TestCase):
         self._call_for_integrity_error()
         self.db_mock.session.rollback.assert_any_call()
 
-    def test_for_attempt_limit_exceeded(self):
+    def test_for_shortening_failure(self):
         self.db_mock.session.commit.side_effect = create_integrity_error()
-        self.assertRaises(RegistrationRetryLimitExceeded, self._call)
+        self.assertRaises(URLNotShortenedError, self._call)
 
 
 if __name__ == "__main__":
