@@ -17,16 +17,16 @@ class BaseViewTest(object):
         )
         self.render_template_mock = self.render_template_patcher.start()
 
-        self.shortened_url_class_patcher = patch(
-            'url_shortener.views.ShortenedURL'
+        self.target_url_class_patcher = patch(
+            'url_shortener.views.TargetURL'
         )
-        self.shortened_url_class_mock = (
-            self.shortened_url_class_patcher.start()
+        self.target_url_class_mock = (
+            self.target_url_class_patcher.start()
         )
 
     def tearDown(self):
         self.render_template_patcher.stop()
-        self.shortened_url_class_patcher.stop()
+        self.target_url_class_patcher.stop()
 
 
 class RedirectPatchMixin(object):
@@ -84,23 +84,23 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         super(ShortenURLTest, self).tearDown()
 
     def test_registers_new_short_url(self):
-        shortened_url_mock = (
-            self.shortened_url_class_mock.get_or_create.return_value
+        target_url_mock = (
+            self.target_url_class_mock.get_or_create.return_value
         )
         shorten_url()
         self.shorten_if_new_mock.assert_called_once_with(
-            shortened_url_mock,
+            target_url_mock,
             self.app_mock.config['ATTEMPT_LIMIT']
         )
 
     def test_saves_new_alias_in_session(self):
-        shortened_url_mock = (
-            self.shortened_url_class_mock.get_or_create.return_value
+        target_url_mock = (
+            self.target_url_class_mock.get_or_create.return_value
         )
         shorten_url()
         self.assertTrue('requested_alias' in self.session)
         self.assertEqual(
-            str(shortened_url_mock.alias),
+            str(target_url_mock.alias),
             self.session['requested_alias']
         )
 
@@ -178,7 +178,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
         shorten_url()
 
-        self.shortened_url_class_mock.get.assert_called_once_with(
+        self.target_url_class_mock.get.assert_called_once_with(
             new_alias
         )
 
@@ -188,7 +188,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         proper message
         """
         self.set_up_new_url()
-        new_url_mock = self.shortened_url_class_mock.get.return_value
+        new_url_mock = self.target_url_class_mock.get.return_value
 
         shorten_url()
 
@@ -263,10 +263,10 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
     def test_queries_for_alias(self):
         alias = 'xyz'
         get_response(alias, self.alternative_action)
-        self.shortened_url_class_mock.get_or_404.assert_called_once_with(alias)
+        self.target_url_class_mock.get_or_404.assert_called_once_with(alias)
 
     def test_raises_http_error(self):
-        self.shortened_url_class_mock.get_or_404.side_effect = HTTPException
+        self.target_url_class_mock.get_or_404.side_effect = HTTPException
         self.assertRaises(
             HTTPException,
             get_response,
@@ -276,17 +276,17 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
 
     def test_validates_url(self):
         get_response('xyz', self.alternative_action)
-        shortened_url_mock = (
-            self.shortened_url_class_mock.get_or_404.return_value
+        target_url_mock = (
+            self.target_url_class_mock.get_or_404.return_value
         )
         self.validator_mock.assert_called_once_with(
-            shortened_url_mock.target
+            target_url_mock.target
         )
 
     def test_renders_preview_for_invalid_url(self):
         get_response('xyz', self.alternative_action)
         self.render_preview_mock.assert_called_once_with(
-            self.shortened_url_class_mock.get_or_404.return_value,
+            self.target_url_class_mock.get_or_404.return_value,
             self.validator_mock.return_value
         )
 
@@ -300,7 +300,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         function = self.alternative_action
         get_response('xyz', function)
         function.assert_called_once_with(
-            self.shortened_url_class_mock.get_or_404.return_value
+            self.target_url_class_mock.get_or_404.return_value
         )
 
     def test_returns_result_of_alternative_action(self):

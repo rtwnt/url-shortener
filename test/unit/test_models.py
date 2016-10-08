@@ -7,7 +7,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
-    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, ShortenedURL,
+    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
     IntegrityError, shorten_if_new, URLNotShortenedError
 )
 
@@ -160,18 +160,18 @@ class IntegerAliasTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class ShortenedURLTest(unittest.TestCase):
+class TargetURLTest(unittest.TestCase):
     def setUp(self):
         ModelMock = type('ModelMock', (), {'query': Mock()})
         self.bases_patcher = patch.object(
-            ShortenedURL,
+            TargetURL,
             '__bases__',
             (ModelMock,)
         )
         self.bases_patcher.start()
         self.bases_patcher.is_local = True
 
-        self.query_mock = ShortenedURL.query
+        self.query_mock = TargetURL.query
 
         self.alias_patcher = patch('url_shortener.models.Alias')
         self.alias_mock = self.alias_patcher.start()
@@ -186,28 +186,28 @@ class ShortenedURLTest(unittest.TestCase):
 
     def test_get_creates_alias(self):
         alias = 'abc'
-        ShortenedURL.get(alias)
+        TargetURL.get(alias)
         self.alias_mock.assert_called_once_with(string=alias)
 
     def test_get_queries_for_alias(self):
-        ShortenedURL.get('abc')
+        TargetURL.get('abc')
         self.query_mock.get.assert_called_once_with(
             self.alias_mock.return_value
         )
 
     def test_get_returns_query_result(self):
         expected = self.query_mock.get.return_value
-        actual = ShortenedURL.get('abc')
+        actual = TargetURL.get('abc')
         self.assertEqual(expected, actual)
 
     def test_get_or_create_filters_by_target(self):
         target = 'http://xyz.com'
-        ShortenedURL.get_or_create(target)
+        TargetURL.get_or_create(target)
         self.query_mock.filter_by.assert_called_once_with(target=target)
 
     def test_get_or_create_gets_existing_url(self):
         expected = self.query_mock.filter_by.return_value.one_or_none()
-        actual = ShortenedURL.get_or_create('http://xyz.com')
+        actual = TargetURL.get_or_create('http://xyz.com')
         self.assertEqual(expected, actual)
 
     def test_get_or_create_creates_new_url(self):
@@ -215,7 +215,7 @@ class ShortenedURLTest(unittest.TestCase):
         filtered = self.query_mock.filter_by.return_value
         filtered.one_or_none.return_value = None
         expected = target
-        actual = ShortenedURL.get_or_create('http://xyz.com').target
+        actual = TargetURL.get_or_create('http://xyz.com').target
         self.assertEqual(expected, actual)
 
     def test_get_or_create_finds_multiple_urls(self):
@@ -223,27 +223,27 @@ class ShortenedURLTest(unittest.TestCase):
         filtered.one_or_none.side_effect = MultipleResultsFound
         self.assertRaises(
             MultipleResultsFound,
-            ShortenedURL.get_or_create,
+            TargetURL.get_or_create,
             'http://xyz.com'
         )
 
     def test_get_or_404_calls_alias_constructor(self):
         alias = 'xyz'
-        ShortenedURL.get_or_404(alias)
+        TargetURL.get_or_404(alias)
         self.alias_mock.assert_called_once_with(string=alias)
 
     def test_get_or_404_queries_database(self):
         valid_alias = self.alias_mock.return_value
-        ShortenedURL.get_or_404('xyz')
+        TargetURL.get_or_404('xyz')
         self.query_mock.get_or_404.assert_called_once_with(valid_alias)
 
     def test_get_or_404_gets_existing_url(self):
         expected = self.query_mock.get_or_404.return_value
-        actual = ShortenedURL.get_or_404('xyz')
+        actual = TargetURL.get_or_404('xyz')
         self.assertEqual(expected, actual)
 
     def assert_get_or_404_raises_HTTPError(self):
-        self.assertRaises(HTTPException, ShortenedURL.get_or_404, 'xyz')
+        self.assertRaises(HTTPException, TargetURL.get_or_404, 'xyz')
 
     def test_get_or_404_raises_404_for_invalid_alias(self):
         self.alias_mock.side_effect = AliasValueError
@@ -290,7 +290,7 @@ class ShortenIfNewTest(unittest.TestCase):
 
         self.limit = 10
 
-        self.shortened_url = Mock()
+        self.target_url = Mock()
 
     def tearDown(self):
         self.inspect_patcher.stop()
@@ -298,7 +298,7 @@ class ShortenIfNewTest(unittest.TestCase):
         self.db_patcher.stop()
 
     def _call(self):
-        shorten_if_new(self.shortened_url, self.limit)
+        shorten_if_new(self.target_url, self.limit)
 
     def test_does_nothing_for_not_transient_url(self):
         self.state_mock.transient = False
@@ -313,7 +313,7 @@ class ShortenIfNewTest(unittest.TestCase):
 
     def test_adds_url_to_db_session(self):
         self._call()
-        self.db_mock.session.add.assert_called_once_with(self.shortened_url)
+        self.db_mock.session.add.assert_called_once_with(self.target_url)
 
     def test_commits_changes(self):
         self._call()
@@ -333,7 +333,7 @@ class ShortenIfNewTest(unittest.TestCase):
     def test_adds_url_to_db_session_for_integrity_error(self):
         self._call_for_integrity_error()
         self.assertEqual(self.db_mock.session.add.call_count, self.limit)
-        self.db_mock.session.add.assert_called_with(self.shortened_url)
+        self.db_mock.session.add.assert_called_with(self.target_url)
 
     def test_commits_changes_for_integrity_error(self):
         self._call_for_integrity_error()

@@ -8,7 +8,7 @@ from flask import (
 from . import app
 from .forms import ShortenedURLForm
 from .models import (
-    ShortenedURL, shorten_if_new, URLNotShortenedError
+    TargetURL, shorten_if_new, URLNotShortenedError
 )
 from .validation import url_validator
 
@@ -38,13 +38,13 @@ def shorten_url():
     form = ShortenedURLForm()
     KEY = 'requested_alias'
     if form.validate_on_submit():
-        shortened_url = ShortenedURL.get_or_create(form.url.data)
+        target_url = TargetURL.get_or_create(form.url.data)
         try:
             shorten_if_new(
-                shortened_url,
+                target_url,
                 app.config['SHORTENING_ATTEMPT_LIMIT']
             )
-            session[KEY] = str(shortened_url.alias)
+            session[KEY] = str(target_url.alias)
             return redirect(url_for(shorten_url.__name__))
         except URLNotShortenedError as ex:
             app.logger.error(ex)
@@ -61,7 +61,7 @@ def shorten_url():
                 flash(error, 'error')
     alias = session.pop(KEY, None)
     if alias is not None:
-        new_url = ShortenedURL.get(alias)
+        new_url = TargetURL.get(alias)
         msg_tpl = Markup(
             'New short URL: <a href="{0}">{0}</a><br>Preview'
             ' available at: <a href="{1}">{1}</a>'
@@ -71,10 +71,10 @@ def shorten_url():
     return render_template('shorten_url.html', form=form)
 
 
-def render_preview(shortened_url, warning_message=None):
+def render_preview(target_url, warning_message=None):
     return render_template(
         'preview.html',
-        shortened_url=shortened_url,
+        target_url=target_url,
         warning=warning_message
     )
 
@@ -87,22 +87,20 @@ def get_response(alias, alternative_action):
     on the result of the validation is shown. Otherwise, the function
     returns a result of alternative_action for given alias
 
-    :param alias: a string representing an existing shortened URL
+    :param alias: a string representing an existing target URL
     :param alternative_action: a function receiving
-    shortened URL object as its argument, used for generating
+    target URL object as its argument, used for generating
     a response for request for a safe URL
     :returns: a response generated from rendering preview or
     calling alternative_action
     :raises werkzeug.exceptions.HTTPException: when there is no
-    shortened URL for given alias
+    target URL for given alias
     """
-    shortened_url = ShortenedURL.get_or_404(alias)
-    msg = url_validator.get_msg_if_blacklisted(
-        shortened_url.target
-    )
+    target_url = TargetURL.get_or_404(alias)
+    msg = url_validator.get_msg_if_blacklisted(target_url.target)
     if msg is not None:
-        return render_preview(shortened_url, msg)
-    return alternative_action(shortened_url)
+        return render_preview(target_url, msg)
+    return alternative_action(target_url)
 
 
 @app.route('/<alias>')

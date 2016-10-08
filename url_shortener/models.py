@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" This module contains ShortenedURL class and related classes """
+""" This module contains TargetURL class and related classes """
 from bisect import bisect_left
 from math import log, floor
 from random import randint
@@ -46,7 +46,7 @@ class Alias(metaclass=AliasType):
 
     This value is assumed as maximum allowed for the integers used
     in generation because we assume SQLAlchemy.types.Integer -
-    a base type for alias property of ShortenedURL class - will
+    a base type for alias property of TargetURL class - will
     translate into 32 bit signed integer type of underlying
     database engine used by the application.
 
@@ -203,8 +203,9 @@ class IntegerAlias(types.TypeDecorator):
         return Alias(integer=value)
 
 
-class ShortenedURL(db.Model):
-    """ Represents a URL for which a short alias has been created
+class TargetURL(db.Model):
+    """ Represent a URL for which a short alias has been provided
+    or requested
 
     :cvar alias: a value representing a registered URL in short URLs and
     in database
@@ -235,41 +236,41 @@ class ShortenedURL(db.Model):
 
     @classmethod
     def get(cls, alias):
-        """ Find an existing shortened URL, or return None
+        """ Find an existing target URL, or return None
 
         :param alias: a string representation of alias
         :raises AliasValueError: if the string representation
         of alias is not valid
-        :return: an instance of ShortenedURL representing
-        an existing shortened URL, or None if no shortened URL
+        :return: an instance of TargetURL representing
+        an existing target URL, or None if no target URL
         has been found
         """
         return cls.query.get(Alias(string=alias))
 
     @classmethod
-    def get_or_create(cls, target_url):
-        """ Find an existing shortened URL, or
+    def get_or_create(cls, value):
+        """ Find an existing target URL, or
         create a new one
 
-        :param target_url: the target of shortened URL
-        :return: an instance of ShortenedURL, existing or one
+        :param value: the value of target URL
+        :return: an instance of TargetURL, existing or one
         to be registered
         """
-        shortened_url = cls.query.filter_by(target=target_url).one_or_none()
-        if shortened_url is None:
-            shortened_url = cls(target_url)
-        return shortened_url
+        target_url = cls.query.filter_by(target=value).one_or_none()
+        if target_url is None:
+            target_url = cls(value)
+        return target_url
 
     @classmethod
     def get_or_404(cls, alias):
-        """ Find an existing shortened URL, or abort
+        """ Find an existing target URL, or abort
         with 404 error code
 
         :param alias: a string representation of alias
         :raises AliasValueError: if the string representation
         of alias is not valid
-        :return: an instance of ShortenedURL representing an
-        existing shortened URL
+        :return: an instance of TargetURL representing an
+        existing target URL
         """
         try:
             valid_alias = Alias(string=alias)
@@ -284,7 +285,7 @@ def shorten_if_new(url, attempt_limit):
     The shortening is performed by assigning a randomly generated
     alias to the URL and then persisting it.
 
-    :param url: an instance of ShortenedURL representing a URL to be
+    :param url: an instance of TargetURL representing a URL to be
     shortened and registered
     :param attempt_limit: number of attempts at shortening a URL
     :raises URLNotShortenedError: if the application exceeded
