@@ -26,7 +26,7 @@ be created (if it doesn't exist yet) and used for one day. After that,
 it will be renamed, and another file with the same name will be created
 in the same directory and used.
 
-:var SHORTENING_ATTEMPT_LIMIT: a maximum number of attempts at
+:var ATTEMPT_LIMIT: a maximum number of attempts at
 shortening a URL
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
@@ -53,7 +53,7 @@ MIN_NEW_ALIAS_LENGTH = 1
 MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
 LOG_FILE = None
-SHORTENING_ATTEMPT_LIMIT = 10
+ATTEMPT_LIMIT = 10
 GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
 HOST_BLACKLIST_FILE = None
 RECAPTCHA_PUBLIC_KEY = 'public-recaptcha-key'

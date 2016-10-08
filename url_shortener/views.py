@@ -40,10 +40,7 @@ def shorten_url():
     if form.validate_on_submit():
         target_url = TargetURL.get_or_create(form.url.data)
         try:
-            shorten_if_new(
-                target_url,
-                app.config['SHORTENING_ATTEMPT_LIMIT']
-            )
+            shorten_if_new(target_url, app.config['ATTEMPT_LIMIT'])
             session[KEY] = str(target_url.alias)
             return redirect(url_for(shorten_url.__name__))
         except URLNotShortenedError as ex:
