@@ -113,7 +113,7 @@ def redirect_for(alias):
     :returns: a redirect to target URL of short URL, if
     found.
     """
-    return get_response(alias, lambda u: redirect(u.value))
+    return get_response(alias, redirect)
 
 
 @app.route('/preview/<alias>')
