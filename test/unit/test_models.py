@@ -176,13 +176,9 @@ class TargetURLTest(unittest.TestCase):
         self.alias_patcher = patch('url_shortener.models.Alias')
         self.alias_mock = self.alias_patcher.start()
 
-        self.abort_patcher = patch('url_shortener.models.abort')
-        self.abort_mock = self.abort_patcher.start()
-
     def tearDown(self):
         self.bases_patcher.stop()
         self.alias_patcher.stop()
-        self.abort_patcher.stop()
 
     def test_get_creates_alias(self):
         alias = 'abc'
@@ -244,12 +240,6 @@ class TargetURLTest(unittest.TestCase):
 
     def assert_get_or_404_raises_HTTPError(self):
         self.assertRaises(HTTPException, TargetURL.get_or_404, 'xyz')
-
-    def test_get_or_404_raises_404_for_invalid_alias(self):
-        self.alias_mock.side_effect = AliasValueError
-        self.abort_mock.side_effect = HTTPException
-        self.assert_get_or_404_raises_HTTPError()
-        self.abort_mock.assert_called_once_with(404)
 
     def test_get_or_404_raises_404_for_not_existing_alias(self):
         self.query_mock.get_or_404.side_effect = HTTPException

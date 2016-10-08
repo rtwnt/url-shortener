@@ -5,7 +5,7 @@ from math import log, floor
 from random import randint
 
 from cached_property import cached_property
-from flask import url_for, abort
+from flask import url_for
 from sqlalchemy import types, inspect
 from sqlalchemy.exc import IntegrityError
 
@@ -272,11 +272,7 @@ class TargetURL(db.Model):
         :return: an instance of TargetURL representing an
         existing target URL
         """
-        try:
-            valid_alias = Alias(string=alias)
-        except AliasValueError:
-            abort(404)
-        return cls.query.get_or_404(valid_alias)
+        return cls.query.get_or_404(Alias(string=alias))
 
 
 def shorten_if_new(url, attempt_limit):
