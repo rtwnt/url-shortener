@@ -211,7 +211,7 @@ class TargetURL(db.Model):
     in database
     """
     alias = db.Column(IntegerAlias, primary_key=True)
-    value = db.Column(db.String(2083), unique=True)
+    value = db.Column(db.String(2083), unique=True, nullable=False)
 
     def __init__(self, target):
         """ Constructor
