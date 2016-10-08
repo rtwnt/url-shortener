@@ -1,4 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    This short URL doesn't lead anywhere.
+    <p>The address <b>{{ request.url }}</b> doesn't lead anywhere.</p>
+    <p>If you pasted or typed in this address, make sure you included all
+    the characters correctly.</p>
 {% endblock %}
