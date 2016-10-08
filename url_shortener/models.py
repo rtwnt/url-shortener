@@ -211,17 +211,17 @@ class TargetURL(db.Model):
     in database
     """
     alias = db.Column(IntegerAlias, primary_key=True)
-    target = db.Column(db.String(2083), unique=True)
+    value = db.Column(db.String(2083), unique=True)
 
     def __init__(self, target):
         """ Constructor
 
         :param target: URL represented by the instance
         """
-        self.target = target
+        self.value = target
 
     def __str__(self):
-        return self.target
+        return self.value
 
     def _alternative_url(self, endpoint):
         return url_for(endpoint, _external=True, alias=self.alias)
@@ -256,7 +256,7 @@ class TargetURL(db.Model):
         :return: an instance of TargetURL, existing or one
         to be registered
         """
-        target_url = cls.query.filter_by(target=value).one_or_none()
+        target_url = cls.query.filter_by(value=value).one_or_none()
         if target_url is None:
             target_url = cls(value)
         return target_url

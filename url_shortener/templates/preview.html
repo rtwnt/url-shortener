@@ -7,7 +7,7 @@
     {% endif %}
     {% with %}
         {% set short_url = target_url.short_url %}
-        {% set target = target_url.target %}
+        {% set target = target_url.value %}
         The URL address <a href="{{ short_url }}">{{ short_url }}</a>
         redirects to <a href="{{ target }}">{{ target }}</a>.
     {% endwith %}
