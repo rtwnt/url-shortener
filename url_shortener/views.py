@@ -8,7 +8,7 @@ from flask import (
 from . import app
 from .forms import ShortenedURLForm
 from .models import (
-    TargetURL, shorten_if_new, URLNotShortenedError
+    TargetURL, shorten_if_new, URLNotShortenedError, AliasValueError
 )
 from .validation import url_validator
 
@@ -131,6 +131,7 @@ def preview(alias):
     return get_response(alias, render_preview)
 
 
+@app.errorhandler(AliasValueError)
 @app.errorhandler(404)
 def not_found(error):
     return render_template('not_found.html')
