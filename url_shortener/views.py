@@ -2,7 +2,7 @@
 import datetime
 
 from flask import (
-    session, redirect, url_for, flash, render_template, Markup
+    redirect, url_for, flash, render_template, Markup
 )
 
 from . import app
@@ -36,12 +36,17 @@ def shorten_url():
     either directly or after redirection.
     """
     form = ShortenedURLForm()
-    KEY = 'requested_alias'
     if form.validate_on_submit():
         target_url = TargetURL.get_or_create(form.url.data)
         try:
             shorten_if_new(target_url, app.config['ATTEMPT_LIMIT'])
-            session[KEY] = str(target_url.alias)
+            msg_tpl = Markup(
+                'New short URL: <a href="{0}">{0}</a><br>Preview'
+                ' available at: <a href="{1}">{1}</a>'
+            )
+            msg = msg_tpl.format(target_url.short_url, target_url.preview_url)
+            flash(msg, 'success')
+
             return redirect(url_for(shorten_url.__name__))
         except URLNotShortenedError as ex:
             app.logger.error(ex)
@@ -56,15 +61,6 @@ def shorten_url():
         for field_errors in form.errors.values():
             for error in field_errors:
                 flash(error, 'error')
-    alias = session.pop(KEY, None)
-    if alias is not None:
-        new_url = TargetURL.get(alias)
-        msg_tpl = Markup(
-            'New short URL: <a href="{0}">{0}</a><br>Preview'
-            ' available at: <a href="{1}">{1}</a>'
-        )
-        msg = msg_tpl.format(new_url.short_url, new_url.preview_url)
-        flash(msg, 'success')
     return render_template('shorten_url.html', form=form)
 
 
