@@ -90,7 +90,7 @@ def get_response(alias, alternative_action):
     target URL for given alias
     """
     target_url = TargetURL.get_or_404(alias)
-    msg = url_validator.get_msg_if_blacklisted(target_url.value)
+    msg = url_validator.get_msg_if_blacklisted(str(target_url))
     if msg is not None:
         return render_preview(target_url, msg)
     return alternative_action(target_url)

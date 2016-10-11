@@ -210,9 +210,9 @@ class TargetURLTest(unittest.TestCase):
         target = 'http://xyz.com'
         filtered = self.query_mock.filter_by.return_value
         filtered.one_or_none.return_value = None
-        expected = target
-        actual = TargetURL.get_or_create('http://xyz.com').value
-        self.assertEqual(expected, actual)
+        expected = str(TargetURL(target))
+        actual = str(TargetURL.get_or_create('http://xyz.com'))
+        self.assertEqual(str(expected), actual)
 
     def test_get_or_create_finds_multiple_urls(self):
         filtered = self.query_mock.filter_by.return_value

@@ -230,7 +230,7 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
             self.target_url_class_mock.get_or_404.return_value
         )
         self.validator_mock.assert_called_once_with(
-            target_url_mock.value
+            str(target_url_mock)
         )
 
     def test_renders_preview_for_invalid_url(self):
