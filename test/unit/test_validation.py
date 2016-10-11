@@ -57,10 +57,8 @@ class BlacklistValidatorTest(unittest.TestCase):
 
         self.tested_instance.prepend(blacklist, message)
 
-        self.assertDictContainsSubset(
-            {blacklist: message},
-            self.tested_instance._msg_map
-        )
+        self.assertIn(blacklist, self.tested_instance._msg_map)
+        self.assertEqual(self.tested_instance._msg_map[blacklist], message)
 
     def test_prepend_does_not_add_message(self):
         """prepend method is expected not to add a blacklist-specific
