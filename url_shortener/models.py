@@ -207,28 +207,29 @@ class TargetURL(db.Model):
     """ Represent a URL for which a short alias has been provided
     or requested
 
-    :cvar alias: a value representing a registered URL in short URLs and
+    :cvar _alias: a value representing a registered URL in short URLs and
     in database
     """
-    alias = db.Column(
+    _alias = db.Column(
+        'alias',
         IntegerAlias,
         primary_key=True,
         default=Alias.create_random
     )
-    value = db.Column(db.String(2083), unique=True, nullable=False)
+    _value = db.Column('value', db.String(2083), unique=True, nullable=False)
 
     def __init__(self, target):
         """ Constructor
 
         :param target: URL represented by the instance
         """
-        self.value = target
+        self._value = target
 
     def __str__(self):
-        return self.value
+        return self._value
 
     def _alternative_url(self, endpoint):
-        return url_for(endpoint, _external=True, alias=self.alias)
+        return url_for(endpoint, _external=True, alias=self._alias)
 
     @cached_property
     def short_url(self):
@@ -260,7 +261,7 @@ class TargetURL(db.Model):
         :return: an instance of TargetURL, existing or one
         to be registered
         """
-        target_url = cls.query.filter_by(value=value).one_or_none()
+        target_url = cls.query.filter_by(_value=value).one_or_none()
         if target_url is None:
             target_url = cls(value)
         return target_url
