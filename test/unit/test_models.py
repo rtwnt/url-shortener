@@ -272,9 +272,6 @@ class ShortenIfNewTest(unittest.TestCase):
         self.state_mock = inspect_mock.return_value
         self.state_mock.transient = True
 
-        self.alias_patcher = patch('url_shortener.models.Alias')
-        self.alias_mock = self.alias_patcher.start()
-
         self.db_patcher = patch('url_shortener.models.db')
         self.db_mock = self.db_patcher.start()
 
@@ -284,7 +281,6 @@ class ShortenIfNewTest(unittest.TestCase):
 
     def tearDown(self):
         self.inspect_patcher.stop()
-        self.alias_patcher.stop()
         self.db_patcher.stop()
 
     def _call(self):
@@ -293,13 +289,8 @@ class ShortenIfNewTest(unittest.TestCase):
     def test_does_nothing_for_not_transient_url(self):
         self.state_mock.transient = False
         self._call()
-        self.alias_mock.create_random.assert_not_called()
         self.db_mock.session.add.assert_not_called()
         self.db_mock.session.commit.assert_not_called()
-
-    def test_assigns_random_alias(self):
-        self._call()
-        self.alias_mock.create_random.assert_called_once_with()
 
     def test_adds_url_to_db_session(self):
         self._call()
@@ -312,13 +303,6 @@ class ShortenIfNewTest(unittest.TestCase):
     def _call_for_integrity_error(self):
         self.db_mock.session.commit.side_effect = CommitSideEffects(self.limit)
         self._call()
-
-    def test_assigns_random_alias_for_integrity_error(self):
-        self._call_for_integrity_error()
-        self.assertEqual(
-            self.alias_mock.create_random.call_count,
-            self.limit
-        )
 
     def test_adds_url_to_db_session_for_integrity_error(self):
         self._call_for_integrity_error()

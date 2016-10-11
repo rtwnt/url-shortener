@@ -210,7 +210,11 @@ class TargetURL(db.Model):
     :cvar alias: a value representing a registered URL in short URLs and
     in database
     """
-    alias = db.Column(IntegerAlias, primary_key=True)
+    alias = db.Column(
+        IntegerAlias,
+        primary_key=True,
+        default=Alias.create_random
+    )
     value = db.Column(db.String(2083), unique=True, nullable=False)
 
     def __init__(self, target):
@@ -278,8 +282,10 @@ class TargetURL(db.Model):
 def shorten_if_new(url, attempt_limit):
     """ Shorten a URL object if it is new
 
-    The shortening is performed by assigning a randomly generated
-    alias to the URL and then persisting it.
+    The shortening is performed by persisting the URL. When it is
+    successful, URL is stored in the database with a randomly
+    generated alias assigned to it, so the application can provide
+    a short URL redirecting to the target URL.
 
     :param url: an instance of TargetURL representing a URL to be
     shortened and registered
@@ -299,7 +305,6 @@ def shorten_if_new(url, attempt_limit):
         return
 
     for _ in range(attempt_limit):
-        url.alias = Alias.create_random()
         try:
             db.session.add(url)
             db.session.commit()
