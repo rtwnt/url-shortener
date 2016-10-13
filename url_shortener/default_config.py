@@ -28,6 +28,9 @@ in the same directory and used.
 
 :var ATTEMPT_LIMIT: a maximum number of attempts at
 shortening a URL
+:var INTEGRITY_ERROR_LIMIT: a maximum number of integrity errors allowed to
+occur when handling a request for a shortened URL, before logging a warning
+
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
 :var HOST_BLACKLIST_FILE: a name of file storing blacklisted hosts
@@ -54,6 +57,7 @@ MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
 LOG_FILE = None
 ATTEMPT_LIMIT = 10
+INTEGRITY_ERROR_LIMIT = 10
 GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
 HOST_BLACKLIST_FILE = None
 RECAPTCHA_PUBLIC_KEY = 'public-recaptcha-key'
