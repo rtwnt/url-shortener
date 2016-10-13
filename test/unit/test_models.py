@@ -8,8 +8,7 @@ from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
-    IntegrityError, shorten_if_new, URLNotShortenedError,
-    commit_changes
+    IntegrityError, commit_changes
 )
 
 
@@ -307,68 +306,6 @@ def create_integrity_error():
 def commit_side_effects(integrity_error_count):
     error = create_integrity_error()
     return [error] * integrity_error_count + [None]
-
-
-class ShortenIfNewTest(unittest.TestCase):
-    def setUp(self):
-        self.inspect_patcher = patch('url_shortener.models.inspect')
-        inspect_mock = self.inspect_patcher.start()
-        self.state_mock = inspect_mock.return_value
-        self.state_mock.transient = True
-
-        self.db_patcher = patch('url_shortener.models.db')
-        self.db_mock = self.db_patcher.start()
-
-        self.limit = 10
-
-        self.target_url = Mock()
-
-    def tearDown(self):
-        self.inspect_patcher.stop()
-        self.db_patcher.stop()
-
-    def _call(self):
-        shorten_if_new(self.target_url, self.limit)
-
-    def test_does_nothing_for_not_transient_url(self):
-        self.state_mock.transient = False
-        self._call()
-        self.assertEqual(self.db_mock.session.add.call_count, 0)
-        self.assertEqual(self.db_mock.session.commit.call_count, 0)
-
-    def test_adds_url_to_db_session(self):
-        self._call()
-        self.db_mock.session.add.assert_called_once_with(self.target_url)
-
-    def test_commits_changes(self):
-        self._call()
-        self.db_mock.session.commit.assert_called_once_with()
-
-    def _call_for_integrity_error(self):
-        self.db_mock.session.commit.side_effect = commit_side_effects(
-            self.limit - 1
-        )
-        self._call()
-
-    def test_adds_url_to_db_session_for_integrity_error(self):
-        self._call_for_integrity_error()
-        self.assertEqual(self.db_mock.session.add.call_count, self.limit)
-        self.db_mock.session.add.assert_called_with(self.target_url)
-
-    def test_commits_changes_for_integrity_error(self):
-        self._call_for_integrity_error()
-        self.assertEqual(self.db_mock.session.commit.call_count, self.limit)
-
-    def test_rollback_for_integrity_error(self):
-        self._call_for_integrity_error()
-        self.assertEqual(
-            self.db_mock.session.rollback.call_count,
-            self.limit - 1
-        )
-
-    def test_for_shortening_failure(self):
-        self.db_mock.session.commit.side_effect = create_integrity_error()
-        self.assertRaises(URLNotShortenedError, self._call)
 
 
 class TestCommitChanges(unittest.TestCase):

@@ -6,7 +6,7 @@ from random import randint
 
 from cached_property import cached_property
 from flask import url_for, current_app
-from sqlalchemy import types, inspect
+from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
 from . import db
@@ -341,42 +341,6 @@ def commit_changes():
             'Number of integrity errors exceeds the limit: {} > {}'
             ''.format(integrity_error_count, limit)
         )
-
-
-def shorten_if_new(url, attempt_limit):
-    """ Shorten a URL object if it is new
-
-    The shortening is performed by persisting the URL. When it is
-    successful, URL is stored in the database with a randomly
-    generated alias assigned to it, so the application can provide
-    a short URL redirecting to the target URL.
-
-    :param url: an instance of TargetURL representing a URL to be
-    shortened and registered
-    :param attempt_limit: number of attempts at shortening a URL
-    :raises URLNotShortenedError: if the application exceeded
-    the maximum number of attempts at shortening a URL,
-    without success.
-
-    Registered shortened URLs get aliases chosen randomly from a set
-    of values with length falling between configurable minimum
-    and maximum values. If a significant number of aliases from
-    this set is already in use, exceeding the retry limit becomes more
-    and more likely.
-    """
-    state = inspect(url)
-    if not state.transient:
-        return
-
-    for _ in range(attempt_limit):
-        try:
-            db.session.add(url)
-            db.session.commit()
-            return
-        except IntegrityError:
-            db.session.rollback()
-    msg_tpl = 'Failed to shorten a URL in {} attempts'
-    raise URLNotShortenedError(msg_tpl.format(attempt_limit))
 
 
 def configure_random_factory(app_object):
