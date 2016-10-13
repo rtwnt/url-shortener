@@ -294,7 +294,7 @@ class TargetURL(db.Model):
         return cls.query.get_or_404(Alias(string=alias))
 
 
-def commit_changes_to_database():
+def commit_changes():
     """ Commits all changes stored in current database session
 
     The reason for implementing this method instead of simply calling

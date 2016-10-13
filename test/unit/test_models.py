@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
     IntegrityError, shorten_if_new, URLNotShortenedError,
-    commit_changes_to_database
+    commit_changes
 )
 
 
@@ -371,7 +371,7 @@ class ShortenIfNewTest(unittest.TestCase):
         self.assertRaises(URLNotShortenedError, self._call)
 
 
-class TestCommitChangesToDatabase(unittest.TestCase):
+class TestCommitChanges(unittest.TestCase):
     LIMIT = 10
     TEST_PARAMS = [
         ('no_integrity_errors', 0),
@@ -399,7 +399,7 @@ class TestCommitChangesToDatabase(unittest.TestCase):
             integrity_error_count
         )
 
-        commit_changes_to_database()
+        commit_changes()
 
     @parameterized.expand(TEST_PARAMS)
     def test_commits_pending_changes_with(self, _, integrity_error_count):
