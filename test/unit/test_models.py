@@ -279,8 +279,8 @@ class ShortenIfNewTest(unittest.TestCase):
     def test_does_nothing_for_not_transient_url(self):
         self.state_mock.transient = False
         self._call()
-        self.db_mock.session.add.assert_not_called()
-        self.db_mock.session.commit.assert_not_called()
+        self.assertEqual(self.db_mock.session.add.call_count, 0)
+        self.assertEqual(self.db_mock.session.commit.call_count, 0)
 
     def test_adds_url_to_db_session(self):
         self._call()
