@@ -7,9 +7,8 @@ from flask import (
 
 from . import app
 from .forms import ShortenedURLForm
-from .models import (
-    TargetURL, shorten_if_new, URLNotShortenedError, AliasValueError
-)
+from .models import TargetURL, AliasValueError, commit_changes
+
 from .validation import url_validator
 
 
@@ -38,25 +37,15 @@ def shorten_url():
     form = ShortenedURLForm()
     if form.validate_on_submit():
         target_url = TargetURL.get_or_create(form.url.data)
-        try:
-            shorten_if_new(target_url, app.config['ATTEMPT_LIMIT'])
-            msg_tpl = Markup(
-                'New short URL: <a href="{0}">{0}</a><br>Preview'
-                ' available at: <a href="{1}">{1}</a>'
-            )
-            msg = msg_tpl.format(target_url.short_url, target_url.preview_url)
-            flash(msg, 'success')
+        commit_changes()
+        msg_tpl = Markup(
+            'New short URL: <a href="{0}">{0}</a><br>Preview'
+            ' available at: <a href="{1}">{1}</a>'
+        )
+        msg = msg_tpl.format(target_url.short_url, target_url.preview_url)
+        flash(msg, 'success')
 
-            return redirect(url_for(shorten_url.__name__))
-        except URLNotShortenedError as ex:
-            app.logger.error(ex)
-            msg_tpl = Markup(
-                'Failed to generate a unique short alias for requested URL.'
-                ' Please, try again.<br> If you see this error again,'
-                ' <a href="{}">send us a message</a>'
-            )
-            msg = msg_tpl.format(app.config['ADMIN_EMAIL'])
-            flash(msg, 'error')
+        return redirect(url_for(shorten_url.__name__))
     else:
         for field_errors in form.errors.values():
             for error in field_errors:
