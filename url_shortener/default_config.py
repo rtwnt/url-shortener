@@ -26,8 +26,6 @@ be created (if it doesn't exist yet) and used for one day. After that,
 it will be renamed, and another file with the same name will be created
 in the same directory and used.
 
-:var ATTEMPT_LIMIT: a maximum number of attempts at
-shortening a URL
 :var INTEGRITY_ERROR_LIMIT: a maximum number of integrity errors allowed to
 occur when handling a request for a shortened URL, before logging a warning
 
@@ -56,7 +54,6 @@ MIN_NEW_ALIAS_LENGTH = 1
 MAX_NEW_ALIAS_LENGTH = 4
 SECRET_KEY = 'a secret key'
 LOG_FILE = None
-ATTEMPT_LIMIT = 10
 INTEGRITY_ERROR_LIMIT = 10
 GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
 HOST_BLACKLIST_FILE = None
