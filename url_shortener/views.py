@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from flask import (
-    redirect, url_for, flash, render_template, Markup
-)
+from flask import redirect, url_for, flash, render_template, Markup
 
 from . import app
 from .forms import ShortenedURLForm
