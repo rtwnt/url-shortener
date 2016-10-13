@@ -250,19 +250,9 @@ def create_integrity_error():
     return IntegrityError('message', 'statement', ['param_1'], Exception)
 
 
-class CommitSideEffects():
-    """ A class providing side effects for mock of
-    db.session.commit function
-    """
-    def __init__(self, limit):
-        self._limit = limit - 1
-        self._counter = 0
-
-    def __call__(self):
-        if self._counter == self._limit:
-            return
-        self._counter += 1
-        raise create_integrity_error()
+def commit_side_effects(integrity_error_count):
+    error = create_integrity_error()
+    return [error] * integrity_error_count + [None]
 
 
 class ShortenIfNewTest(unittest.TestCase):
@@ -301,7 +291,9 @@ class ShortenIfNewTest(unittest.TestCase):
         self.db_mock.session.commit.assert_called_once_with()
 
     def _call_for_integrity_error(self):
-        self.db_mock.session.commit.side_effect = CommitSideEffects(self.limit)
+        self.db_mock.session.commit.side_effect = commit_side_effects(
+            self.limit - 1
+        )
         self._call()
 
     def test_adds_url_to_db_session_for_integrity_error(self):
