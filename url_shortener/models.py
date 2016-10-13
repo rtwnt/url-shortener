@@ -20,10 +20,6 @@ class AliasLengthValueError(ValueError):
     """The value of alias-length related parameter is incorrect """
 
 
-class URLNotShortenedError(Exception):
-    """Failed to shorten a URL"""
-
-
 class AliasType(type):
     def __new__(cls, *args, **kwargs):
         alias_class = type.__new__(cls, *args, **kwargs)
