@@ -299,15 +299,6 @@ class TargetURLTest(unittest.TestCase):
         self.assert_get_or_404_raises_HTTPError()
 
 
-def create_integrity_error():
-    return IntegrityError('message', 'statement', ['param_1'], Exception)
-
-
-def commit_side_effects(integrity_error_count):
-    error = create_integrity_error()
-    return [error] * integrity_error_count + [None]
-
-
 class TestCommitChanges(unittest.TestCase):
     LIMIT = 10
     TEST_PARAMS = [
@@ -332,8 +323,9 @@ class TestCommitChanges(unittest.TestCase):
         self.current_app_patcher.stop()
 
     def _call(self, integrity_error_count):
-        self.session_mock.commit.side_effect = commit_side_effects(
-            integrity_error_count
+        error = IntegrityError('message', 'statement', ['param_1'], Exception)
+        self.session_mock.commit.side_effect = (
+            [error] * integrity_error_count + [None]
         )
 
         commit_changes()
