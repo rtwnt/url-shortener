@@ -8,7 +8,8 @@ from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
-    IntegrityError, shorten_if_new, URLNotShortenedError
+    IntegrityError, shorten_if_new, URLNotShortenedError,
+    commit_changes_to_database
 )
 
 
@@ -315,6 +316,66 @@ class ShortenIfNewTest(unittest.TestCase):
     def test_for_shortening_failure(self):
         self.db_mock.session.commit.side_effect = create_integrity_error()
         self.assertRaises(URLNotShortenedError, self._call)
+
+
+class TestCommitChangesToDatabase(unittest.TestCase):
+    LIMIT = 10
+    TEST_PARAMS = [
+        ('no_integrity_errors', 0),
+        ('one_integrity_error', 1),
+        ('two_integrity_errors', 2),
+        ('too_many_integrity_errors', LIMIT + 1)
+    ]
+
+    def setUp(self):
+        self.session_patcher = patch('url_shortener.models.db.session')
+        self.session_mock = self.session_patcher.start()
+
+        self.current_app_patcher = patch('url_shortener.models.current_app')
+        current_app_mock = self.current_app_patcher.start()
+        current_app_mock.config = {}
+        current_app_mock.config['INTEGRITY_ERROR_LIMIT'] = self.LIMIT
+        self.logger_mock = current_app_mock.logger.warning
+
+    def tearDown(self):
+        self.session_mock.stop()
+        self.current_app_patcher.stop()
+
+    def _call(self, integrity_error_count):
+        self.session_mock.commit.side_effect = commit_side_effects(
+            integrity_error_count
+        )
+
+        commit_changes_to_database()
+
+    @parameterized.expand(TEST_PARAMS)
+    def test_commits_pending_changes_with(self, _, integrity_error_count):
+        self._call(integrity_error_count)
+
+        self.assertEqual(
+            self.session_mock.commit.call_count,
+            integrity_error_count + 1
+        )
+
+    @parameterized.expand(TEST_PARAMS)
+    def test_rolls_back_for(self, _, integrity_error_count):
+        self._call(integrity_error_count)
+
+        self.assertEqual(
+            self.session_mock.rollback.call_count,
+            integrity_error_count
+        )
+
+    def test_does_not_log_warning(self):
+        for integrity_error_count in range(self.LIMIT + 1):
+            self._call(integrity_error_count)
+
+            self.assertEqual(self.logger_mock.call_count, 0)
+
+    def test_logs_warning(self):
+        self._call(self.LIMIT + 1)
+
+        self.assertTrue(self.logger_mock.called)
 
 
 if __name__ == "__main__":

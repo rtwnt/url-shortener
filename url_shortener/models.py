@@ -5,7 +5,7 @@ from math import log, floor
 from random import randint
 
 from cached_property import cached_property
-from flask import url_for
+from flask import url_for, current_app
 from sqlalchemy import types, inspect
 from sqlalchemy.exc import IntegrityError
 
@@ -278,6 +278,55 @@ class TargetURL(db.Model):
         existing target URL
         """
         return cls.query.get_or_404(Alias(string=alias))
+
+
+def commit_changes_to_database():
+    """ Commits all changes stored in current database session
+
+    The reason for implementing this method instead of simply calling
+    commit() on current database session is that the operation includes
+    shortening pending target URLs, which may cause some errors that
+    require handling.
+
+    The shortening is performed by persisting pending URLs, that is:
+    URLs represented by instances of TargetURL that have been added to
+    the database session. When it is sucessful, URLs are stored in
+    the database, each with a randomly generated alias assigned to it,
+    so the application can provide a short URL for each of them.
+
+    Because instances of TargetURL stored in database and managed by
+    current database session are guaranteed to be unique on their
+    "value" property, the only reason for IntegrityError to be raised
+    is an accidental generation of alias value that is already used
+    for another URL.
+
+    Aliases are chosen randomly from a set of values with length
+    falling between configurable minimum and maximum values. If
+    a significant number of aliases from this set is already in use,
+    integrity errors become more and more frequent.
+
+    When a number of integrity errors occuring while handling a request
+    exceeds a configurable limit, the function logs a warning. By
+    paying attention to such occurences becoming more and more
+    frequent, administrators can know when it is necessary to increase
+    the range of available aliases by increasing their maximum or
+    decreasing their minimum length.
+    """
+    integrity_error_count = 0
+    while True:
+        try:
+            db.session.commit()
+            break
+        except IntegrityError:
+            integrity_error_count += 1
+            db.session.rollback()
+
+    limit = current_app.config['INTEGRITY_ERROR_LIMIT']
+    if integrity_error_count > limit:
+        current_app.logger.warning(
+            'Number of integrity errors exceeds the limit: {} > {}'
+            ''.format(integrity_error_count, limit)
+        )
 
 
 def shorten_if_new(url, attempt_limit):
