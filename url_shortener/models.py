@@ -254,17 +254,31 @@ class TargetURL(db.Model):
 
     @classmethod
     def get_or_create(cls, value):
-        """ Find an existing target URL, or
-        create a new one
+        """ Find an existing target URL or create a new one
+
+        Existing target URLs can be found in database or in
+        cache attached to database session.
 
         :param value: the value of target URL
         :return: an instance of TargetURL, existing or one
         to be registered
         """
-        target_url = cls.query.filter_by(_value=value).one_or_none()
-        if target_url is None:
-            target_url = cls(value)
-        return target_url
+        cache = getattr(db.session, '_unique_cache', None)
+        if cache is None:
+            db.session._unique_cache = cache = {}
+
+        if value in cache:
+            return cache[value]
+
+        else:
+            with db.session.no_autoflush:
+                query = db.session.query(cls)
+                target_url = query.filter_by(_value=value).one_or_none()
+                if not target_url:
+                    target_url = cls(value)
+                    db.session.add(target_url)
+            cache[value] = target_url
+            return target_url
 
     @classmethod
     def get_or_404(cls, alias):
