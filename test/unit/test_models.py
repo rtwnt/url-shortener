@@ -231,9 +231,16 @@ class TargetURLTest(unittest.TestCase):
         self.assertTrue(called_first_time)
         self.assertEqual(query_mock.call_count, 0)
 
-    def test_get_or_create_creates_new_url(self):
+    def set_db_query_side_effect(self, side_effect=None):
         filtered = self.session_mock.query.return_value.filter_by()
-        filtered.one_or_none.return_value = None
+        func_mock = filtered.one_or_none
+        if isinstance(side_effect, type(Exception)):
+            func_mock.side_effect = side_effect
+        else:
+            func_mock.return_value = side_effect
+
+    def test_get_or_create_creates_new_url(self):
+        self.set_db_query_side_effect()
         target = 'http://xyz.com'
 
         expected = str(TargetURL(target))
@@ -242,8 +249,7 @@ class TargetURLTest(unittest.TestCase):
         self.assertEqual(str(expected), actual)
 
     def test_get_or_create_adds_new_url_to_db_session(self):
-        filtered = self.session_mock.query.return_value.filter_by()
-        filtered.one_or_none.return_value = None
+        self.set_db_query_side_effect()
         target = 'http://xyz.com'
 
         target_url = TargetURL.get_or_create(target)
@@ -251,11 +257,9 @@ class TargetURLTest(unittest.TestCase):
         self.session_mock.add.assert_called_once_with(target_url)
 
     def test_get_or_create_caches_new_url(self):
-        filtered = self.session_mock.query.return_value.filter_by()
-        filtered.one_or_none.return_value = None
+        self.set_db_query_side_effect()
         target = 'http://xyz.com'
         target_url_1 = TargetURL.get_or_create(target)
-
         query_mock = self.session_mock.query
         query_mock.reset_mock()
 
@@ -265,8 +269,7 @@ class TargetURLTest(unittest.TestCase):
         self.assertEqual(target_url_1, target_url_2)
 
     def test_get_or_create_finds_multiple_urls(self):
-        filtered = self.session_mock.query.return_value.filter_by()
-        filtered.one_or_none.side_effect = MultipleResultsFound
+        self.set_db_query_side_effect(MultipleResultsFound)
 
         self.assertRaises(
             MultipleResultsFound,
