@@ -2,7 +2,7 @@
 """ This module contains TargetURL class and related classes """
 from bisect import bisect_left
 from math import log, floor
-from random import randint
+from random import randint, choice
 
 from cached_property import cached_property
 from flask import url_for, current_app
@@ -25,6 +25,207 @@ class AliasValueError(ValueError):
 
 class AliasLengthValueError(ValueError):
     """The value of alias-length related parameter is incorrect """
+
+
+class AliasAlphabet(object):
+    """ Represents an alphabet of characters used for creating
+    alias strings and provides methods for creating alias strings
+
+    :cvar INTAB: a string containing characters to be replaced
+    with their homoglyphs, if they are present in a string
+    :cvar OUTTAB: a string containing characters to replace their
+    corresponding characters in INTAB
+    :cvar TRANSLATION: a translation table for replacing characters
+    with their homoglyphs
+    """
+    INTAB = 'lIoBzZsSb9'
+    OUTTAB = '110822556g'
+    TRANSLATION = str.maketrans(INTAB, OUTTAB)
+
+    def __init__(self, characters, min_length, max_length):
+        """Initialize a new instance
+
+        :param characters: a string containing characters to be
+        inlcuded in the alphabet
+
+        To avoid generating aliases with characters that can be
+        confused with each other, characters specified in the INTAB
+        class property can't be specified as part of the alphabet.
+
+        :param min_length: a minimum length of a newly generated
+        alias string
+        :param max_length: a maximum length of a newly generated
+        alias string
+        :raises AlphabetValueError: if characters parameter contains
+        any character specified in the INTAB
+        :raises AliasLengthValueError: if min_length and max_length
+        don't fulfill the condition: 0 < min_length <= max_length
+        """
+
+        self._set_characters(characters)
+        self._set_length_range(min_length, max_length)
+
+    @classmethod
+    def from_chars_with_homoglyphs(cls, characters, *args, **kwargs):
+        """Create a new instance using characters that may contain
+        unsupported, potentially confusing characters
+
+        The potentially confusing characters are simply removed.
+
+        :param characters: a string containing characters to be
+        inlcuded in the alphabet
+
+        Only those characters that aren't specified in INTAB are
+        to be included in the new instance.
+
+        :param min_length: a minimum length of a newly generated
+        alias string
+        :param max_length: a maximum length of a newly generated
+        alias string
+        """
+        for char in cls.INTAB:
+            characters = characters.replace(char, '')
+        return cls(characters, *args, **kwargs)
+
+    def _set_characters(self, characters):
+        """Assign the characters to the instance and adjust
+        replacements for multiletter homoglyphs
+
+        :param characters: a string containing characters to be
+        inlcuded in the alphabet.
+
+        To avoid generating aliases with characters that can be
+        confused with each other, characters specified in the INTAB
+        class property can't be specified as part of the alphabet.
+
+        :raises AlphabetValueError: if characters parameter contains
+        any character specified in the INTAB
+        """
+        unsupported_chars = [c for c in self.INTAB if c in characters]
+        if unsupported_chars:
+            raise AlphabetValueError(
+                "The alias alphabet '{}' contains unsupported characters:"
+                " {}".format(characters, ', '.join(unsupported_chars))
+            )
+
+        self._characters = ''.join(sorted(characters))
+
+        homoglyphs = {'rn': 'm', 'vv': 'w', 'cj': 'g', 'ci': 'a', 'c1': 'd'}
+        self._homoglyphs = {
+            g: r for g, r in homoglyphs.items() if r in characters
+        }
+
+    def _set_length_range(self, min_length, max_length):
+        """Set a min and max length of newly generated random aliases
+
+        :param min_length: a minimum length of a newly generated
+        alias string
+        :param max_length: a maximum length of a newly generated
+        alias string
+        :raises AliasLengthValueError: if min_length and max_length
+        don't fulfill the condition: 0 < min_length <= max_length
+        """
+        if not 0 < min_length <= max_length:
+            raise AliasLengthValueError(
+                'The length limits are incorrect = the condition'
+                ' 0 < min_length <= max_length is not fulfilled for'
+                ' min_length = {} and max_length = {}'.format(
+                    min_length,
+                    max_length
+                )
+            )
+        self._min_length = min_length
+        self._max_length = max_length
+
+    def create_random(self):
+        """ Create a random alias for a preconfigured length range
+
+        The alias is generated as a string of randomly chosen length
+        value between self._min_length and self._max_length, consisting
+        of randomly chosen alphabet characters.
+
+        After being generated, the string is sanitized by replacing
+        multiletter homoglyphs that could be present in it. That may
+        shorten the alias, so its length is tested and, if it happens
+        to be shorter than the minimum, the generation is repeated.
+
+        :return: a randomly generated alias string
+        """
+        while True:
+            length = randint(self._min_length, self._max_length)
+            alias = ''.join(choice(self._characters) for i in range(length))
+            alias = self._replace_multiletter_homoglyphs(alias)
+            if len(alias) >= self._min_length:
+                return alias
+
+    def _replace_multiletter_homoglyphs(self, string):
+        """Get a string with multiletter homoglyphs replaced
+        by their single-character equivalents
+
+        :param string: a string alias
+        :return: a string alias with multiletter homoglyphs replaced
+        by their single-character equivalents
+        """
+        for orig, repl in self._homoglyphs.items():
+            string = string.replace(orig, repl)
+        return string
+
+    def from_string(self, string):
+        """Get a valid alias string without potentially confusing
+        characters
+
+        :param string: an original alias string
+        :return: a string resulting from replacement of potentially
+        confusing characters with their homoglyphs included in
+        the alphabet
+        :raises AliasValueError: if the string generated from
+        the original string still contains unsupported characters.
+        """
+        string = string.translate(self.TRANSLATION)
+        string = self._replace_multiletter_homoglyphs(string)
+
+        unexpected_chars = [x for x in string if x not in self._characters]
+        if unexpected_chars:
+            raise AliasValueError(
+                "The string '{}' contains unsupported characters: "
+                "".format(string, ', '.join(unexpected_chars))
+            )
+        return string
+
+    def __len__(self):
+        """Get the length of the alphabet
+
+        :returns: the length as a number of characters in the alphabet
+        """
+        return len(self._characters)
+
+    def index(self, character):
+        """Get index of a character in the alphabet
+
+        :param character: a character whose index in the alphabet is
+        to be returned
+        :returns: index of the character
+        :raises CharacterValueError: if the character is not part of
+        the alphabet
+        """
+        index = bisect_left(self._characters, character)
+        if (index == len(self) or self._characters[index] != character):
+            raise CharacterValueError(
+                "AliasAlphabet.index(character): '{}' not in alphabet".format(
+                    character
+                )
+            )
+
+        return index
+
+    def __getitem__(self, index):
+        """Get a character corresponding to given index
+
+        :param index: a postion of character to be returned
+        :returns: a character in the alphabet at the given index
+        :raises IndexError: if the index is out of range
+        """
+        return self._characters[index]
 
 
 class AliasType(type):
