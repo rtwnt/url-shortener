@@ -12,6 +12,9 @@ from sqlalchemy.exc import IntegrityError
 from . import db
 
 
+class AlphabetValueError(ValueError):
+    """The value of alias alphabet is incorrect"""
+
 class AliasValueError(ValueError):
     """The value of alias is incorrect """
 
