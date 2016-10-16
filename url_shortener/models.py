@@ -624,6 +624,61 @@ def commit_changes():
         )
 
 
+class BaseTargetURL(object):
+    """A base class for classes representing target URLs"""
+
+    _value = db.Column('value', db.String(2083), unique=True, nullable=False)
+
+    def __init__(self, target):
+        """ Constructor
+
+        :param target: URL represented by the instance
+        """
+        self._value = target
+
+    def __str__(self):
+        return self._value
+
+    def _alternative_url(self, endpoint):
+        return url_for(endpoint, _external=True, alias=self._alias)
+
+    @cached_property
+    def short_url(self):
+        return self._alternative_url('redirect_for')
+
+    @cached_property
+    def preview_url(self):
+        return self._alternative_url('preview')
+
+    @classmethod
+    def get_or_create(cls, value):
+        """ Find an existing target URL or create a new one
+
+        Existing target URLs can be found in database or in
+        cache attached to database session.
+
+        :param value: the value of target URL
+        :return: an instance of the class, existing or one
+        to be registered
+        """
+        cache = getattr(db.session, '_unique_cache', None)
+        if cache is None:
+            db.session._unique_cache = cache = {}
+
+        if value in cache:
+            return cache[value]
+
+        else:
+            with db.session.no_autoflush:
+                query = db.session.query(cls)
+                target_url = query.filter_by(_value=value).one_or_none()
+                if not target_url:
+                    target_url = cls(value)
+                    db.session.add(target_url)
+            cache[value] = target_url
+            return target_url
+
+
 def configure_random_factory(app_object):
     min_length = app_object.config['MIN_NEW_ALIAS_LENGTH']
     max_length = app_object.config['MAX_NEW_ALIAS_LENGTH']

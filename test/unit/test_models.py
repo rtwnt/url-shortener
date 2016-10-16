@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
     IntegrityError, commit_changes, AliasAlphabet, AlphabetValueError,
-    CharacterValueError, NewIntegerAlias
+    CharacterValueError, NewIntegerAlias, BaseTargetURL
 )
 
 
@@ -376,6 +376,92 @@ class IntegerAliasTest(unittest.TestCase):
         expected = self.alias_class_mock.return_value
 
         self.assertEqual(expected, actual)
+
+
+class BaseTargetURLTest(unittest.TestCase):
+
+    def setUp(self):
+        self.session_patcher = patch(
+            'url_shortener.models.db.session',
+            spec=['query', 'add', 'no_autoflush']
+        )
+        self.session_mock = self.session_patcher.start()
+
+    def tearDown(self):
+        self.session_patcher.stop()
+
+    def test_get_or_create_filters_by_target(self):
+        filter_by_mock = self.session_mock.query.return_value.filter_by
+        target = 'http://xyz.com'
+
+        BaseTargetURL.get_or_create(target)
+
+        filter_by_mock.assert_called_once_with(_value=target)
+
+    def test_get_or_create_gets_existing_url_from_db(self):
+        filtered = self.session_mock.query.return_value.filter_by()
+        expected = filtered.one_or_none()
+        actual = BaseTargetURL.get_or_create('http://xyz.com')
+        self.assertEqual(expected, actual)
+
+    def test_get_or_create_caches_persisted_url(self):
+        target = 'http://xyz.com'
+        target_url_1 = BaseTargetURL.get_or_create(target)
+        query_mock = self.session_mock.query
+        called_first_time = query_mock.call_count == 1
+        query_mock.reset_mock()
+
+        target_url_2 = BaseTargetURL.get_or_create(target)
+
+        self.assertEqual(target_url_1, target_url_2)
+        self.assertTrue(called_first_time)
+        self.assertEqual(query_mock.call_count, 0)
+
+    def set_db_query_side_effect(self, side_effect=None):
+        filtered = self.session_mock.query.return_value.filter_by()
+        func_mock = filtered.one_or_none
+        if isinstance(side_effect, type(Exception)):
+            func_mock.side_effect = side_effect
+        else:
+            func_mock.return_value = side_effect
+
+    def test_get_or_create_creates_new_url(self):
+        self.set_db_query_side_effect()
+        target = 'http://xyz.com'
+
+        expected = str(BaseTargetURL(target))
+        actual = str(BaseTargetURL.get_or_create(target))
+
+        self.assertEqual(str(expected), actual)
+
+    def test_get_or_create_adds_new_url_to_db_session(self):
+        self.set_db_query_side_effect()
+        target = 'http://xyz.com'
+
+        target_url = BaseTargetURL.get_or_create(target)
+
+        self.session_mock.add.assert_called_once_with(target_url)
+
+    def test_get_or_create_caches_new_url(self):
+        self.set_db_query_side_effect()
+        target = 'http://xyz.com'
+        target_url_1 = BaseTargetURL.get_or_create(target)
+        query_mock = self.session_mock.query
+        query_mock.reset_mock()
+
+        target_url_2 = BaseTargetURL.get_or_create(target)
+
+        self.assertEqual(query_mock.call_count, 0)
+        self.assertEqual(target_url_1, target_url_2)
+
+    def test_get_or_create_finds_multiple_urls(self):
+        self.set_db_query_side_effect(MultipleResultsFound)
+
+        self.assertRaises(
+            MultipleResultsFound,
+            BaseTargetURL.get_or_create,
+            'http://xyz.com'
+        )
 
 
 class TargetURLTest(unittest.TestCase):
