@@ -15,6 +15,10 @@ from . import db
 class AlphabetValueError(ValueError):
     """The value of alias alphabet is incorrect"""
 
+class CharacterValueError(ValueError):
+    """The alphabet doesn't contain the character"""
+
+
 class AliasValueError(ValueError):
     """The value of alias is incorrect """
 
