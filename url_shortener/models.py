@@ -484,19 +484,9 @@ class IntegerAlias(types.TypeDecorator):
         return Alias(integer=value)
 
 
-class TargetURL(db.Model):
-    """ Represent a URL for which a short alias has been provided
-    or requested
+class BaseTargetURL(object):
+    """A base class for classes representing target URLs"""
 
-    :cvar _alias: a value representing a registered URL in short URLs and
-    in database
-    """
-    _alias = db.Column(
-        'alias',
-        IntegerAlias,
-        primary_key=True,
-        default=Alias.create_random
-    )
     _value = db.Column('value', db.String(2083), unique=True, nullable=False)
 
     def __init__(self, target):
@@ -521,19 +511,6 @@ class TargetURL(db.Model):
         return self._alternative_url('preview')
 
     @classmethod
-    def get(cls, alias):
-        """ Find an existing target URL, or return None
-
-        :param alias: a string representation of alias
-        :raises AliasValueError: if the string representation
-        of alias is not valid
-        :return: an instance of TargetURL representing
-        an existing target URL, or None if no target URL
-        has been found
-        """
-        return cls.query.get(Alias(string=alias))
-
-    @classmethod
     def get_or_create(cls, value):
         """ Find an existing target URL or create a new one
 
@@ -541,7 +518,7 @@ class TargetURL(db.Model):
         cache attached to database session.
 
         :param value: the value of target URL
-        :return: an instance of TargetURL, existing or one
+        :return: an instance of the class, existing or one
         to be registered
         """
         cache = getattr(db.session, '_unique_cache', None)
@@ -560,6 +537,34 @@ class TargetURL(db.Model):
                     db.session.add(target_url)
             cache[value] = target_url
             return target_url
+
+
+class TargetURL(BaseTargetURL, db.Model):
+    """ Represent a URL for which a short alias has been provided
+    or requested
+
+    :cvar _alias: a value representing a registered URL in short URLs and
+    in database
+    """
+    _alias = db.Column(
+        'alias',
+        IntegerAlias,
+        primary_key=True,
+        default=Alias.create_random
+    )
+
+    @classmethod
+    def get(cls, alias):
+        """ Find an existing target URL, or return None
+
+        :param alias: a string representation of alias
+        :raises AliasValueError: if the string representation
+        of alias is not valid
+        :return: an instance of TargetURL representing
+        an existing target URL, or None if no target URL
+        has been found
+        """
+        return cls.query.get(Alias(string=alias))
 
     @classmethod
     def get_or_404(cls, alias):
@@ -622,61 +627,6 @@ def commit_changes():
             'Number of integrity errors exceeds the limit: {} > {}'
             ''.format(integrity_error_count, limit)
         )
-
-
-class BaseTargetURL(object):
-    """A base class for classes representing target URLs"""
-
-    _value = db.Column('value', db.String(2083), unique=True, nullable=False)
-
-    def __init__(self, target):
-        """ Constructor
-
-        :param target: URL represented by the instance
-        """
-        self._value = target
-
-    def __str__(self):
-        return self._value
-
-    def _alternative_url(self, endpoint):
-        return url_for(endpoint, _external=True, alias=self._alias)
-
-    @cached_property
-    def short_url(self):
-        return self._alternative_url('redirect_for')
-
-    @cached_property
-    def preview_url(self):
-        return self._alternative_url('preview')
-
-    @classmethod
-    def get_or_create(cls, value):
-        """ Find an existing target URL or create a new one
-
-        Existing target URLs can be found in database or in
-        cache attached to database session.
-
-        :param value: the value of target URL
-        :return: an instance of the class, existing or one
-        to be registered
-        """
-        cache = getattr(db.session, '_unique_cache', None)
-        if cache is None:
-            db.session._unique_cache = cache = {}
-
-        if value in cache:
-            return cache[value]
-
-        else:
-            with db.session.no_autoflush:
-                query = db.session.query(cls)
-                target_url = query.filter_by(_value=value).one_or_none()
-                if not target_url:
-                    target_url = cls(value)
-                    db.session.add(target_url)
-            cache[value] = target_url
-            return target_url
 
 
 def configure_random_factory(app_object):

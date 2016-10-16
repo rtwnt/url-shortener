@@ -470,7 +470,7 @@ class TargetURLTest(unittest.TestCase):
         self.bases_patcher = patch.object(
             TargetURL,
             '__bases__',
-            (ModelMock,)
+            (BaseTargetURL, ModelMock,)
         )
         self.bases_patcher.start()
         self.bases_patcher.is_local = True
