@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 
 from nose_parameterized import parameterized
 from sqlalchemy.orm.exc import MultipleResultsFound
@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 from url_shortener.models import (
     Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
     IntegrityError, commit_changes, AliasAlphabet, AlphabetValueError,
-    CharacterValueError
+    CharacterValueError, NewIntegerAlias
 )
 
 
@@ -173,6 +173,61 @@ class AliasAlphabetTest(unittest.TestCase):
             self.tested_instance.index,
             char
         )
+
+
+class NewIntegerAliasTest(unittest.TestCase):
+    def setUp(self):
+        self.alphabet_mock = MagicMock()
+        """We set the length to 10 so that each digit of integer corresponds
+        to a character in string
+        """
+        self.alphabet_length = 10
+        self.alphabet_mock.__len__.return_value = self.alphabet_length
+        self.alphabet_mock._max_length = 4
+        self.tested_instance = NewIntegerAlias(self.alphabet_mock)
+
+    def test_init_raises_alphabet_value_error(self):
+        """The constructor is expected to raise AlphabetValueError if
+        the alphabet passed to it allows for generating aliases that
+        would be converted to integers larger than max int32
+        """
+        alphabet_mock = MagicMock()
+        alphabet_mock.__len__.return_value = 32
+        alphabet_mock._max_length = 10
+
+        self.assertRaises(AlphabetValueError, NewIntegerAlias, alphabet_mock)
+
+    def test_process_bind_param(self):
+        """The method is expected to convert a string to an integer"""
+        string = 'abxy7'
+        self.alphabet_mock.from_string.return_value = string
+        expected = 81132
+        self.alphabet_mock.index.side_effect = [
+            int(i) for i in reversed(str(expected))
+        ]
+        actual = self.tested_instance.process_bind_param(string, Mock())
+
+        self.assertEqual(expected, actual)
+
+    def test_process_bind_param_raises_alias_value_error(self):
+        """The method is expected to raise AliasValueError if
+        AliasAlphabet.from_string raises it
+        """
+        self.alphabet_mock.from_string.side_effect = AliasValueError
+        self.assertRaises(
+            AliasValueError,
+            self.tested_instance.process_bind_param,
+            'abcą',
+            Mock()
+        )
+
+    def test_process_result_value(self):
+        """The method is expected to convert an integer to a string"""
+        value = 3241
+        expected = 'm60x'
+        self.alphabet_mock.__getitem__.side_effect = reversed(expected)
+        actual = self.tested_instance.process_result_value(value, Mock())
+        self.assertEqual(expected, actual)
 
 
 class AliasTest(unittest.TestCase):

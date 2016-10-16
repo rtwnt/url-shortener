@@ -228,6 +228,83 @@ class AliasAlphabet(object):
         return self._characters[index]
 
 
+class NewIntegerAlias(types.TypeDecorator):
+    """A custom database column type converting between integers
+    and alias strings
+
+    :cvar impl: implementation type of the class
+    :cvar _max_int_32: a maximum value of a 32 bit signed integer
+
+    This value is assumed as maximum allowed for the integers used
+    in generation because we assume the implementation type will
+    translate into 32 bit signed integer type of underlying database
+    engine used by the application.
+    """
+
+    impl = types.Integer
+    _max_int_32 = 2**31 - 1
+
+    def __init__(self, alphabet):
+        """ Initialize a new instance
+
+        :param alphabet: an instance of AliasAlphabet to be used
+        for convertion
+        """
+
+        base = len(alphabet)
+        max_safe_length = int(floor(log(self._max_int_32, base)))
+        max_length = alphabet._max_length
+
+        if max_length > max_safe_length:
+            raise AlphabetValueError(
+                'The alias alphabet can be used to generate strings of'
+                ' a length up to {} characters, but such aliases can not be'
+                ' converted to an integer smaller than max int32'.format(
+                    max_length
+                )
+            )
+
+        self._base = base
+        self._alphabet = alphabet
+
+        super(NewIntegerAlias, self).__init__()
+
+    def process_bind_param(self, value, dialect):
+        """Get integer representation of given string alias
+
+        :param value: an alias string
+        :returns: an integer corresponding to the alias string
+        :raises AliasValueError: if value is not a valid alias string,
+        for example: if it contains characters that are not part
+        of the alphabet
+        """
+        integer = 0
+        valid_alias = self._alphabet.from_string(value)
+
+        for exponent, char in enumerate(reversed(valid_alias)):
+            digit_value = self._alphabet.index(char)
+            integer += digit_value * self._base**exponent
+
+        return integer
+
+    process_literal_param = process_bind_param
+
+    def process_result_value(self, value, dialect):
+        """Get alias string for given integer
+
+        :param value: an integer representing alias string
+        :returns: a string converted from the integer
+        """
+        string = ''
+        while True:
+            value, remainder = divmod(value, self._base)
+            string = self._alphabet[remainder] + string
+            if value == 0:
+                break
+
+        return string
+
+
 class AliasType(type):
     def __new__(cls, *args, **kwargs):
         alias_class = type.__new__(cls, *args, **kwargs)
