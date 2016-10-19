@@ -3,9 +3,11 @@
 from bisect import bisect_left
 from math import log, floor
 from random import randint, choice
+from string import ascii_lowercase, digits
 
 from cached_property import cached_property
-from flask import url_for, current_app
+from flask import url_for, current_app, Flask
+from injector import inject
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -582,6 +584,46 @@ class TargetURL(BaseTargetURL, db.Model):
         existing target URL
         """
         return cls.query.get_or_404(Alias(string=alias))
+
+
+@inject(app=Flask)
+def target_url_class(app):
+    """Get a configured subclass of BaseTargetURL
+
+    :param app: an instance of Flask using this function
+    :returns: a dynamically created subclass of BaseTargetURL to be used
+    by the application
+    """
+
+    alphabet = AliasAlphabet.from_chars_with_homoglyphs(
+        digits + ascii_lowercase,
+        app.config['MIN_NEW_ALIAS_LENGTH'],
+        app.config['MAX_NEW_ALIAS_LENGTH']
+    )
+
+    class TargetURL(BaseTargetURL, db.Model):
+        """Represent a URL for which a short alias has been provided
+        or requested
+
+        :ivar _alias: a value representing a registered URL in short URLs and
+        in database
+        """
+        _alias = db.Column(
+            'alias',
+            NewIntegerAlias(alphabet),
+            primary_key=True,
+            default=alphabet.create_random
+        )
+
+    app.logger.info(
+        "URL shortener will use the following characters for generating"
+        " aliases: {0}.\nNewly generated alias strings will be from"
+        " {0._min_length} to {0._max_length} characters long.".format(
+            alphabet
+        )
+    )
+
+    return TargetURL
 
 
 def commit_changes():
