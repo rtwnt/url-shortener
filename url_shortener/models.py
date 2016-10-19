@@ -625,12 +625,3 @@ def configure(binder):
         to=InstanceProvider(target_url_class_factory()),
         scope=singleton
     )
-
-
-def configure_random_factory(app_object):
-    min_length = app_object.config['MIN_NEW_ALIAS_LENGTH']
-    max_length = app_object.config['MAX_NEW_ALIAS_LENGTH']
-    Alias.init_random_factory(min_length, max_length)
-
-    msg_tpl = 'Length of newly generated aliases: from {} to {} characters.'
-    app_object.logger.info(msg_tpl.format(min_length, max_length))
