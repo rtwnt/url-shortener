@@ -6,8 +6,8 @@ from random import randint, choice
 from string import ascii_lowercase, digits
 
 from cached_property import cached_property
-from flask import url_for, current_app, Flask
-from injector import inject, singleton, InstanceProvider, Module
+from flask import url_for, current_app, Flask, Config
+from injector import inject, singleton, InstanceProvider, Module, provides
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -366,21 +366,16 @@ class BaseTargetURL(object):
             return target_url
 
 
-@inject(app=Flask)
-def target_url_class(app):
+@inject(alphabet=AliasAlphabet, app=Flask)
+def target_url_class(alphabet, app):
     """Get a configured subclass of BaseTargetURL
 
+    :param alphabet: an instance of AliasAlphabet to be used by _alias
+    column
     :param app: an instance of Flask using this function
     :returns: a dynamically created subclass of BaseTargetURL to be used
     by the application
     """
-
-    alphabet = AliasAlphabet.from_chars_with_homoglyphs(
-        digits + ascii_lowercase,
-        app.config['MIN_NEW_ALIAS_LENGTH'],
-        app.config['MAX_NEW_ALIAS_LENGTH']
-    )
-
     class TargetURL(BaseTargetURL, db.Model):
         """Represent a URL for which a short alias has been provided
         or requested
@@ -462,4 +457,14 @@ class TargetURLModule(Module):
             target_url_class,
             to=InstanceProvider(target_url_class_factory()),
             scope=singleton
+        )
+
+    @singleton
+    @provides(AliasAlphabet)
+    @inject(config=Config)
+    def get_alias_alphabet(self, config):
+        return AliasAlphabet.from_chars_with_homoglyphs(
+            digits + ascii_lowercase,
+            config['MIN_NEW_ALIAS_LENGTH'],
+            config['MAX_NEW_ALIAS_LENGTH']
         )
