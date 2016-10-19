@@ -545,47 +545,6 @@ class BaseTargetURL(object):
             return target_url
 
 
-class TargetURL(BaseTargetURL, db.Model):
-    """ Represent a URL for which a short alias has been provided
-    or requested
-
-    :cvar _alias: a value representing a registered URL in short URLs and
-    in database
-    """
-    _alias = db.Column(
-        'alias',
-        IntegerAlias,
-        primary_key=True,
-        default=Alias.create_random
-    )
-
-    @classmethod
-    def get(cls, alias):
-        """ Find an existing target URL, or return None
-
-        :param alias: a string representation of alias
-        :raises AliasValueError: if the string representation
-        of alias is not valid
-        :return: an instance of TargetURL representing
-        an existing target URL, or None if no target URL
-        has been found
-        """
-        return cls.query.get(Alias(string=alias))
-
-    @classmethod
-    def get_or_404(cls, alias):
-        """ Find an existing target URL, or abort
-        with 404 error code
-
-        :param alias: a string representation of alias
-        :raises AliasValueError: if the string representation
-        of alias is not valid
-        :return: an instance of TargetURL representing an
-        existing target URL
-        """
-        return cls.query.get_or_404(Alias(string=alias))
-
-
 @inject(app=Flask)
 def target_url_class(app):
     """Get a configured subclass of BaseTargetURL

@@ -4,10 +4,9 @@ from unittest.mock import Mock, patch, MagicMock
 
 from nose_parameterized import parameterized
 from sqlalchemy.orm.exc import MultipleResultsFound
-from werkzeug.exceptions import HTTPException
 
 from url_shortener.models import (
-    Alias, AliasValueError, IntegerAlias, AliasLengthValueError, TargetURL,
+    Alias, AliasValueError, IntegerAlias, AliasLengthValueError,
     IntegrityError, commit_changes, AliasAlphabet, AlphabetValueError,
     CharacterValueError, NewIntegerAlias, BaseTargetURL
 )
@@ -464,71 +463,6 @@ class BaseTargetURLTest(unittest.TestCase):
             self.class_under_test.get_or_create,
             'http://xyz.com'
         )
-
-
-class TargetURLTest(BaseTargetURLTest):
-    class_under_test = TargetURL
-
-    def setUp(self):
-        ModelMock = type('ModelMock', (), {'query': Mock()})
-        self.bases_patcher = patch.object(
-            TargetURL,
-            '__bases__',
-            (BaseTargetURL, ModelMock,)
-        )
-        self.bases_patcher.start()
-        self.bases_patcher.is_local = True
-
-        self.query_mock = TargetURL.query
-
-        self.alias_patcher = patch('url_shortener.models.Alias')
-        self.alias_mock = self.alias_patcher.start()
-
-        BaseTargetURLTest.setUp(self)
-
-    def tearDown(self):
-        self.bases_patcher.stop()
-        self.alias_patcher.stop()
-
-        BaseTargetURLTest.tearDown(self)
-
-    def test_get_creates_alias(self):
-        alias = 'abc'
-        TargetURL.get(alias)
-        self.alias_mock.assert_called_once_with(string=alias)
-
-    def test_get_queries_for_alias(self):
-        TargetURL.get('abc')
-        self.query_mock.get.assert_called_once_with(
-            self.alias_mock.return_value
-        )
-
-    def test_get_returns_query_result(self):
-        expected = self.query_mock.get.return_value
-        actual = TargetURL.get('abc')
-        self.assertEqual(expected, actual)
-
-    def test_get_or_404_calls_alias_constructor(self):
-        alias = 'xyz'
-        TargetURL.get_or_404(alias)
-        self.alias_mock.assert_called_once_with(string=alias)
-
-    def test_get_or_404_queries_database(self):
-        valid_alias = self.alias_mock.return_value
-        TargetURL.get_or_404('xyz')
-        self.query_mock.get_or_404.assert_called_once_with(valid_alias)
-
-    def test_get_or_404_gets_existing_url(self):
-        expected = self.query_mock.get_or_404.return_value
-        actual = TargetURL.get_or_404('xyz')
-        self.assertEqual(expected, actual)
-
-    def assert_get_or_404_raises_HTTPError(self):
-        self.assertRaises(HTTPException, TargetURL.get_or_404, 'xyz')
-
-    def test_get_or_404_raises_404_for_not_existing_alias(self):
-        self.query_mock.get_or_404.side_effect = HTTPException
-        self.assert_get_or_404_raises_HTTPError()
 
 
 class TestCommitChanges(unittest.TestCase):

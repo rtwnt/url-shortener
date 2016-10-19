@@ -2,10 +2,11 @@
 import datetime
 
 from flask import redirect, url_for, flash, render_template, Markup
+from injector import inject
 
 from . import app
 from .forms import ShortenedURLForm
-from .models import TargetURL, AliasValueError, commit_changes
+from .models import AliasValueError, commit_changes, target_url_class
 
 from .validation import url_validator
 
@@ -16,8 +17,9 @@ def inject_year():
     return dict(year=now.year)
 
 
+@inject(target_url_class=target_url_class)
 @app.route('/', methods=['GET', 'POST'])
-def shorten_url():
+def shorten_url(target_url_class):
     """Display form and handle request for URL shortening
 
     If short URL is successfully created or found for the
@@ -34,7 +36,7 @@ def shorten_url():
     """
     form = ShortenedURLForm()
     if form.validate_on_submit():
-        target_url = TargetURL.get_or_create(form.url.data)
+        target_url = target_url_class.get_or_create(form.url.data)
         commit_changes()
         msg_tpl = Markup(
             'New short URL: <a href="{0}">{0}</a><br>Preview'
@@ -59,7 +61,12 @@ def render_preview(target_url, warning_message=None):
     )
 
 
-def get_response(alias, alternative_action):
+@inject(target_url_class=target_url_class)
+def get_response(
+    alias,
+    alternative_action,
+    target_url_class
+):
     """ Gets an appropriate response for given alias
 
     If the alias refers to a URL that is recognized as spam or
@@ -76,15 +83,16 @@ def get_response(alias, alternative_action):
     :raises werkzeug.exceptions.HTTPException: when there is no
     target URL for given alias
     """
-    target_url = TargetURL.get_or_404(alias)
+    target_url = target_url_class.query.get_or_404(alias)
     msg = url_validator.get_msg_if_blacklisted(str(target_url))
     if msg is not None:
         return render_preview(target_url, msg)
     return alternative_action(target_url)
 
 
+@inject(get_response=get_response)
 @app.route('/<alias>')
-def redirect_for(alias):
+def redirect_for(alias, get_response):
     """ Redirect to address assigned to given alias
 
     :param alias: a string value by which we search for
@@ -96,8 +104,9 @@ def redirect_for(alias):
     return get_response(alias, redirect)
 
 
+@inject(get_response=get_response)
 @app.route('/preview/<alias>')
-def preview(alias):
+def preview(alias, get_response):
     """ Show the preview for given alias
 
     The preview contains a short URL and a target URL

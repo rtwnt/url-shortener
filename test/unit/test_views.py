@@ -15,16 +15,10 @@ class BaseViewTest(object):
         )
         self.render_template_mock = self.render_template_patcher.start()
 
-        self.target_url_class_patcher = patch(
-            'url_shortener.views.TargetURL'
-        )
-        self.target_url_class_mock = (
-            self.target_url_class_patcher.start()
-        )
+        self.target_url_class_mock = Mock()
 
     def tearDown(self):
         self.render_template_patcher.stop()
-        self.target_url_class_patcher.stop()
 
 
 class RedirectPatchMixin(object):
@@ -77,26 +71,29 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
         super(ShortenURLTest, self).tearDown()
 
+    def _call(self):
+        return shorten_url(self.target_url_class_mock)
+
     def test_registers_new_short_url(self):
-        shorten_url()
+        self._call()
         self.assertTrue(self.commit_changes_mock.called)
 
     def test_redirects_to_the_same_route(self):
-        shorten_url()
+        self._call()
         self.url_for_mock.assert_called_once_with(shorten_url.__name__)
         redirect_url = self.url_for_mock.return_value
         self.redirect_mock.assert_called_once_with(redirect_url)
 
     def test_returns_redirect_response(self):
         expected = self.redirect_mock.return_value
-        actual = shorten_url()
+        actual = self._call()
         self.assertEqual(expected, actual)
 
     def test_flashes_errors(self):
         errors = [Mock() for _ in range(3)]
         self.form_mock.errors.values.return_value = [errors]
         self.form_mock.validate_on_submit.return_value = False
-        shorten_url()
+        self._call()
         for i in errors:
             self.flash_mock.assert_any_call(i, 'error')
 
@@ -107,7 +104,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         """
         url_mock = self.target_url_class_mock.get_or_create.return_value
 
-        shorten_url()
+        self._call()
 
         self.markup_mock.return_value.format.assert_called_once_with(
             url_mock.short_url,
@@ -120,13 +117,13 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         """
         message_mock = self.markup_mock.return_value.format.return_value
 
-        shorten_url()
+        self._call()
 
         self.flash_mock.assert_called_once_with(message_mock, 'success')
 
     def test_renders_form_template(self):
         self.form_mock.validate_on_submit.return_value = False
-        shorten_url()
+        self._call()
         self.render_template_mock.assert_called_once_with(
             'shorten_url.html',
             form=self.form_mock
@@ -135,7 +132,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
     def test_returns_rendered_template(self):
         self.form_mock.validate_on_submit.return_value = False
         expected = self.render_template_mock.return_value
-        actual = shorten_url()
+        actual = self._call()
         self.assertEqual(expected, actual)
 
 
@@ -161,54 +158,60 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
 
         super(GetResponseTest, self).tearDown()
 
+    def _call(self, alias):
+        return get_response(
+            alias,
+            self.alternative_action,
+            self.target_url_class_mock
+        )
+
     def test_queries_for_alias(self):
         alias = 'xyz'
-        get_response(alias, self.alternative_action)
-        self.target_url_class_mock.get_or_404.assert_called_once_with(alias)
+        self._call(alias)
+        self.target_url_class_mock.query.get_or_404.assert_called_once_with(
+            alias
+        )
 
     def test_raises_http_error(self):
-        self.target_url_class_mock.get_or_404.side_effect = HTTPException
+        self.target_url_class_mock.query.get_or_404.side_effect = HTTPException
         self.assertRaises(
             HTTPException,
-            get_response,
+            self._call,
             'xyz',
-            self.alternative_action
         )
 
     def test_validates_url(self):
-        get_response('xyz', self.alternative_action)
+        self._call('xyz')
         target_url_mock = (
-            self.target_url_class_mock.get_or_404.return_value
+            self.target_url_class_mock.query.get_or_404.return_value
         )
         self.validator_mock.assert_called_once_with(
             str(target_url_mock)
         )
 
     def test_renders_preview_for_invalid_url(self):
-        get_response('xyz', self.alternative_action)
+        self._call('xyz')
         self.render_preview_mock.assert_called_once_with(
-            self.target_url_class_mock.get_or_404.return_value,
+            self.target_url_class_mock.query.get_or_404.return_value,
             self.validator_mock.return_value
         )
 
     def test_returns_preview_for_invalid_url(self):
         expected = self.render_preview_mock.return_value
-        actual = get_response('xyz', self.alternative_action)
+        actual = self._call('xyz')
         self.assertEqual(expected, actual)
 
     def test_calls_alternative_action_for_valid_url(self):
         self.validator_mock.return_value = None
-        function = self.alternative_action
-        get_response('xyz', function)
-        function.assert_called_once_with(
-            self.target_url_class_mock.get_or_404.return_value
+        self._call('xyz')
+        self.alternative_action.assert_called_once_with(
+            self.target_url_class_mock.query.get_or_404.return_value
         )
 
     def test_returns_result_of_alternative_action(self):
         self.validator_mock.return_value = None
-        function = self.alternative_action
-        expected = function.return_value
-        actual = get_response('xyz', function)
+        expected = self.alternative_action.return_value
+        actual = self._call('xyz')
         self.assertEqual(expected, actual)
 
 

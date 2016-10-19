@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from flask_injector import FlaskInjector
 
-from url_shortener import app, views
+from url_shortener import app, views, models
 from url_shortener.validation import configure_url_validator
-from url_shortener.models import configure_random_factory
 
 log_file = app.config['LOG_FILE']
 
@@ -16,8 +15,7 @@ if not app.debug and log_file is not None:
 
 app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
 configure_url_validator(app)
-configure_random_factory(app)
 
-FlaskInjector(app=app)
+FlaskInjector(app=app, modules=[models.configure])
 
 app.run()
