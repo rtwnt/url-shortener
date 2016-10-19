@@ -25,6 +25,10 @@ header, footer {
     width: 95%;
 }
 
+a {
+    word-break: break-all;
+}
+
 h1, form, small {
     display: block;
     text-align: center;
