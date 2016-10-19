@@ -234,7 +234,7 @@ class AliasAlphabet(object):
         return self._characters
 
 
-class NewIntegerAlias(types.TypeDecorator):
+class IntegerAlias(types.TypeDecorator):
     """A custom database column type converting between integers
     and alias strings
 
@@ -273,7 +273,7 @@ class NewIntegerAlias(types.TypeDecorator):
         self._base = base
         self._alphabet = alphabet
 
-        super(NewIntegerAlias, self).__init__()
+        super(IntegerAlias, self).__init__()
 
     def process_bind_param(self, value, dialect):
         """Get integer representation of given string alias
@@ -553,7 +553,7 @@ def target_url_class(app):
         """
         _alias = db.Column(
             'alias',
-            NewIntegerAlias(alphabet),
+            IntegerAlias(alphabet),
             primary_key=True,
             default=alphabet.create_random
         )

@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from url_shortener.models import (
     Alias, AliasValueError, AliasLengthValueError, IntegrityError,
     commit_changes, AliasAlphabet, AlphabetValueError, CharacterValueError,
-    NewIntegerAlias, BaseTargetURL
+    IntegerAlias, BaseTargetURL
 )
 
 
@@ -174,7 +174,7 @@ class AliasAlphabetTest(unittest.TestCase):
         )
 
 
-class NewIntegerAliasTest(unittest.TestCase):
+class IntegerAliasTest(unittest.TestCase):
     def setUp(self):
         self.alphabet_mock = MagicMock()
         """We set the length to 10 so that each digit of integer corresponds
@@ -183,7 +183,7 @@ class NewIntegerAliasTest(unittest.TestCase):
         self.alphabet_length = 10
         self.alphabet_mock.__len__.return_value = self.alphabet_length
         self.alphabet_mock._max_length = 4
-        self.tested_instance = NewIntegerAlias(self.alphabet_mock)
+        self.tested_instance = IntegerAlias(self.alphabet_mock)
 
     def test_init_raises_alphabet_value_error(self):
         """The constructor is expected to raise AlphabetValueError if
@@ -194,7 +194,7 @@ class NewIntegerAliasTest(unittest.TestCase):
         alphabet_mock.__len__.return_value = 32
         alphabet_mock._max_length = 10
 
-        self.assertRaises(AlphabetValueError, NewIntegerAlias, alphabet_mock)
+        self.assertRaises(AlphabetValueError, IntegerAlias, alphabet_mock)
 
     def test_process_bind_param(self):
         """The method is expected to convert a string to an integer"""
