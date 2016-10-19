@@ -228,6 +228,9 @@ class AliasAlphabet(object):
         """
         return self._characters[index]
 
+    def __str__(self):
+        return self._characters
+
 
 class NewIntegerAlias(types.TypeDecorator):
     """A custom database column type converting between integers
