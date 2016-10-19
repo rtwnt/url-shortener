@@ -6,9 +6,9 @@ from nose_parameterized import parameterized
 from sqlalchemy.orm.exc import MultipleResultsFound
 
 from url_shortener.models import (
-    Alias, AliasValueError, AliasLengthValueError, IntegrityError,
-    commit_changes, AliasAlphabet, AlphabetValueError, CharacterValueError,
-    IntegerAlias, BaseTargetURL
+    AliasValueError, AliasLengthValueError, IntegrityError, commit_changes,
+    AliasAlphabet, AlphabetValueError, CharacterValueError, IntegerAlias,
+    BaseTargetURL
 )
 
 
@@ -227,108 +227,6 @@ class IntegerAliasTest(unittest.TestCase):
         self.alphabet_mock.__getitem__.side_effect = reversed(expected)
         actual = self.tested_instance.process_result_value(value, Mock())
         self.assertEqual(expected, actual)
-
-
-class AliasTest(unittest.TestCase):
-    """ Tests for Alias class
-
-    :cvar ALIAS_INTEGER: maps string values of aliases used in tests to
-    corresponding integers.
-    :cvar INTEGERS: a list of lists, each containing one of the integers
-    specified in ALIAS_INTEGER. Used as an argument for
-    parameterized.expand()
-    :cvar ALIASES_TO_INTEGERS: a list containing tuples, each with a pair of
-    alias string and its corresponding integer. Used as an argument for
-    parameterized.expand()
-    """
-    ALIAS_INTEGER = {
-        '100': 1*Alias._base**2,
-        '221': 2*Alias._base**2+2*Alias._base+1,
-        '2020': 2*Alias._base**3+2*Alias._base,
-        '222': 2*Alias._base**2+2*Alias._base+2,
-        '0': 0,
-        Alias._chars[-1]+'00': (Alias._base-1)*Alias._base**2
-    }
-    INTEGERS = [[v] for v in ALIAS_INTEGER.values()]
-    ALIASES_TO_INTEGERS = ALIAS_INTEGER.items()
-
-    def test_init_for_invalid_string(self):
-        """ The string contains forbidden characters """
-        string = 'ABC'
-        self.assertRaises(AliasValueError, Alias, None, string)
-
-    def test_init_for_invalid_arg_set(self):
-        """ The arguments integer and string can't both be None """
-        self.assertRaises(AliasValueError, Alias, None, None)
-
-    @parameterized.expand(ALIASES_TO_INTEGERS)
-    def test_init_for_generated_integer(self, string, expected_integer):
-        """ The integer value of alias should be properly calculated
-        when integer == None """
-        instance = Alias(string=string)
-        actual_integer = instance.integer
-        self.assertEqual(expected_integer, actual_integer)
-
-    @parameterized.expand(INTEGERS)
-    def test_init_for_string_being_none(self, integer):
-        """ The string value should not be generated during
-        object initialization"""
-        instance = Alias(integer=integer)
-        self.assertIsNone(instance._string)
-
-    @parameterized.expand(ALIASES_TO_INTEGERS)
-    def test_str_for_string_being_none(self, expected_string, integer):
-        """ The __str__ method should properly generate string
-        based on objects .integer property """
-        instance = Alias(integer=integer)
-        actual_string = str(instance)
-        self.assertEqual(expected_string, actual_string)
-
-    @parameterized.expand([
-        ('min_length_less_than_zero', -1, 3),
-        ('min_and_max_length_less_than_zero', -3, -2),
-        ('max_length_less_than_zero', 1, -1),
-        ('max_length_less_than_min', 3, 2),
-        ('min_int_of_max_length_larger_than_min_32_int', 3, 10)
-    ])
-    def test_init_random_factory_for(self, _, min_length, max_length):
-        """ Alias.init_random_factory expects two arguments: min_length
-        and max_length, referring to minimum and maximum lengths
-        for new randomly generated aliases.
-
-        If any of these values is smaller than zero, or if the
-        minimum value is larger than the maximum one,
-        AliasLengthValueError is expected to be raised
-        """
-        self.assertRaises(
-            AliasLengthValueError,
-            Alias.init_random_factory,
-            min_length,
-            max_length
-        )
-
-    @parameterized.expand([
-        ('non-equal', 1, 2),
-        ('equal', 2, 2),
-        ('including_max_allowed_length', 1, Alias._max_allowed_length)
-    ])
-    def test_init_random_factory_for_args(self, _, min_length, max_length):
-        """ For valid arguments, Alias.init_random_factory is expected
-        to calculate minimum and maximum integer values for all new
-        instances of Alias returned by Alias.create_random, and set
-        them to _min_new_int and _max_new_int class attributes,
-        respectively.
-
-        The values must fulfill two condtions:
-        * Alias._min_new_int <= Alias._max_new_int (obviously)
-        * Alias._max_new_int >= Alias._max_int_32
-        """
-        Alias.init_random_factory(min_length, max_length)
-        self.assertTrue(
-            hasattr(Alias, '_min_new_int') and hasattr(Alias, '_max_new_int')
-        )
-        self.assertLessEqual(Alias._min_new_int, Alias._max_new_int)
-        self.assertLessEqual(Alias._max_new_int, Alias._max_int_32)
 
 
 class BaseTargetURLTest(unittest.TestCase):
