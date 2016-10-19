@@ -7,7 +7,7 @@ from string import ascii_lowercase, digits
 
 from cached_property import cached_property
 from flask import url_for, current_app, Flask
-from injector import inject, singleton, InstanceProvider
+from injector import inject, singleton, InstanceProvider, Module
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -455,10 +455,11 @@ def commit_changes():
         )
 
 
-def configure(binder):
-    target_url_class_factory = binder.injector.get(target_url_class)
-    binder.bind(
-        target_url_class,
-        to=InstanceProvider(target_url_class_factory()),
-        scope=singleton
-    )
+class TargetURLModule(Module):
+    def configure(self, binder):
+        target_url_class_factory = binder.injector.get(target_url_class)
+        binder.bind(
+            target_url_class,
+            to=InstanceProvider(target_url_class_factory()),
+            scope=singleton
+        )
