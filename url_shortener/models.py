@@ -7,7 +7,9 @@ from string import ascii_lowercase, digits
 
 from cached_property import cached_property
 from flask import url_for, current_app, Flask, Config
-from injector import inject, singleton, Module, provider, Key
+from injector import (
+    inject, singleton, Module, provider, Key, InstanceProvider
+)
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -444,8 +446,9 @@ class TargetURLModule(Module):
     def configure(self, binder):
         binder.bind(
             target_url_class,
-            to=target_url_class,
-            scope=singleton
+            to=InstanceProvider(
+                self.get_target_url_class()
+            )
         )
         binder.bind(IntegerAlias)
 
