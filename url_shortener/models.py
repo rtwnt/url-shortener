@@ -449,6 +449,23 @@ class TargetURLModule(Module):
         )
         binder.bind(IntegerAlias)
 
+    @inject
+    def get_target_url_class(self, alias_column: alias_column):
+        """Get a configured subclass of BaseTargetURL and db.Model
+
+        :param alias_column: an instance of sqlalchemy.Column to represent
+        'alias' column of 'targetURL' table
+        :returns: a subclass of BaseTargetURL and db.Model to be used by
+        the application. This subclass represents a URL for which a short
+        alias has been provided or requested. It has an _alias attribute:
+        a value representing a registered URL in short URLs and in database.
+        """
+        return type(
+            'TargetURL',
+            (BaseTargetURL, db.Model),
+            {'_alias': alias_column}
+        )
+
     @singleton
     @provider
     def get_alias_alphabet(self, config: Config, app: Flask) -> AliasAlphabet:
