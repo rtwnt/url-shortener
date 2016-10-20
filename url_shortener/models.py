@@ -7,8 +7,7 @@ from string import ascii_lowercase, digits
 
 from cached_property import cached_property
 from flask import url_for, current_app, Flask, Config
-from injector import inject, singleton, Module, provider
-
+from injector import inject, singleton, Module, provider, Key
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -368,19 +367,18 @@ class BaseTargetURL(object):
             return target_url
 
 
+alias_column = Key('alias_column')
+
+
 @inject
-def target_url_class(integer_alias: IntegerAlias, app: Flask):
+def target_url_class(alias_column: alias_column):
     """Get a configured subclass of BaseTargetURL
 
-    :param integer_alias: an instance of IntegerAlias to be used by _alias
-    column
-    :param app: an instance of Flask using this function
+    :param alias_column: an instance of sqlalchemy.Column to represent
+    'alias' column of 'targetURL' table
     :returns: a dynamically created subclass of BaseTargetURL to be used
     by the application
     """
-
-    alphabet = integer_alias._alphabet
-
     class TargetURL(BaseTargetURL, db.Model):
         """Represent a URL for which a short alias has been provided
         or requested
@@ -388,20 +386,7 @@ def target_url_class(integer_alias: IntegerAlias, app: Flask):
         :ivar _alias: a value representing a registered URL in short URLs and
         in database
         """
-        _alias = db.Column(
-            'alias',
-            integer_alias,
-            primary_key=True,
-            default=alphabet.create_random
-        )
-
-    app.logger.info(
-        "URL shortener will use the following characters for generating"
-        " aliases: {0}.\nNewly generated alias strings will be from"
-        " {0._min_length} to {0._max_length} characters long.".format(
-            alphabet
-        )
-    )
+        _alias = alias_column
 
     return TargetURL
 
@@ -483,3 +468,12 @@ class TargetURLModule(Module):
         )
 
         return alphabet
+
+    @provider
+    def get_alias_column(self, integer_alias: IntegerAlias) -> alias_column:
+        return db.Column(
+            'alias',
+            integer_alias,
+            primary_key=True,
+            default=integer_alias._alphabet.create_random
+        )
