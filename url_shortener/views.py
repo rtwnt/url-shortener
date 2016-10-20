@@ -17,9 +17,9 @@ def inject_year():
     return dict(year=now.year)
 
 
-@inject(target_url_class=target_url_class)
+@inject
 @app.route('/', methods=['GET', 'POST'])
-def shorten_url(target_url_class):
+def shorten_url(target_url_class: target_url_class):
     """Display form and handle request for URL shortening
 
     If short URL is successfully created or found for the
@@ -85,9 +85,9 @@ def get_response(alias, alternative_action, target_url_class):
     return alternative_action(target_url)
 
 
-@inject(target_url_class=target_url_class)
+@inject
 @app.route('/<alias>')
-def redirect_for(alias, target_url_class):
+def redirect_for(alias, target_url_class: target_url_class):
     """ Redirect to address assigned to given alias
 
     :param alias: a string value by which we search for
@@ -99,9 +99,9 @@ def redirect_for(alias, target_url_class):
     return get_response(alias, redirect, target_url_class)
 
 
-@inject(target_url_class=target_url_class)
+@inject
 @app.route('/preview/<alias>')
-def preview(alias, target_url_class):
+def preview(alias, target_url_class: target_url_class):
     """ Show the preview for given alias
 
     The preview contains a short URL and a target URL

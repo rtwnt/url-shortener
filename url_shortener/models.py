@@ -7,7 +7,8 @@ from string import ascii_lowercase, digits
 
 from cached_property import cached_property
 from flask import url_for, current_app, Flask, Config
-from injector import inject, singleton, Module, provides
+from injector import inject, singleton, Module, provider
+
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
@@ -366,8 +367,8 @@ class BaseTargetURL(object):
             return target_url
 
 
-@inject(alphabet=AliasAlphabet, app=Flask)
-def target_url_class(alphabet, app):
+@inject
+def target_url_class(alphabet: AliasAlphabet, app: Flask):
     """Get a configured subclass of BaseTargetURL
 
     :param alphabet: an instance of AliasAlphabet to be used by _alias
@@ -459,9 +460,8 @@ class TargetURLModule(Module):
         )
 
     @singleton
-    @provides(AliasAlphabet)
-    @inject(config=Config)
-    def get_alias_alphabet(self, config):
+    @provider
+    def get_alias_alphabet(self, config: Config) -> AliasAlphabet:
         return AliasAlphabet.from_chars_with_homoglyphs(
             digits + ascii_lowercase,
             config['MIN_NEW_ALIAS_LENGTH'],

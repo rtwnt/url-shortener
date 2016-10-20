@@ -17,6 +17,6 @@ if not app.debug and log_file is not None:
 app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
 configure_url_validator(app)
 
-FlaskInjector(app=app, modules=[TargetURLModule()])
+FlaskInjector(app=app, modules=[TargetURLModule()], use_annotations=True)
 
 app.run()
