@@ -251,7 +251,8 @@ class IntegerAlias(types.TypeDecorator):
     impl = types.Integer
     _max_int_32 = 2**31 - 1
 
-    def __init__(self, alphabet):
+    @inject
+    def __init__(self, alphabet: AliasAlphabet):
         """ Initialize a new instance
 
         :param alphabet: an instance of AliasAlphabet to be used
@@ -368,15 +369,18 @@ class BaseTargetURL(object):
 
 
 @inject
-def target_url_class(alphabet: AliasAlphabet, app: Flask):
+def target_url_class(integer_alias: IntegerAlias, app: Flask):
     """Get a configured subclass of BaseTargetURL
 
-    :param alphabet: an instance of AliasAlphabet to be used by _alias
+    :param integer_alias: an instance of IntegerAlias to be used by _alias
     column
     :param app: an instance of Flask using this function
     :returns: a dynamically created subclass of BaseTargetURL to be used
     by the application
     """
+
+    alphabet = integer_alias._alphabet
+
     class TargetURL(BaseTargetURL, db.Model):
         """Represent a URL for which a short alias has been provided
         or requested
@@ -386,7 +390,7 @@ def target_url_class(alphabet: AliasAlphabet, app: Flask):
         """
         _alias = db.Column(
             'alias',
-            IntegerAlias(alphabet),
+            integer_alias,
             primary_key=True,
             default=alphabet.create_random
         )
@@ -458,6 +462,7 @@ class TargetURLModule(Module):
             to=target_url_class,
             scope=singleton
         )
+        binder.bind(IntegerAlias)
 
     @singleton
     @provider
