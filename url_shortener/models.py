@@ -466,9 +466,20 @@ class TargetURLModule(Module):
 
     @singleton
     @provider
-    def get_alias_alphabet(self, config: Config) -> AliasAlphabet:
-        return AliasAlphabet.from_chars_with_homoglyphs(
+    def get_alias_alphabet(self, config: Config, app: Flask) -> AliasAlphabet:
+        alphabet = AliasAlphabet.from_chars_with_homoglyphs(
             digits + ascii_lowercase,
             config['MIN_NEW_ALIAS_LENGTH'],
             config['MAX_NEW_ALIAS_LENGTH']
         )
+
+        app.logger.info(
+            "Providing an instance of AliasAlphabet. It contains"
+            " the following characters:\n{0}.\nIt can be used to generate"
+            " aliases from {0._min_length} to {0._max_length}"
+            " characters long.".format(
+                alphabet
+            )
+        )
+
+        return alphabet
