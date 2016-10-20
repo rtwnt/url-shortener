@@ -61,12 +61,7 @@ def render_preview(target_url, warning_message=None):
     )
 
 
-@inject(target_url_class=target_url_class)
-def get_response(
-    alias,
-    alternative_action,
-    target_url_class
-):
+def get_response(alias, alternative_action, target_url_class):
     """ Gets an appropriate response for given alias
 
     If the alias refers to a URL that is recognized as spam or
@@ -90,9 +85,9 @@ def get_response(
     return alternative_action(target_url)
 
 
-@inject(get_response=get_response)
+@inject(target_url_class=target_url_class)
 @app.route('/<alias>')
-def redirect_for(alias, get_response):
+def redirect_for(alias, target_url_class):
     """ Redirect to address assigned to given alias
 
     :param alias: a string value by which we search for
@@ -101,12 +96,12 @@ def redirect_for(alias, get_response):
     :returns: a redirect to target URL of short URL, if
     found.
     """
-    return get_response(alias, redirect)
+    return get_response(alias, redirect, target_url_class)
 
 
-@inject(get_response=get_response)
+@inject(target_url_class=target_url_class)
 @app.route('/preview/<alias>')
-def preview(alias, get_response):
+def preview(alias, target_url_class):
     """ Show the preview for given alias
 
     The preview contains a short URL and a target URL
@@ -117,7 +112,7 @@ def preview(alias, get_response):
     error occurs.
     :returns: a response generated from the preview template
     """
-    return get_response(alias, render_preview)
+    return get_response(alias, render_preview, target_url_class)
 
 
 @app.errorhandler(AliasValueError)
