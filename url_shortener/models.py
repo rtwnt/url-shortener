@@ -372,27 +372,6 @@ class BaseTargetURL(object):
 alias_column = Key('alias_column')
 
 
-@inject
-def target_url_class(alias_column: alias_column):
-    """Get a configured subclass of BaseTargetURL
-
-    :param alias_column: an instance of sqlalchemy.Column to represent
-    'alias' column of 'targetURL' table
-    :returns: a dynamically created subclass of BaseTargetURL to be used
-    by the application
-    """
-    class TargetURL(BaseTargetURL, db.Model):
-        """Represent a URL for which a short alias has been provided
-        or requested
-
-        :ivar _alias: a value representing a registered URL in short URLs and
-        in database
-        """
-        _alias = alias_column
-
-    return TargetURL
-
-
 def commit_changes():
     """ Commits all changes stored in current database session
 
@@ -440,6 +419,9 @@ def commit_changes():
             'Number of integrity errors exceeds the limit: {} > {}'
             ''.format(integrity_error_count, limit)
         )
+
+
+target_url_class = Key('target_url_class')
 
 
 class TargetURLModule(Module):
