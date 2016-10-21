@@ -86,13 +86,6 @@ class BlacklistValidator(object):
 
 
 hp_hosts = HpHosts(__title__)
-url_validator = BlacklistValidator(
-    GeneralizedURLTester(
-        URLTesterChain(SURBL_MULTI, SPAMHAUS_ZEN, SPAMHAUS_DBL, hp_hosts)
-    ),
-    'The URL has been recognized as spam.'
-)
-
 
 host_blacklist = Key('host_blacklist')
 
