@@ -171,22 +171,3 @@ class ValidationModule(Module):
             ),
             'The URL has been recognized as spam.'
         )
-
-
-def configure_url_validator(app_object):
-    app_object.logger.info('Configuring URL validation...')
-
-    gsb_api_key = app_object.config['GOOGLE_SAFE_BROWSING_API_KEY']
-    url_validator.prepend(
-        GoogleSafeBrowsing(__title__, __version__, gsb_api_key)
-    )
-    app_object.logger.info('Google Safe Browsing API client loaded.')
-
-    filename = app_object.config['HOST_BLACKLIST_FILE']
-    if filename is not None:
-        url_validator.prepend(
-            sorted_host_list_from_file('blacklist', 'blacklisted', filename),
-            'The host of target URL is blacklisted.'
-        )
-        msg = 'Custom host blacklist loaded from {}.'.format(filename)
-        app_object.logger.info(msg)
