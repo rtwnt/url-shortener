@@ -438,22 +438,23 @@ class TargetURLModule(Module):
         :param integer_alias: an instance of IntegerAlias to be used
         by the 'alias' column object
         :returns: a subclass of BaseTargetURL and db.Model to be used by
-        the application. This subclass represents a URL for which a short
-        alias has been provided or requested. It has an _alias attribute:
-        a value representing a registered URL in short URLs and in database.
+        the application.
         """
-        return type(
-            'TargetURL',
-            (BaseTargetURL, db.Model),
-            {
-                '_alias': db.Column(
-                    'alias',
-                    integer_alias,
-                    primary_key=True,
-                    default=integer_alias._alphabet.create_random
-                )
-            }
-        )
+        class TargetURL(BaseTargetURL, db.Model):
+            """A class of URLs for which a short alias has been
+            provided or requested
+
+            :ivar _alias: a value representing a registered URL in
+            short URLs and in database.
+            """
+            _alias = db.Column(
+                'alias',
+                integer_alias,
+                primary_key=True,
+                default=integer_alias._alphabet.create_random
+            )
+
+        return TargetURL
 
     @singleton
     @provider
