@@ -369,9 +369,6 @@ class BaseTargetURL(object):
             return target_url
 
 
-alias_column = Key('alias_column')
-
-
 def commit_changes():
     """ Commits all changes stored in current database session
 
@@ -435,11 +432,11 @@ class TargetURLModule(Module):
         binder.bind(IntegerAlias)
 
     @inject
-    def get_target_url_class(self, alias_column: alias_column):
+    def get_target_url_class(self, integer_alias: IntegerAlias):
         """Get a configured subclass of BaseTargetURL and db.Model
 
-        :param alias_column: an instance of sqlalchemy.Column to represent
-        'alias' column of 'targetURL' table
+        :param integer_alias: an instance of IntegerAlias to be used
+        by the 'alias' column object
         :returns: a subclass of BaseTargetURL and db.Model to be used by
         the application. This subclass represents a URL for which a short
         alias has been provided or requested. It has an _alias attribute:
@@ -448,7 +445,14 @@ class TargetURLModule(Module):
         return type(
             'TargetURL',
             (BaseTargetURL, db.Model),
-            {'_alias': alias_column}
+            {
+                '_alias': db.Column(
+                    'alias',
+                    integer_alias,
+                    primary_key=True,
+                    default=integer_alias._alphabet.create_random
+                )
+            }
         )
 
     @singleton
@@ -470,12 +474,3 @@ class TargetURLModule(Module):
         )
 
         return alphabet
-
-    @provider
-    def get_alias_column(self, integer_alias: IntegerAlias) -> alias_column:
-        return db.Column(
-            'alias',
-            integer_alias,
-            primary_key=True,
-            default=integer_alias._alphabet.create_random
-        )
