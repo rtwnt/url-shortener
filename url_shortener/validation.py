@@ -10,26 +10,6 @@ from wtforms.validators import ValidationError
 from . import __version__, __title__
 
 
-def sorted_host_list_from_file(name, classification, filename):
-    """Create a sorted host list based on contents of a file
-
-    :param name: name of a host list to be created
-    :param classification: a string describing classification of all
-    items stored by the host list
-    :param filename: name of a file from which hosts fill be
-    extracted. Each line of the file must contain one IP address
-    or a hostname.
-    :returns: a host list as an instance of SortedHostCollection
-    """
-    with open(filename) as f:
-        hosts = f.read().splitlines()
-    host_list = SortedHostCollection(name, classification, [])
-    for item in hosts:
-        host_list.add(item)
-
-    return host_list
-
-
 class BlacklistValidator(object):
     """A URL spam detector using configurable blacklists
 
