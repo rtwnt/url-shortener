@@ -31,12 +31,6 @@ occur when handling a request for a shortened URL, before logging a warning
 
 :var GOOGLE_SAFE_BROWSING_API_KEY: a value necessary for querying
 Google Safe Browsing API.
-:var HOST_BLACKLIST_FILE: a name of file storing blacklisted hosts
-(hostnames and ip addresses). The value must be either None, or
-a name of an existing file containing blacklisted hosts in
-a sorted order.
-
-If the value is None, no host blacklist file will be used.
 
 :var RECAPTCHA_PUBLIC_KEY: a value used as a public key for reCAPTCHA,
 provided by Google: https://developers.google.com/recaptcha/docs/start
@@ -62,7 +56,6 @@ SECRET_KEY = 'a secret key'
 LOG_FILE = None
 INTEGRITY_ERROR_LIMIT = 10
 GOOGLE_SAFE_BROWSING_API_KEY = 'a key'
-HOST_BLACKLIST_FILE = None
 RECAPTCHA_PUBLIC_KEY = 'public-recaptcha-key'
 RECAPTCHA_PRIVATE_KEY = 'private-recaptcha-key'
 ADMIN_EMAIL = 'admin@your-domain.com'
