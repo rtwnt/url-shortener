@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from flask import Flask
+from injector import Module, inject, Key
 from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
@@ -110,6 +112,65 @@ url_validator = BlacklistValidator(
     ),
     'The URL has been recognized as spam.'
 )
+
+
+host_blacklist = Key('host_blacklist')
+
+
+class ValidationModule(Module):
+
+    def configure(self, binder):
+        binder.bind(
+            BlacklistValidator,
+            to=self.get_blacklist_url_validator()
+        )
+
+    @inject
+    def get_gsb_client(self, app: Flask):
+        gsb_client = GoogleSafeBrowsing(
+            __title__,
+            __version__,
+            app.config['GOOGLE_SAFE_BROWSING_API_KEY']
+        )
+
+        app.logger.info('Google Safe Browsing API client loaded.')
+
+        return gsb_client
+
+    @inject
+    def get_custom_host_blacklist(self, app: Flask):
+        host_list = SortedHostCollection(
+            'custom host blacklist',
+            'blacklisted',
+            []
+        )
+        blacklisted = app.config['BLACKLISTED_HOSTS']
+        for item in blacklisted:
+            host_list.add(item)
+
+        app.logger.info(
+            'Custom host blacklist loaded. The number of elements'
+            ' it contains is: {}'.format(
+                len(blacklisted)
+            )
+        )
+
+        return host_list
+
+    def get_blacklist_url_validator(self):
+        return BlacklistValidator(
+            GeneralizedURLTester(
+                URLTesterChain(
+                    self.get_custom_host_blacklist(),
+                    self.get_gsb_client(),
+                    SURBL_MULTI,
+                    SPAMHAUS_ZEN,
+                    SPAMHAUS_DBL,
+                    hp_hosts
+                )
+            ),
+            'The URL has been recognized as spam.'
+        )
 
 
 def configure_url_validator(app_object):
