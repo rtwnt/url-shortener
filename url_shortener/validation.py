@@ -140,6 +140,11 @@ class ValidationModule(Module):
                     SPAMHAUS_ZEN,
                     SPAMHAUS_DBL,
                     hp_hosts
+                ),
+                whitelist=self.get_custom_host_list(
+                    'custom host whitelist',
+                    'whitelisted',
+                    'WHITELISTED_HOSTS'
                 )
             ),
             'The URL has been recognized as spam.'
