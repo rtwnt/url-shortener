@@ -138,10 +138,8 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
 class GetResponseTest(BaseViewTest, unittest.TestCase):
     def setUp(self):
-        self.validator_patcher = patch(
-            'url_shortener.views.url_validator.get_msg_if_blacklisted'
-        )
-        self.validator_mock = self.validator_patcher.start()
+        self.validator_obj_mock = Mock()
+        self.validator_mock = self.validator_obj_mock.get_msg_if_blacklisted
 
         self.render_preview_patcher = patch(
             'url_shortener.views.render_preview'
@@ -153,7 +151,6 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         super(GetResponseTest, self).setUp()
 
     def tearDown(self):
-        self.validator_patcher.stop()
         self.render_preview_patcher.stop()
 
         super(GetResponseTest, self).tearDown()
@@ -162,7 +159,8 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         return get_response(
             alias,
             self.alternative_action,
-            self.target_url_class_mock
+            self.target_url_class_mock,
+            self.validator_obj_mock
         )
 
     def test_queries_for_alias(self):

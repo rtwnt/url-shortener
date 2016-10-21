@@ -3,7 +3,7 @@ from flask_injector import FlaskInjector
 
 from url_shortener import app, views
 from url_shortener.models import TargetURLModule
-from url_shortener.validation import configure_url_validator
+from url_shortener.validation import ValidationModule
 
 log_file = app.config['LOG_FILE']
 
@@ -15,8 +15,11 @@ if not app.debug and log_file is not None:
     app.logger.addHandler(file_handler)
 
 app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
-configure_url_validator(app)
 
-FlaskInjector(app=app, modules=[TargetURLModule()], use_annotations=True)
+FlaskInjector(
+    app=app,
+    modules=[TargetURLModule(), ValidationModule()],
+    use_annotations=True
+)
 
 app.run()

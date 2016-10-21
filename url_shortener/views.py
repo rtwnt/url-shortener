@@ -8,7 +8,7 @@ from . import app
 from .forms import ShortenedURLForm
 from .models import AliasValueError, commit_changes, target_url_class
 
-from .validation import url_validator
+from .validation import BlacklistValidator
 
 
 @app.context_processor
@@ -61,7 +61,7 @@ def render_preview(target_url, warning_message=None):
     )
 
 
-def get_response(alias, alternative_action, target_url_class):
+def get_response(alias, alternative_action, target_url_class, url_validator):
     """ Gets an appropriate response for given alias
 
     If the alias refers to a URL that is recognized as spam or
@@ -87,7 +87,11 @@ def get_response(alias, alternative_action, target_url_class):
 
 @inject
 @app.route('/<alias>')
-def redirect_for(alias, target_url_class: target_url_class):
+def redirect_for(
+    alias,
+    target_url_class: target_url_class,
+    url_validator: BlacklistValidator
+):
     """ Redirect to address assigned to given alias
 
     :param alias: a string value by which we search for
@@ -96,12 +100,21 @@ def redirect_for(alias, target_url_class: target_url_class):
     :returns: a redirect to target URL of short URL, if
     found.
     """
-    return get_response(alias, redirect, target_url_class)
+    return get_response(
+        alias,
+        redirect,
+        target_url_class,
+        url_validator
+    )
 
 
 @inject
 @app.route('/preview/<alias>')
-def preview(alias, target_url_class: target_url_class):
+def preview(
+    alias,
+    target_url_class: target_url_class,
+    url_validator: BlacklistValidator
+):
     """ Show the preview for given alias
 
     The preview contains a short URL and a target URL
@@ -112,7 +125,12 @@ def preview(alias, target_url_class: target_url_class):
     error occurs.
     :returns: a response generated from the preview template
     """
-    return get_response(alias, render_preview, target_url_class)
+    return get_response(
+        alias,
+        render_preview,
+        target_url_class,
+        url_validator
+    )
 
 
 @app.errorhandler(AliasValueError)
