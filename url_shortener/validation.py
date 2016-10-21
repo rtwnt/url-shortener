@@ -5,6 +5,7 @@ from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
 )
+from spam_lists.exceptions import InvalidURLError
 from wtforms.validators import ValidationError
 
 from . import __version__, __title__
@@ -73,16 +74,21 @@ class BlacklistValidator(object):
     def assert_not_blacklisted(self, form, field):
         """Assert the URL value from the field is not blacklisted
 
-        This method is a custom WTForms field validator.
+        This method is a custom WTForms field validator. It supresses
+        InvalidURLError, because raising it is the responsibility
+        of wtforms.validators.URL.
 
         :param form: a form whose field is to be validated
         :param field: a field containing data to be validated
         :raises ValidationError: if the function returns a message
         for the data
         """
-        msg = self.get_msg_if_blacklisted(field.data)
-        if msg is not None:
-            raise ValidationError(msg)
+        try:
+            msg = self.get_msg_if_blacklisted(field.data)
+            if msg is not None:
+                raise ValidationError(msg)
+        except InvalidURLError:
+            pass
 
 
 hp_hosts = HpHosts(__title__)
