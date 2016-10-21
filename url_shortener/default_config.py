@@ -49,6 +49,9 @@ by an installation of this application
 
 :var BLACKLISTED_HOSTS: a custom list of strings representing blacklisted
 hosts
+
+:var WHITELISTED_HOSTS: a custom list of strings representing whitelisted
+hosts. URLs with them will not be tested against blacklist.
 """
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
@@ -64,3 +67,4 @@ RECAPTCHA_PUBLIC_KEY = 'public-recaptcha-key'
 RECAPTCHA_PRIVATE_KEY = 'private-recaptcha-key'
 ADMIN_EMAIL = 'admin@your-domain.com'
 BLACKLISTED_HOSTS = []
+WHITELISTED_HOSTS = []
