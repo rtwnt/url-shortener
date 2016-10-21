@@ -111,19 +111,15 @@ class ValidationModule(Module):
         return gsb_client
 
     @inject
-    def get_custom_host_blacklist(self, app: Flask):
-        host_list = SortedHostCollection(
-            'custom host blacklist',
-            'blacklisted',
-            []
-        )
-        blacklisted = app.config['BLACKLISTED_HOSTS']
+    def get_custom_host_list(self, name, classification, option, app: Flask):
+        host_list = SortedHostCollection(name, classification, [])
+        blacklisted = app.config[option]
         for item in blacklisted:
             host_list.add(item)
 
         app.logger.info(
-            'Custom host blacklist loaded. The number of elements'
-            ' it contains is: {}'.format(
+            '{} loaded. The number of elements it contains is: {}'.format(
+                name.capitalize(),
                 len(blacklisted)
             )
         )
@@ -134,7 +130,11 @@ class ValidationModule(Module):
         return BlacklistValidator(
             GeneralizedURLTester(
                 URLTesterChain(
-                    self.get_custom_host_blacklist(),
+                    self.get_custom_host_list(
+                        'custom host blacklist',
+                        'blacklisted',
+                        'BLACKLISTED_HOSTS'
+                    ),
                     self.get_gsb_client(),
                     SURBL_MULTI,
                     SPAMHAUS_ZEN,
