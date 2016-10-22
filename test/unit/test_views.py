@@ -2,13 +2,15 @@
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 
+from nose_parameterized import parameterized
 from werkzeug.exceptions import HTTPException
 
-from url_shortener.views import shorten_url, get_response
+from url_shortener.views import shorten_url, get_response, ShowURL
 
 
 class BaseViewTest(object):
     """ A class providing mocks used by all tested view functions """
+
     def setUp(self):
         self.render_template_patcher = patch(
             'url_shortener.views.render_template'
@@ -23,6 +25,7 @@ class BaseViewTest(object):
 
 class RedirectPatchMixin(object):
     """ A mixin providing a mock for flask.redirect function """
+
     def setUp(self):
         self.redirect_patcher = patch('url_shortener.views.redirect')
         self.redirect_mock = self.redirect_patcher.start()
@@ -209,6 +212,106 @@ class GetResponseTest(BaseViewTest, unittest.TestCase):
         self.validator_mock.return_value = None
         expected = self.alternative_action.return_value
         actual = self._call('xyz')
+        self.assertEqual(expected, actual)
+
+
+class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
+    """Tests for ShowURL class
+
+    :cvar PREVIEW_NOT_PREVIEW_SETUP: parameters for tests differing only with
+    the value of 'preview' constructor argument
+    :cvar WHEN_PREVIEW_SETUP: parameters for tests differing in combinations
+    of conditions expected to lead to rendering and returning of a preview
+    template
+    """
+
+    PREVIEW_NOT_PREVIEW_SETUP = [
+        ('preview', True),
+        ('redirect', False)
+    ]
+    WHEN_PREVIEW_SETUP = [
+        ('always', True, ''),
+        ('always_and_with_spam_message', True, 'This is spam'),
+        ('with_spam_message', False, 'This is spam.')
+    ]
+
+    def setUp(self):
+        bval = Mock()
+        self.validator_mock = bval
+        self.get_msg_if_blacklisted_mock = bval.get_msg_if_blacklisted
+        self.get_msg_if_blacklisted_mock.return_value = ''
+
+        super(TestShowURL, self).setUp()
+
+        tuc = Mock()
+        self.target_url_class_mock = tuc
+        self.get_or_404_mock = tuc.query.get_or_404
+
+    def create_view_and_call_dispatch_request(self, preview, alias='abc'):
+        obj = ShowURL(
+            preview,
+            self.target_url_class_mock,
+            self.validator_mock
+        )
+
+        return obj.dispatch_request(alias)
+
+    @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
+    def test_dispatch_request_queries_for_target_url_to(self, _, preview):
+        alias = 'xyz'
+
+        self.create_view_and_call_dispatch_request(preview, alias)
+
+        self.get_or_404_mock.assert_called_once_with(alias)
+
+    @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
+    def test_dispatch_request_raises_http_error_for(self, _, preview):
+        self.get_or_404_mock.side_effect = HTTPException
+
+        with self.assertRaises(HTTPException):
+            self.create_view_and_call_dispatch_request(preview)
+
+    @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
+    def test_dispatch_request_validates_url(self, _, preview):
+        self.create_view_and_call_dispatch_request(preview)
+        target_url = self.get_or_404_mock()
+
+        self.get_msg_if_blacklisted_mock.assert_called_once_with(
+            str(target_url)
+        )
+
+    @parameterized.expand(WHEN_PREVIEW_SETUP)
+    def test_dispatch_request_renders_preview(self, _, preview, spam_msg):
+        self.get_msg_if_blacklisted_mock.return_value = spam_msg
+
+        self.create_view_and_call_dispatch_request(preview)
+
+        self.render_template_mock.assert_called_once_with(
+            'preview.html',
+            target_url=self.get_or_404_mock(),
+            warning=spam_msg
+        )
+
+    @parameterized.expand(WHEN_PREVIEW_SETUP)
+    def test_dispatch_request_shows_preview(self, _, preview, spam_msg):
+        self.get_msg_if_blacklisted_mock.return_value = spam_msg
+
+        expected = self.render_template_mock()
+        actual = self.create_view_and_call_dispatch_request(preview)
+
+        self.assertEqual(expected, actual)
+
+    def test_dispatch_request_redirects(self):
+        self.create_view_and_call_dispatch_request(False)
+
+        self.redirect_mock.assert_called_once_with(self.get_or_404_mock())
+
+    def test_dispatch_request_returns_redirect(self):
+        self.get_msg_if_blacklisted_mock.return_value = None
+
+        expected = self.redirect_mock()
+        actual = self.create_view_and_call_dispatch_request(False)
+
         self.assertEqual(expected, actual)
 
 

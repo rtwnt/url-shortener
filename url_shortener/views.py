@@ -2,6 +2,7 @@
 import datetime
 
 from flask import redirect, url_for, flash, render_template, Markup
+from flask.views import View
 from injector import inject
 
 from . import app
@@ -134,6 +135,63 @@ def preview(
         target_url_class,
         url_validator
     )
+
+
+class ShowURL(View):
+    """A class of views presenting existing target URLs
+
+    The target URLs can be presented either by redirecting to them or
+    by showing a preview page containing the target URL and a short URL
+    redirecting to it and provided by the application.
+    """
+
+    @inject
+    def __init__(
+        self,
+        preview,
+        target_url_class: target_url_class,
+        blacklist_validator: BlacklistValidator
+    ):
+        """ Initialize a new instance
+
+        :param preview: if True, the response returned by the view will
+        always be a preview of target URL with given alias. If False,
+        it will be a redirect to the target URL, unless blacklist
+        validator recognizes URL as spam, in which case it will be
+        the preview.
+        :param target_url_class: an instance of target_url_class used
+        to look up the URL
+        :param blacklist_validator: an instance of BlacklistValidator
+        used to test if the URL is recognized as spam
+        """
+
+        self.preview = preview
+        self.target_url_class = target_url_class
+        self.blacklist_validator = blacklist_validator
+
+    def dispatch_request(self, alias):
+        """Show URL either as a redirection to target or as a preview
+        of target URL
+
+        :param alias: a string value by which we search for
+        an associated URL. If it is not found, a 404 error occurs.
+        :returns: a response depending on results of blacklist lookup
+        and initial configuration of the view
+        :raises werkzeug.exception.HTTPException with code 404, if
+        it is raised by the target URL search call
+        """
+        target_url = self.target_url_class.query.get_or_404(alias)
+        spam_msg = self.blacklist_validator.get_msg_if_blacklisted(
+            str(target_url)
+        )
+
+        if spam_msg or self.preview:
+            return render_template(
+                'preview.html',
+                target_url=target_url,
+                warning=spam_msg
+            )
+        return redirect(target_url)
 
 
 @app.errorhandler(AliasValueError)
