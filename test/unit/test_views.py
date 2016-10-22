@@ -71,6 +71,13 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
     def _call(self):
         return shorten_url(self.target_url_class_mock, self.form_class_mock)
 
+    def test_gets_or_creates_a_target_url(self):
+        self._call()
+
+        self.target_url_class_mock.get_or_create.assert_called_once_with(
+            self.form_mock.url.data
+        )
+
     def test_registers_new_short_url(self):
         self._call()
         self.assertTrue(self.commit_changes_mock.called)
