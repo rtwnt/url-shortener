@@ -49,10 +49,6 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         )
         self.commit_changes_mock = self.commit_changes_patcher.start()
 
-        self.app_patcher = patch('url_shortener.views.app')
-        self.app_mock = self.app_patcher.start()
-        self.app_mock.config = MagicMock()
-
         self.markup_patcher = patch('url_shortener.views.Markup')
         self.markup_mock = self.markup_patcher.start()
 
@@ -66,7 +62,6 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     def tearDown(self):
         self.commit_changes_patcher.stop()
-        self.app_patcher.stop()
         self.markup_patcher.stop()
         self.url_for_patcher.stop()
         self.flash_patcher.stop()
