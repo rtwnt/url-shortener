@@ -467,7 +467,7 @@ class TargetURLModule(Module):
 
         app.logger.info(
             "Providing an instance of AliasAlphabet. It contains"
-            " the following characters:\n{0}.\nIt can be used to generate"
+            " the following characters:\n{0}.\n\nIt can be used to generate"
             " aliases from {0._min_length} to {0._max_length}"
             " characters long.".format(
                 alphabet
