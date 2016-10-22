@@ -166,9 +166,7 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
         super(TestShowURL, self).setUp()
 
-        tuc = Mock()
-        self.target_url_class_mock = tuc
-        self.get_or_404_mock = tuc.query.get_or_404
+        self.get_or_404_mock = self.target_url_class_mock.query.get_or_404
 
     def create_view_and_call_dispatch_request(self, preview, alias='abc'):
         obj = ShowURL(
