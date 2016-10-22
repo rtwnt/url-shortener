@@ -57,38 +57,6 @@ def shorten_url(
     return render_template('shorten_url.html', form=form)
 
 
-def render_preview(target_url, warning_message=None):
-    return render_template(
-        'preview.html',
-        target_url=target_url,
-        warning=warning_message
-    )
-
-
-def get_response(alias, alternative_action, target_url_class, url_validator):
-    """ Gets an appropriate response for given alias
-
-    If the alias refers to a URL that is recognized as spam or
-    containing a blacklisted domain, a preview with information
-    on the result of the validation is shown. Otherwise, the function
-    returns a result of alternative_action for given alias
-
-    :param alias: a string representing an existing target URL
-    :param alternative_action: a function receiving
-    target URL object as its argument, used for generating
-    a response for request for a safe URL
-    :returns: a response generated from rendering preview or
-    calling alternative_action
-    :raises werkzeug.exceptions.HTTPException: when there is no
-    target URL for given alias
-    """
-    target_url = target_url_class.query.get_or_404(alias)
-    msg = url_validator.get_msg_if_blacklisted(str(target_url))
-    if msg is not None:
-        return render_preview(target_url, msg)
-    return alternative_action(target_url)
-
-
 class ShowURL(View):
     """A class of views presenting existing target URLs
 
