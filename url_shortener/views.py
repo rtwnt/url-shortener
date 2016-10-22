@@ -89,54 +89,6 @@ def get_response(alias, alternative_action, target_url_class, url_validator):
     return alternative_action(target_url)
 
 
-@inject
-@app.route('/<alias>')
-def redirect_for(
-    alias,
-    target_url_class: target_url_class,
-    url_validator: BlacklistValidator
-):
-    """ Redirect to address assigned to given alias
-
-    :param alias: a string value by which we search for
-    an associated URL. If it is not found, a 404 error
-    occurs
-    :returns: a redirect to target URL of short URL, if
-    found.
-    """
-    return get_response(
-        alias,
-        redirect,
-        target_url_class,
-        url_validator
-    )
-
-
-@inject
-@app.route('/preview/<alias>')
-def preview(
-    alias,
-    target_url_class: target_url_class,
-    url_validator: BlacklistValidator
-):
-    """ Show the preview for given alias
-
-    The preview contains a short URL and a target URL
-    associated with it.
-
-    :param alias: a string value by which we search
-    for an associated URL. If it is not found, a 404
-    error occurs.
-    :returns: a response generated from the preview template
-    """
-    return get_response(
-        alias,
-        render_preview,
-        target_url_class,
-        url_validator
-    )
-
-
 class ShowURL(View):
     """A class of views presenting existing target URLs
 
@@ -192,6 +144,17 @@ class ShowURL(View):
                 warning=spam_msg
             )
         return redirect(target_url)
+
+
+app.add_url_rule(
+    '/<alias>',
+    view_func=ShowURL.as_view('redirect_for', preview=False)
+)
+
+app.add_url_rule(
+    '/preview/<alias>',
+    view_func=ShowURL.as_view('preview', preview=True)
+)
 
 
 @app.errorhandler(AliasValueError)
