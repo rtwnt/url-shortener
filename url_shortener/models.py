@@ -319,8 +319,6 @@ class IntegerAlias(types.TypeDecorator):
 class BaseTargetURL(object):
     """A base class for classes representing target URLs"""
 
-    _value = db.Column('value', db.String(2083), unique=True, nullable=False)
-
     def __init__(self, target):
         """ Constructor
 
@@ -454,12 +452,20 @@ class TargetURLModule(Module):
 
             :ivar _alias: a value representing a registered URL in
             short URLs and in database.
+            :ivar _value: a value of a target URL
             """
             _alias = db.Column(
                 'alias',
                 integer_alias,
                 primary_key=True,
                 default=integer_alias._alphabet.create_random
+            )
+
+            _value = self.db.Column(
+                'value',
+                self.db.String(2083),
+                unique=True,
+                nullable=False
             )
 
         return TargetURL
