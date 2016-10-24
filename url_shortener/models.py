@@ -489,6 +489,7 @@ class TargetURLModule(Module):
             ),
             scope=singleton
         )
+        binder.bind(commit_changes, to=get_commit_changes, scope=singleton)
 
     def get_target_url_class(self):
         """Get a configured subclass of BaseTargetURL and db.Model
