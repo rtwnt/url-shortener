@@ -234,14 +234,11 @@ class BaseTargetURLTest(unittest.TestCase):
     class_under_test = BaseTargetURL
 
     def setUp(self):
-        self.session_patcher = patch(
-            'url_shortener.models.db.session',
-            spec=['query', 'add', 'no_autoflush']
-        )
-        self.session_mock = self.session_patcher.start()
+        self.session_mock = MagicMock(spec=['query', 'add', 'no_autoflush'])
+        BaseTargetURL._session = self.session_mock
 
     def tearDown(self):
-        self.session_patcher.stop()
+        delattr(BaseTargetURL, '_session')
 
     def test_get_or_create_filters_by_target(self):
         filter_by_mock = self.session_mock.query.return_value.filter_by

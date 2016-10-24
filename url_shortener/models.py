@@ -351,20 +351,20 @@ class BaseTargetURL(object):
         :return: an instance of the class, existing or one
         to be registered
         """
-        cache = getattr(db.session, '_unique_cache', None)
+        cache = getattr(cls._session, '_unique_cache', None)
         if cache is None:
-            db.session._unique_cache = cache = {}
+            cls._session._unique_cache = cache = {}
 
         if value in cache:
             return cache[value]
 
         else:
-            with db.session.no_autoflush:
-                query = db.session.query(cls)
+            with cls._session.no_autoflush:
+                query = cls._session.query(cls)
                 target_url = query.filter_by(_value=value).one_or_none()
                 if not target_url:
                     target_url = cls(value)
-                    db.session.add(target_url)
+                    cls._session.add(target_url)
             cache[value] = target_url
             return target_url
 
@@ -450,10 +450,13 @@ class TargetURLModule(Module):
             """A class of URLs for which a short alias has been
             provided or requested
 
+            :cvar _session: a database session to be used by the class
             :ivar _alias: a value representing a registered URL in
             short URLs and in database.
             :ivar _value: a value of a target URL
             """
+            _session = db.session
+
             _alias = db.Column(
                 'alias',
                 integer_alias,
