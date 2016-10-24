@@ -7,6 +7,8 @@ from string import ascii_lowercase, digits
 
 from cached_property import cached_property
 from flask import url_for, current_app
+from flask_sqlalchemy import SQLAlchemy
+
 from injector import (
     inject, singleton, Module, Key, InstanceProvider
 )
@@ -424,8 +426,12 @@ target_url_class = Key('target_url_class')
 class TargetURLModule(Module):
     def __init__(self, app):
         self.app = app
+        # See http://flask-sqlalchemy.pocoo.org/2.1/config/
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.db = SQLAlchemy(app)
 
     def configure(self, binder):
+        binder.bind(SQLAlchemy, to=self.db, scope=singleton)
         binder.bind(
             target_url_class,
             to=InstanceProvider(
