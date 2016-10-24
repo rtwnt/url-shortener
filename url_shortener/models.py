@@ -6,9 +6,9 @@ from random import randint, choice
 from string import ascii_lowercase, digits
 
 from cached_property import cached_property
-from flask import url_for, current_app, Flask, Config
+from flask import url_for, current_app
 from injector import (
-    inject, singleton, Module, provider, Key, InstanceProvider
+    inject, singleton, Module, Key, InstanceProvider
 )
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
@@ -253,7 +253,7 @@ class IntegerAlias(types.TypeDecorator):
     _max_int_32 = 2**31 - 1
 
     @inject
-    def __init__(self, alphabet: AliasAlphabet):
+    def __init__(self, alphabet):
         """ Initialize a new instance
 
         :param alphabet: an instance of AliasAlphabet to be used
@@ -422,24 +422,26 @@ target_url_class = Key('target_url_class')
 
 
 class TargetURLModule(Module):
+    def __init__(self, app):
+        self.app = app
+
     def configure(self, binder):
         binder.bind(
             target_url_class,
             to=InstanceProvider(
                 self.get_target_url_class()
-            )
+            ),
+            scope=singleton
         )
-        binder.bind(IntegerAlias)
 
-    @inject
-    def get_target_url_class(self, integer_alias: IntegerAlias):
+    def get_target_url_class(self):
         """Get a configured subclass of BaseTargetURL and db.Model
 
-        :param integer_alias: an instance of IntegerAlias to be used
-        by the 'alias' column object
         :returns: a subclass of BaseTargetURL and db.Model to be used by
         the application.
         """
+        integer_alias = IntegerAlias(self.get_alias_alphabet())
+
         class TargetURL(BaseTargetURL, db.Model):
             """A class of URLs for which a short alias has been
             provided or requested
@@ -456,16 +458,14 @@ class TargetURLModule(Module):
 
         return TargetURL
 
-    @singleton
-    @provider
-    def get_alias_alphabet(self, config: Config, app: Flask) -> AliasAlphabet:
+    def get_alias_alphabet(self):
         alphabet = AliasAlphabet.from_chars_with_homoglyphs(
             digits + ascii_lowercase,
-            config['MIN_NEW_ALIAS_LENGTH'],
-            config['MAX_NEW_ALIAS_LENGTH']
+            self.app.config['MIN_NEW_ALIAS_LENGTH'],
+            self.app.config['MAX_NEW_ALIAS_LENGTH']
         )
 
-        app.logger.info(
+        self.app.logger.info(
             "Providing an instance of AliasAlphabet. It contains"
             " the following characters:\n{0}.\n\nIt can be used to generate"
             " aliases from {0._min_length} to {0._max_length}"

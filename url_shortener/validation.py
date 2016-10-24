@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask
-from injector import Module, inject, Key
+from injector import Module, singleton
 from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
     SPAMHAUS_DBL, SPAMHAUS_ZEN, SURBL_MULTI, SortedHostCollection
@@ -93,37 +92,37 @@ class BlacklistValidator(object):
 
 hp_hosts = HpHosts(__title__)
 
-host_blacklist = Key('host_blacklist')
-
 
 class ValidationModule(Module):
+
+    def __init__(self, app):
+        self.app = app
 
     def configure(self, binder):
         binder.bind(
             BlacklistValidator,
-            to=self.get_blacklist_url_validator()
+            to=self.get_blacklist_url_validator(),
+            scope=singleton
         )
 
-    @inject
-    def get_gsb_client(self, app: Flask):
+    def get_gsb_client(self):
         gsb_client = GoogleSafeBrowsing(
             __title__,
             __version__,
-            app.config['GOOGLE_SAFE_BROWSING_API_KEY']
+            self.app.config['GOOGLE_SAFE_BROWSING_API_KEY']
         )
 
-        app.logger.info('Google Safe Browsing API client loaded.')
+        self.app.logger.info('Google Safe Browsing API client loaded.')
 
         return gsb_client
 
-    @inject
-    def get_custom_host_list(self, name, classification, option, app: Flask):
+    def get_custom_host_list(self, name, classification, option):
         host_list = SortedHostCollection(name, classification, [])
-        blacklisted = app.config[option]
+        blacklisted = self.app.config[option]
         for item in blacklisted:
             host_list.add(item)
 
-        app.logger.info(
+        self.app.logger.info(
             '{} loaded. The number of elements it contains is: {}'.format(
                 name.capitalize(),
                 len(blacklisted)

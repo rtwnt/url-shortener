@@ -19,7 +19,7 @@ app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
 
 FlaskInjector(
     app=app,
-    modules=[TargetURLModule(), ValidationModule(), FormModule()],
+    modules=[TargetURLModule(app), ValidationModule(app), FormModule()],
     use_annotations=True
 )
 
