@@ -3,7 +3,7 @@ from flask_injector import FlaskInjector
 
 from url_shortener import app, views
 from url_shortener.forms import FormModule
-from url_shortener.models import TargetURLModule
+from url_shortener.models import DomainAndPersistenceModule
 from url_shortener.validation import ValidationModule
 
 log_file = app.config['LOG_FILE']
@@ -19,7 +19,11 @@ app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
 
 FlaskInjector(
     app=app,
-    modules=[TargetURLModule(app), ValidationModule(app), FormModule()],
+    modules=[
+        DomainAndPersistenceModule(app),
+        ValidationModule(app),
+        FormModule()
+    ],
     use_annotations=True
 )
 

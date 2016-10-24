@@ -426,7 +426,8 @@ def get_commit_changes(app: Flask, db: SQLAlchemy):
 target_url_class = Key('target_url_class')
 
 
-class TargetURLModule(Module):
+class DomainAndPersistenceModule(Module):
+
     def __init__(self, app):
         self.app = app
         # See http://flask-sqlalchemy.pocoo.org/2.1/config/
