@@ -22,7 +22,8 @@ def inject_year():
 @app.route('/', methods=['GET', 'POST'])
 def shorten_url(
     target_url_class: target_url_class,
-    form_class: url_form_class
+    form_class: url_form_class,
+    commit_changes: commit_changes
 ):
     """Display form and handle request for URL shortening
 
