@@ -334,7 +334,7 @@ class TestCommitChanges(unittest.TestCase):
         self.logger_mock = current_app_mock.logger.warning
 
     def tearDown(self):
-        self.session_mock.stop()
+        self.session_patcher.stop()
         self.current_app_patcher.stop()
 
     def _call(self, integrity_error_count):
