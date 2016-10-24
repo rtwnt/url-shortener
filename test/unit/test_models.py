@@ -324,18 +324,15 @@ class TestGetCommitChanges(unittest.TestCase):
     ]
 
     def setUp(self):
-        self.session_patcher = patch('url_shortener.models.db.session')
-        self.session_mock = self.session_patcher.start()
+        db_mock = Mock()
+        self.session_mock = db_mock.session
 
         app_mock = Mock()
         app_mock.config = {}
         app_mock.config['INTEGRITY_ERROR_LIMIT'] = self.LIMIT
         self.logger_mock = app_mock.logger.warning
 
-        self.commit_changes = get_commit_changes(app_mock)
-
-    def tearDown(self):
-        self.session_patcher.stop()
+        self.commit_changes = get_commit_changes(app_mock, db_mock)
 
     def _call(self, integrity_error_count):
         error = IntegrityError('message', 'statement', ['param_1'], Exception)

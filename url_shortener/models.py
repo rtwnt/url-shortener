@@ -16,8 +16,6 @@ from injector import (
 from sqlalchemy import types
 from sqlalchemy.exc import IntegrityError
 
-from . import db
-
 
 class AlphabetValueError(ValueError):
     """The value of alias alphabet is incorrect"""
@@ -374,7 +372,7 @@ commit_changes = Key('commit_changes')
 
 
 @inject
-def get_commit_changes(app: Flask):
+def get_commit_changes(app: Flask, db: SQLAlchemy):
     def commit_changes():
         """ Commits all changes stored in current database session
 
@@ -452,9 +450,10 @@ class TargetURLModule(Module):
         :returns: a subclass of BaseTargetURL and db.Model to be used by
         the application.
         """
+
         integer_alias = IntegerAlias(self.get_alias_alphabet())
 
-        class TargetURL(BaseTargetURL, db.Model):
+        class TargetURL(BaseTargetURL, self.db.Model):
             """A class of URLs for which a short alias has been
             provided or requested
 
@@ -463,9 +462,9 @@ class TargetURLModule(Module):
             short URLs and in database.
             :ivar _value: a value of a target URL
             """
-            _session = db.session
+            _session = self.db.session
 
-            _alias = db.Column(
+            _alias = self.db.Column(
                 'alias',
                 integer_alias,
                 primary_key=True,

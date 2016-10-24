@@ -19,12 +19,6 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Piotr Rusin'
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')
-
-# See http://flask-sqlalchemy.pocoo.org/2.1/config/
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
