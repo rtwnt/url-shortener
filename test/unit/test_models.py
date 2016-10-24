@@ -7,8 +7,8 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 
 from url_shortener.models import (
     AliasValueError, AliasLengthValueError, IntegrityError, commit_changes,
-    AliasAlphabet, AlphabetValueError, CharacterValueError, IntegerAlias,
-    BaseTargetURL
+    get_commit_changes, AliasAlphabet, AlphabetValueError,
+    CharacterValueError, IntegerAlias, BaseTargetURL
 )
 
 
@@ -344,6 +344,67 @@ class TestCommitChanges(unittest.TestCase):
         )
 
         commit_changes()
+
+    @parameterized.expand(TEST_PARAMS)
+    def test_commits_pending_changes_with(self, _, integrity_error_count):
+        self._call(integrity_error_count)
+
+        self.assertEqual(
+            self.session_mock.commit.call_count,
+            integrity_error_count + 1
+        )
+
+    @parameterized.expand(TEST_PARAMS)
+    def test_rolls_back_for(self, _, integrity_error_count):
+        self._call(integrity_error_count)
+
+        self.assertEqual(
+            self.session_mock.rollback.call_count,
+            integrity_error_count
+        )
+
+    def test_does_not_log_warning(self):
+        for integrity_error_count in range(self.LIMIT + 1):
+            self._call(integrity_error_count)
+
+            self.assertEqual(self.logger_mock.call_count, 0)
+
+    def test_logs_warning(self):
+        self._call(self.LIMIT + 1)
+
+        self.assertTrue(self.logger_mock.called)
+
+
+class TestGetCommitChanges(unittest.TestCase):
+    LIMIT = 10
+    TEST_PARAMS = [
+        ('no_integrity_errors', 0),
+        ('one_integrity_error', 1),
+        ('two_integrity_errors', 2),
+        ('too_many_integrity_errors', LIMIT + 1)
+    ]
+
+    def setUp(self):
+        self.session_patcher = patch('url_shortener.models.db.session')
+        self.session_mock = self.session_patcher.start()
+
+        app_mock = Mock()
+        app_mock.config = {}
+        app_mock.config['INTEGRITY_ERROR_LIMIT'] = self.LIMIT
+        self.logger_mock = app_mock.logger.warning
+
+        self.commit_changes = get_commit_changes(app_mock)
+
+    def tearDown(self):
+        self.session_patcher.stop()
+
+    def _call(self, integrity_error_count):
+        error = IntegrityError('message', 'statement', ['param_1'], Exception)
+        self.session_mock.commit.side_effect = (
+            [error] * integrity_error_count + [None]
+        )
+
+        self.commit_changes()
 
     @parameterized.expand(TEST_PARAMS)
     def test_commits_pending_changes_with(self, _, integrity_error_count):
