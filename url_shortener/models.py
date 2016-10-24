@@ -9,7 +9,6 @@ from cached_property import cached_property
 
 from flask import url_for, Flask
 from flask_sqlalchemy import SQLAlchemy
-
 from injector import (
     inject, singleton, Module, Key, InstanceProvider
 )
