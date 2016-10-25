@@ -432,6 +432,7 @@ class DomainAndPersistenceModule(Module):
         # See http://flask-sqlalchemy.pocoo.org/2.1/config/
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         self.db = SQLAlchemy(app)
+        self.db.create_all()
 
     def configure(self, binder):
         binder.bind(SQLAlchemy, to=self.db, scope=singleton)
