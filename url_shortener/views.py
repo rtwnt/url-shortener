@@ -44,7 +44,7 @@ def shorten_url(
         target_url = target_url_class.get_or_create(form.url.data)
         commit_changes()
         msg_tpl = Markup(
-            'New short URL: <a href="{0}">{0}</a><br>Preview'
+            'Short URL: <a href="{0}">{0}</a><br>Preview'
             ' available at: <a href="{1}">{1}</a>'
         )
         msg = msg_tpl.format(target_url.short_url, target_url.preview_url)
