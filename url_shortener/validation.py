@@ -118,14 +118,14 @@ class ValidationModule(Module):
 
     def get_custom_host_list(self, name, classification, option):
         host_list = SortedHostCollection(name, classification, [])
-        blacklisted = self.app.config[option]
-        for item in blacklisted:
+        listed = self.app.config[option]
+        for item in listed:
             host_list.add(item)
 
         self.app.logger.info(
             '{} loaded. The number of elements it contains is: {}'.format(
                 name.capitalize(),
-                len(blacklisted)
+                len(listed)
             )
         )
 
