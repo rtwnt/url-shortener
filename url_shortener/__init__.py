@@ -18,9 +18,28 @@ __email__ = "piotr.rusin88@gmail.com"
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Piotr Rusin'
 
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
 from flask import Flask
 from .views import url_shortener
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')
 app.register_blueprint(url_shortener)
+
+
+def _set_up_logging(app):
+    """Set up logging for given Flask application object
+
+    :param app: an application for which the function will
+    set up logging
+    """
+    log_file = app.config['LOG_FILE']
+
+    if not app.debug and log_file is not None:
+        file_handler = TimedRotatingFileHandler(log_file, when='d')
+        file_handler.setLevel(logging.WARNING)
+        app.logger.addHandler(file_handler)
+
+
