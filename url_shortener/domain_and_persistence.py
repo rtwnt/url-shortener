@@ -216,7 +216,7 @@ class AliasAlphabet(object):
         the alphabet
         """
         index = bisect_left(self._characters, character)
-        if (index == len(self) or self._characters[index] != character):
+        if index == len(self) or self._characters[index] != character:
             raise CharacterValueError(
                 "AliasAlphabet.index(character): '{}' not in alphabet".format(
                     character
