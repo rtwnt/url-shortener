@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-""" This module contains TargetURL class and related classes """
+"""This module contains code belonging to domain and
+persistence layers
+"""
 from bisect import bisect_left
 from math import log, floor
 from random import randint, choice
