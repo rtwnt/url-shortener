@@ -62,6 +62,15 @@ input[type="submit"] {
     padding: 0.5em;
 }
 
+.truncated {
+    display: inline-block;
+    vertical-align: bottom;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /** Theme **/
 
 body {
@@ -116,6 +125,10 @@ footer {
     #content {
         width: 70%;
     }
+
+    .truncated {
+        width: 78%;
+    }
 }
 
 @media all and (min-width: 980px) {
@@ -130,6 +143,10 @@ footer {
 
     #content {
         width: 60%;
+    }
+
+    .truncated {
+        width: 80%;
     }
 
 }

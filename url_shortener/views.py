@@ -43,13 +43,14 @@ def shorten_url(
     if form.validate_on_submit():
         target_url = target_url_class.get_or_create(form.url.data)
         commit_changes()
-        url_tpl = Markup('{0}: <a href="{1}">{1}</a>')
+        url_tpl = Markup('{0}: <a href="{1}"{2}>{1}</a>')
         description_url_map = (
-            ('Short URL', target_url.short_url),
-            ('Preview available at', target_url.preview_url)
+            ('Original URL', target_url, ' class=truncated'),
+            ('Short URL', target_url.short_url, ''),
+            ('Preview available at', target_url.preview_url, '')
         )
-        for desc, url in description_url_map:
-            flash(url_tpl.format(desc, url))
+        for data in description_url_map:
+            flash(url_tpl.format(*data))
 
         return redirect(url_for(shorten_url.__name__))
 
