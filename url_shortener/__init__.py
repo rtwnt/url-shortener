@@ -29,10 +29,6 @@ from .forms import FormModule
 from .domain_and_persistence import DomainAndPersistenceModule, SQLAlchemy
 from .validation import ValidationModule
 
-app = Flask(__name__)
-app.config.from_object('url_shortener.default_config')
-app.register_blueprint(url_shortener)
-
 
 def _set_up_logging(app):
     """Set up logging for given Flask application object
