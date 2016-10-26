@@ -226,7 +226,7 @@ class AliasAlphabet(object):
     def __getitem__(self, index):
         """Get a character corresponding to given index
 
-        :param index: a postion of character to be returned
+        :param index: a postion of a character to be returned
         :returns: a character in the alphabet at the given index
         :raises IndexError: if the index is out of range
         """
@@ -282,6 +282,9 @@ class IntegerAlias(types.TypeDecorator):
         """Get integer representation of given string alias
 
         :param value: an alias string
+        :param dialect: an object implementing
+        sqlalchemy.engine.interfaces.Dialect, representing a dialect
+        used by the database
         :returns: an integer corresponding to the alias string
         :raises AliasValueError: if value is not a valid alias string,
         for example: if it contains characters that are not part
@@ -302,6 +305,9 @@ class IntegerAlias(types.TypeDecorator):
         """Get alias string for given integer
 
         :param value: an integer representing alias string
+        :param dialect: an object implementing
+        sqlalchemy.engine.interfaces.Dialect, representing a dialect
+        used by the database
         :returns: a string converted from the integer
         """
         string = ''
@@ -372,6 +378,13 @@ commit_changes = Key('commit_changes')
 
 @inject
 def get_commit_changes(app: Flask, db: SQLAlchemy):
+    """Get commit_changes function that uses the objects passed here
+
+    :param app: an instance of Flask representing the current
+    application
+    :param db: an instance of SQLAlchemy for the database being used
+    :returns: a function to be used for commiting changes
+    """
     def commit_changes():
         """ Commits all changes stored in current database session
 
