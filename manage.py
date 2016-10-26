@@ -1,20 +1,10 @@
 # -*- coding: utf-8 -*-
-"""FIXME: this module doesn't work since db object imported from
-url_shortener package does not contain any mappings. It receives mappings
-only in url_shortener/__main__.py, because right now this is where Injector
-is instantiated and configured for application instance, creating TargetURL
-class.
-
-This will be fixed when introducing application factory. Until then, no
-temporary fixes will be made.
-"""
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from url_shortener import app
-from url_shortener.models import db
+from url_shortener import get_app_and_db
 
-app.config.from_envvar('URL_SHORTENER_CONFIGURATION')
+app, db = get_app_and_db('URL_SHORTENER_CONFIGURATION', from_envvar=True)
 
 migrate = Migrate(app, db)
 manager = Manager(app)
