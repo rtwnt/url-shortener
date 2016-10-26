@@ -2,7 +2,7 @@
 {% block content %}
     {% if warning %}
         <div class="warning">
-            Warning: {{ warning }}
+            Target URL warning: {{ warning }}
         </div>
     {% endif %}
     {% with %}
@@ -11,7 +11,7 @@
             <div class="indented">
                 <a href="{{ short_url }}">{{ short_url }}</a>
             </div>
-        redirects to:
+        redirects to the following target URL:
             <div class="indented wrapped">
                 <a href="{{ target_url }}">{{ target_url }}</a>.
             </div>
