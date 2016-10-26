@@ -93,14 +93,6 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         actual = self._call()
         self.assertEqual(expected, actual)
 
-    def test_flashes_errors(self):
-        errors = [Mock() for _ in range(3)]
-        self.form_mock.errors.values.return_value = [errors]
-        self.form_mock.validate_on_submit.return_value = False
-        self._call()
-        for i in errors:
-            self.flash_mock.assert_any_call(i, 'error')
-
     def test_prepares_success_message(self):
         """ When session contains alias of a previously generated
         short URL, shorten_url is expected to prepare a

@@ -9,6 +9,17 @@
         </ul>
     {% endif %}
 {% endwith %}
+{% with form_errors = form.errors.values() %}
+    {% if form_errors %}
+        <ul id="validation-errors">
+            {% for field_errors in form_errors %}
+                {% for error in field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
 <form method="POST" action="{{ url_for('shorten_url') }}">
     {{ form.hidden_tag() }}
     {{ form.url() }}

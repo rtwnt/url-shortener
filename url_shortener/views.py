@@ -51,10 +51,7 @@ def shorten_url(
         flash(msg, 'success')
 
         return redirect(url_for(shorten_url.__name__))
-    else:
-        for field_errors in form.errors.values():
-            for error in field_errors:
-                flash(error, 'error')
+
     return render_template('shorten_url.html', form=form)
 
 
