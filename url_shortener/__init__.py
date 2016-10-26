@@ -25,7 +25,7 @@ from flask import Flask
 from flask_injector import FlaskInjector
 
 from .views import url_shortener
-from .forms import FormModule
+from .forms import configure as configure_form
 from .domain_and_persistence import DomainAndPersistenceModule, SQLAlchemy
 from .validation import ValidationModule
 
@@ -57,7 +57,7 @@ def _get_injector(app):
         modules=[
             DomainAndPersistenceModule(app),
             ValidationModule(app),
-            FormModule()
+            configure_form
         ],
         use_annotations=True
     )
