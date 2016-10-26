@@ -22,7 +22,12 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 from flask import Flask
+from flask_injector import FlaskInjector
+
 from .views import url_shortener
+from .forms import FormModule
+from .domain_and_persistence import DomainAndPersistenceModule
+from .validation import ValidationModule
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')
@@ -43,3 +48,20 @@ def _set_up_logging(app):
         app.logger.addHandler(file_handler)
 
 
+def _get_injector(app):
+    """Set up and return an instance of FlaskInjector
+
+    :param app: an application for which the function will set up
+    the injector
+    :return: an instance of FlaskInjector to be used by the application
+    """
+
+    return FlaskInjector(
+        app=app,
+        modules=[
+            DomainAndPersistenceModule(app),
+            ValidationModule(app),
+            FormModule()
+        ],
+        use_annotations=True
+    )
