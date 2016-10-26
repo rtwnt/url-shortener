@@ -47,14 +47,14 @@ input[type="submit"] {
     width: 20em;
 }
 
-.flashes {
-    margin: 0;
-    padding: 0;
+
+#flashes, #validation-errors {
+    padding: 0.5em 1em 0.5em 2em;
+    margin: 0 0 0.5em;
 }
 
-#validation-errors {
-    margin: 0 0 0.5em;
-    padding: 0.5em 1em 0.5em 2em;
+#flashes {
+    padding-left: 1em;
 }
 
 .warning, .success {
@@ -82,11 +82,11 @@ footer {
     background-color: #F4D06F;
 }
 
-.flashes {
+#flashes {
     list-style-type: none;
 }
 
-.warning, .success, #validation-errors {
+.warning, #flashes, #validation-errors {
     border: 1px solid black;
     border-radius: 3px;
 }
@@ -96,7 +96,7 @@ footer {
     border-color: #AA4439;
 }
 
-.success {
+#flashes {
     background-color: #C5E89B;
     border-color: #6D9B34;
 }

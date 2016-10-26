@@ -43,12 +43,13 @@ def shorten_url(
     if form.validate_on_submit():
         target_url = target_url_class.get_or_create(form.url.data)
         commit_changes()
-        msg_tpl = Markup(
-            'Short URL: <a href="{0}">{0}</a><br>Preview'
-            ' available at: <a href="{1}">{1}</a>'
+        url_tpl = Markup('{0}: <a href="{1}">{1}</a>')
+        description_url_map = (
+            ('Short URL', target_url.short_url),
+            ('Preview available at', target_url.preview_url)
         )
-        msg = msg_tpl.format(target_url.short_url, target_url.preview_url)
-        flash(msg, 'success')
+        for desc, url in description_url_map:
+            flash(url_tpl.format(desc, url))
 
         return redirect(url_for(shorten_url.__name__))
 

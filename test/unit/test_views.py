@@ -102,10 +102,12 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
         self._call()
 
-        self.markup_mock.return_value.format.assert_called_once_with(
-            url_mock.short_url,
-            url_mock.preview_url
+        assert_called = (
+            self.markup_mock.return_value.format.assert_any_call
         )
+
+        assert_called('Short URL', url_mock.short_url)
+        assert_called('Preview available at', url_mock.preview_url)
 
     def test_flashes_success_message(self):
         """ When session contains alias of a previously generated
@@ -115,7 +117,8 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
         self._call()
 
-        self.flash_mock.assert_called_once_with(message_mock, 'success')
+        self.flash_mock.assert_called_with(message_mock)
+        self.assertEqual(2, self.flash_mock.call_count)
 
     def test_renders_form_template(self):
         self.form_mock.validate_on_submit.return_value = False
