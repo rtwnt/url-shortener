@@ -14,8 +14,8 @@ class FormModule(Module):
     @singleton
     @provider
     def get_url_form_class(
-        self,
-        url_validator: BlacklistValidator
+            self,
+            url_validator: BlacklistValidator
     ) -> url_form_class:
 
         url_validators = [
