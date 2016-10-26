@@ -195,7 +195,7 @@ class AliasAlphabet(object):
         if unexpected_chars:
             raise AliasValueError(
                 "The string '{}' contains unsupported characters: "
-                "".format(string, ', '.join(unexpected_chars))
+                "{}".format(string, ', '.join(unexpected_chars))
             )
         return string
 
