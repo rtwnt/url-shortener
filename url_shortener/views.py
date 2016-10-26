@@ -8,7 +8,9 @@ from flask.views import View
 from injector import inject
 
 from .forms import url_form_class
-from .models import AliasValueError, commit_changes, target_url_class
+from .domain_and_persistence import (
+    AliasValueError, commit_changes, target_url_class
+)
 
 from .validation import BlacklistValidator
 

@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch, MagicMock
 from nose_parameterized import parameterized
 from sqlalchemy.orm.exc import MultipleResultsFound
 
-from url_shortener.models import (
+from url_shortener.domain_and_persistence import (
     AliasValueError, AliasLengthValueError, IntegrityError, get_commit_changes,
     AliasAlphabet, AlphabetValueError, CharacterValueError, IntegerAlias,
     BaseTargetURL
@@ -27,10 +27,14 @@ class AliasAlphabetTest(unittest.TestCase):
     tested_instance = AliasAlphabet(CHARS, MIN_LEN, MAX_LEN)
 
     def setUp(self):
-        self.randint_patcher = patch('url_shortener.models.randint')
+        self.randint_patcher = patch(
+            'url_shortener.domain_and_persistence.randint'
+        )
         self.randint_mock = self.randint_patcher.start()
 
-        self.choice_patcher = patch('url_shortener.models.choice')
+        self.choice_patcher = patch(
+            'url_shortener.domain_and_persistence.choice'
+        )
         self.choice_mock = self.choice_patcher.start()
 
         self.tested_instance = AliasAlphabet(
