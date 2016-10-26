@@ -7,7 +7,13 @@
     {% endif %}
     {% with %}
         {% set short_url = target_url.short_url %}
-        The URL address <a href="{{ short_url }}">{{ short_url }}</a>
-        redirects to <a href="{{ target_url }}">{{ target_url }}</a>.
+        The URL address:
+            <div class="indented">
+                <a href="{{ short_url }}">{{ short_url }}</a>
+            </div>
+        redirects to:
+            <div class="indented wrapped">
+                <a href="{{ target_url }}">{{ target_url }}</a>.
+            </div>
     {% endwith %}
 {% endblock %}
