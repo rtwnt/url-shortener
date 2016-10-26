@@ -97,7 +97,7 @@ class ShowURL(View):
         an associated URL. If it is not found, a 404 error occurs.
         :returns: a response depending on results of blacklist lookup
         and initial configuration of the view
-        :raises werkzeug.exception.HTTPException with code 404, if
+        :raises werkzeug.exception.HTTPException: with code 404, if
         it is raised by the target URL search call
         """
         target_url = self.target_url_class.query.get_or_404(alias)
