@@ -84,7 +84,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     def test_redirects_to_the_same_route(self):
         self._call()
-        self.url_for_mock.assert_called_once_with(shorten_url.__name__)
+        self.url_for_mock.assert_called_once_with('url_shortener.shorten_url')
         redirect_url = self.url_for_mock.return_value
         self.redirect_mock.assert_called_once_with(redirect_url)
 

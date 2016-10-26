@@ -338,11 +338,11 @@ class BaseTargetURL(object):
 
     @cached_property
     def short_url(self):
-        return self._alternative_url('redirect_for')
+        return self._alternative_url('url_shortener.redirect_for')
 
     @cached_property
     def preview_url(self):
-        return self._alternative_url('preview')
+        return self._alternative_url('url_shortener.preview')
 
     @classmethod
     def get_or_create(cls, value):

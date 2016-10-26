@@ -20,7 +20,7 @@
         </ul>
     {% endif %}
 {% endwith %}
-<form method="POST" action="{{ url_for('shorten_url') }}">
+<form method="POST" action="{{ url_for('url_shortener.shorten_url') }}">
     {{ form.hidden_tag() }}
     {{ form.url() }}
     {{ form.recaptcha }}

@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from flask import redirect, url_for, flash, render_template, Markup
+from flask import (
+    redirect, url_for, flash, render_template, Markup, Blueprint
+)
 from flask.views import View
 from injector import inject
 
-from . import app
 from .forms import url_form_class
 from .models import AliasValueError, commit_changes, target_url_class
 
 from .validation import BlacklistValidator
 
 
-@app.context_processor
+url_shortener = Blueprint(
+    'url_shortener',
+    __name__,
+    template_folder='templates'
+)
+
+
+@url_shortener.context_processor
 def inject_year():
     now = datetime.datetime.now()
     return dict(year=now.year)
 
 
 @inject
-@app.route('/', methods=['GET', 'POST'])
+@url_shortener.route('/', methods=['GET', 'POST'])
 def shorten_url(
     target_url_class: target_url_class,
     form_class: url_form_class,
@@ -56,7 +64,7 @@ def shorten_url(
         for data in description_url_map:
             flash(url_tpl.format(*data))
 
-        return redirect(url_for(shorten_url.__name__))
+        return redirect(url_for('url_shortener.shorten_url'))
 
     return render_template('shorten_url.html', form=form)
 
@@ -118,23 +126,23 @@ class ShowURL(View):
         return redirect(target_url)
 
 
-app.add_url_rule(
+url_shortener.add_url_rule(
     '/<alias>',
     view_func=ShowURL.as_view('redirect_for', preview=False)
 )
 
-app.add_url_rule(
+url_shortener.add_url_rule(
     '/preview/<alias>',
     view_func=ShowURL.as_view('preview', preview=True)
 )
 
 
-@app.errorhandler(AliasValueError)
-@app.errorhandler(404)
+@url_shortener.errorhandler(AliasValueError)
+@url_shortener.errorhandler(404)
 def not_found(error):
     return render_template('not_found.html')
 
 
-@app.errorhandler(500)
+@url_shortener.errorhandler(500)
 def server_error(error):
     return render_template('server_error.html')

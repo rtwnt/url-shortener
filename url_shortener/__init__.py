@@ -19,6 +19,8 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Piotr Rusin'
 
 from flask import Flask
+from .views import url_shortener
 
 app = Flask(__name__)
 app.config.from_object('url_shortener.default_config')
+app.register_blueprint(url_shortener)
