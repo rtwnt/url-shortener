@@ -94,9 +94,10 @@ body {
     font-family: 'Open Sans', sans-serif;
 }
 
-header {
+header, header > a {
     background-color: #392F5A;
     color: #FFF8F0;
+    text-decoration: none;
 }
 
 h1 {

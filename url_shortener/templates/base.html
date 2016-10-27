@@ -8,7 +8,11 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <header><h1>URL shortener</h1></header>
+    <header>
+        <a href="{{ url_for('url_shortener.shorten_url') }}">
+            <h1>URL shortener</h1>
+        </a>
+    </header>
     <div id="content">{% block content %}{% endblock %}</div>
     <footer><small>Copyright © {{ year }} Piotr Rusin</small></footer>
 </body>
