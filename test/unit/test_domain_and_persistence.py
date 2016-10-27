@@ -242,7 +242,7 @@ class BaseTargetURLTest(unittest.TestCase):
         BaseTargetURL._session = self.session_mock
 
     def tearDown(self):
-        delattr(BaseTargetURL, '_session')
+        BaseTargetURL._session = None
 
     def test_get_or_create_filters_by_target(self):
         filter_by_mock = self.session_mock.query.return_value.filter_by

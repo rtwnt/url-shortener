@@ -323,7 +323,15 @@ class IntegerAlias(types.TypeDecorator):
 
 
 class BaseTargetURL(object):
-    """A base class for classes representing target URLs"""
+    """A base class for classes representing target URLs
+
+    :cvar _session: a database session to be used by the class
+    :ivar _alias: a value representing a registered URL in short URLs
+    and in database
+    """
+
+    _session = None
+    _alias = None
 
     def __init__(self, target):
         """ Constructor
@@ -480,9 +488,6 @@ class DomainAndPersistenceModule(Module):
             """A class of URLs for which a short alias has been
             provided or requested
 
-            :cvar _session: a database session to be used by the class
-            :ivar _alias: a value representing a registered URL in
-            short URLs and in database.
             :ivar _value: a value of a target URL
             """
             _session = self.db.session
