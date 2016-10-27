@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=C0103
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 
