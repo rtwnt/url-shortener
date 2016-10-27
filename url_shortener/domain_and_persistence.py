@@ -441,6 +441,13 @@ target_url_class = Key('target_url_class')
 
 
 class DomainAndPersistenceModule(Module):
+    """An injector module responsible for configuring and binding
+    dependencies related to domain and persistence layers
+
+    It creates and binds an instance of SQLAlchemy, a mapped target URL
+    class and a function responsible for commiting changes. Both
+    SQLAlchemy instance and target URL class are created eagerly.
+    """
 
     def __init__(self, app):
         self.app = app
@@ -497,6 +504,14 @@ class DomainAndPersistenceModule(Module):
         return TargetURL
 
     def get_alias_alphabet(self):
+        """Get an instance of AliasAlphabet
+
+        :returns: an AliasAlphabet instance to be used by
+        the application. The instance uses a combination of digits
+        and ascii lowercase characters to create its own character set,
+        and uses values of minimum and maximum new alias length options
+        provided in config file.
+        """
         alphabet = AliasAlphabet.from_chars_with_homoglyphs(
             digits + ascii_lowercase,
             self.app.config['MIN_NEW_ALIAS_LENGTH'],

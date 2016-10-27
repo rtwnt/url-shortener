@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""A module containing classes and functions related to providing
+forms for the application
+"""
 from flask_wtf import FlaskForm
 from flask_wtf.recaptcha import RecaptchaField, Recaptcha
 from injector import inject, Key, singleton

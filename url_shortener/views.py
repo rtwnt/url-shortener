@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""A module defining views for the URL shortener"""
 import datetime
 
 from flask import (

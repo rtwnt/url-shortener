@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""A module defining custom WTForms form validators"""
 from injector import Module, singleton
 from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
@@ -94,6 +95,11 @@ hp_hosts = HpHosts(__title__)
 
 
 class ValidationModule(Module):
+    """Injector module responsible for binding an instance of
+    BlacklistValidator class
+
+    The instance is created eagerly.
+    """
 
     def __init__(self, app):
         self.app = app
@@ -117,6 +123,16 @@ class ValidationModule(Module):
         return gsb_client
 
     def get_custom_host_list(self, name, classification, option):
+        """Get a custom host blacklist or whitelist
+
+        :param name: a name of the list to be returned
+        :param classification: a classificatory term applied to items
+        stored in the list
+        :param option: a name of a configuration option storing listed
+        items in a free order
+        :returns: an instance of SortedHostCollection containing sorted
+        items provided in application config file
+        """
         host_list = SortedHostCollection(name, classification, [])
         listed = self.app.config[option]
         for item in listed:
