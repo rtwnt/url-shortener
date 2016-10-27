@@ -387,7 +387,7 @@ def get_commit_changes(app: Flask, db: SQLAlchemy):
     :param db: an instance of SQLAlchemy for the database being used
     :returns: a function to be used for commiting changes
     """
-    def commit_changes():
+    def commit():
         """ Commits all changes stored in current database session
 
         The reason for implementing this method instead of simply calling
@@ -434,7 +434,7 @@ def get_commit_changes(app: Flask, db: SQLAlchemy):
                 'Number of integrity errors exceeds the limit: {} > {}'
                 ''.format(integrity_error_count, limit)
             )
-    return commit_changes
+    return commit
 
 
 target_url_class = Key('target_url_class')
