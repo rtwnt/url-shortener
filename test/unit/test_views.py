@@ -20,28 +20,17 @@ class BaseViewTest(object):
         )
         self.render_template_mock = self.render_template_patcher.start()
 
+        self.redirect_patcher = patch('url_shortener.views.redirect')
+        self.redirect_mock = self.redirect_patcher.start()
+
+
         self.target_url_class_mock = Mock()
 
     def tearDown(self):
         self.render_template_patcher.stop()
-
-
-class RedirectPatchMixin(object):
-    """A mixin providing a mock for flask.redirect function."""
-
-    def setUp(self):
-        self.redirect_patcher = patch('url_shortener.views.redirect')
-        self.redirect_mock = self.redirect_patcher.start()
-
-        super(RedirectPatchMixin, self).setUp()
-
-    def tearDown(self):
         self.redirect_patcher.stop()
 
-        super(RedirectPatchMixin, self).tearDown()
-
-
-class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
+class ShortenURLTest(BaseViewTest, unittest.TestCase):
     """Tests for shorten_url function."""
 
     def setUp(self):
@@ -143,7 +132,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
+class TestShowURL(BaseViewTest, unittest.TestCase):
     """Tests for ShowURL class view.
 
     :cvar PREVIEW_NOT_PREVIEW_SETUP: parameters for tests differing only
