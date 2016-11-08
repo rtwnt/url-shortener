@@ -230,7 +230,6 @@ class IntegerAliasTest(unittest.TestCase):
 
 class BaseTargetURLTest(unittest.TestCase):
 
-    class_under_test = BaseTargetURL
 
     def setUp(self):
         self.session_mock = MagicMock(spec=['query', 'add', 'no_autoflush'])
@@ -243,24 +242,24 @@ class BaseTargetURLTest(unittest.TestCase):
         filter_by_mock = self.session_mock.query.return_value.filter_by
         target = 'http://xyz.com'
 
-        self.class_under_test.get_or_create(target)
+        BaseTargetURL.get_or_create(target)
 
         filter_by_mock.assert_called_once_with(_value=target)
 
     def test_get_or_create_gets_existing_url_from_db(self):
         filtered = self.session_mock.query.return_value.filter_by()
         expected = filtered.one_or_none()
-        actual = self.class_under_test.get_or_create('http://xyz.com')
+        actual = BaseTargetURL.get_or_create('http://xyz.com')
         self.assertEqual(expected, actual)
 
     def test_get_or_create_caches_persisted_url(self):
         target = 'http://xyz.com'
-        target_url_1 = self.class_under_test.get_or_create(target)
+        target_url_1 = BaseTargetURL.get_or_create(target)
         query_mock = self.session_mock.query
         called_first_time = query_mock.call_count == 1
         query_mock.reset_mock()
 
-        target_url_2 = self.class_under_test.get_or_create(target)
+        target_url_2 = BaseTargetURL.get_or_create(target)
 
         self.assertEqual(target_url_1, target_url_2)
         self.assertTrue(called_first_time)
@@ -278,8 +277,8 @@ class BaseTargetURLTest(unittest.TestCase):
         self.set_db_query_side_effect()
         target = 'http://xyz.com'
 
-        expected = str(self.class_under_test(target))
-        actual = str(self.class_under_test.get_or_create(target))
+        expected = str(BaseTargetURL(target))
+        actual = str(BaseTargetURL.get_or_create(target))
 
         self.assertEqual(str(expected), actual)
 
@@ -287,18 +286,18 @@ class BaseTargetURLTest(unittest.TestCase):
         self.set_db_query_side_effect()
         target = 'http://xyz.com'
 
-        target_url = self.class_under_test.get_or_create(target)
+        target_url = BaseTargetURL.get_or_create(target)
 
         self.session_mock.add.assert_called_once_with(target_url)
 
     def test_get_or_create_caches_new_url(self):
         self.set_db_query_side_effect()
         target = 'http://xyz.com'
-        target_url_1 = self.class_under_test.get_or_create(target)
+        target_url_1 = BaseTargetURL.get_or_create(target)
         query_mock = self.session_mock.query
         query_mock.reset_mock()
 
-        target_url_2 = self.class_under_test.get_or_create(target)
+        target_url_2 = BaseTargetURL.get_or_create(target)
 
         self.assertEqual(query_mock.call_count, 0)
         self.assertEqual(target_url_1, target_url_2)
@@ -308,7 +307,7 @@ class BaseTargetURLTest(unittest.TestCase):
 
         self.assertRaises(
             MultipleResultsFound,
-            self.class_under_test.get_or_create,
+            BaseTargetURL.get_or_create,
             'http://xyz.com'
         )
 
