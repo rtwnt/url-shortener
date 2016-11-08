@@ -219,8 +219,6 @@ class IntegerAliasTest(unittest.TestCase):
 
     :ivar alphabet_mock: a mock of AliasAlphabet instance to be used
     by tested instance
-    :ivar alphabet_length: a length of alias alphabet mock to be used
-    by the tested instance
     :ivar tested_instance: instance of IntegerAlias to be used
     during tests
     """
@@ -230,8 +228,7 @@ class IntegerAliasTest(unittest.TestCase):
         """We set the length to 10 so that each digit of integer corresponds
         to a character in string
         """
-        self.alphabet_length = 10
-        self.alphabet_mock.__len__.return_value = self.alphabet_length
+        self.alphabet_mock.__len__.return_value = 10
         self.alphabet_mock._max_length = 4
         self.tested_instance = IntegerAlias(self.alphabet_mock)
 
