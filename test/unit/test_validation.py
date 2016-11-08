@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C0103
+"""Tests for validation-related classes and functions."""
 import unittest
 from unittest.mock import Mock
 
@@ -9,7 +10,7 @@ from url_shortener.validation import BlacklistValidator, ValidationError
 
 
 class BlacklistValidatorTest(unittest.TestCase):
-    """ Tests for BlacklistValidator class
+    """Tests for BlacklistValidator class.
 
     :ivar cb_mock: an instance of Mock for composite_blacklist
     dependency of Mock
@@ -36,9 +37,13 @@ class BlacklistValidatorTest(unittest.TestCase):
         ('when_passing_a_message', 'A message')
     ])
     def test_prepend(self, _, message):
-        """prepend method is expected to call insert(index, object) method
+        """Test if the method inserts a blacklist as the first item.
+
+        The method is expected to call insert(index, object) method
         of underlying list of url testers, passing 0 as the first argument
-        and a blacklist object as the second
+        and a blacklist object as the second.
+
+        :param message: a message to be assigned to a blacklist
         """
         blacklist = Mock()
 
@@ -48,7 +53,9 @@ class BlacklistValidatorTest(unittest.TestCase):
         insert.assert_called_once_with(0, blacklist)
 
     def test_prepend_adds_message(self):
-        """prepend method is expected to add a message associated with
+        """Test if the method adds a message for added blacklist.
+
+        The method is expected to add a message associated with
         the blacklist object being added. Relationship between
         the blacklist and the message is expected to be stored in
         _msg_map property of the tested instance.
@@ -62,7 +69,9 @@ class BlacklistValidatorTest(unittest.TestCase):
         self.assertEqual(self.tested_instance._msg_map[blacklist], message)
 
     def test_prepend_does_not_add_message(self):
-        """prepend method is expected not to add a blacklist-specific
+        """Test if the message is not added when it is None.
+
+        The method is expected not to add a blacklist-specific
         validation message when the value passed as message is None
         """
         blacklist = Mock()
@@ -72,8 +81,7 @@ class BlacklistValidatorTest(unittest.TestCase):
         self.assertNotIn(blacklist, self.tested_instance._msg_map)
 
     def set_up_matching_url(self, url, expected_message='A message'):
-        """ Prepare a spam URL value recognized by tested instance
-        and a message associated with the result of its validation
+        """Prepare a URL to be recognized as spam during tests.
 
         :param url: a URL value expected to be recognized by
         tested instance
@@ -95,9 +103,7 @@ class BlacklistValidatorTest(unittest.TestCase):
         ('default_message', DEFAULT_MESSAGE)
     ])
     def test_get_msg_if_blacklisted_returns(self, _, expected_message):
-        """ get_msg_if_blacklisted is expected to return a message
-        when it detects a blacklisted URL
-        """
+        """Test if a message is returned for a blacklisted URL."""
         url = 'http://first.com'
         self.set_up_matching_url(url, expected_message)
 
@@ -105,18 +111,14 @@ class BlacklistValidatorTest(unittest.TestCase):
         self.assertEqual(expected_message, actual_message)
 
     def test_get_msg_if_blacklisted_returns_none(self):
-        """ get_msg_if_blacklisted is expected to return None when it
-        does not detect any blacklisted URLs
-        """
+        """Test if None is returned for a non-blacklisted URL."""
         actual_message = self.tested_instance.get_msg_if_blacklisted(
             'http://not.spam.com'
         )
         self.assertIsNone(actual_message)
 
     def _test_assert_not_blacklisted(self, url='http://example.com'):
-        """ Setup test environment for assert_not_blacklisted and
-        call the method
-        """
+        """Setup test environment and call the method."""
         form = Mock()
         field = Mock()
         field.data = url
@@ -124,9 +126,11 @@ class BlacklistValidatorTest(unittest.TestCase):
         self.tested_instance.assert_not_blacklisted(form, field)
 
     def test_assert_not_blacklisted_raises_ValidationError(self):
-        """ assert_not_blacklisted is expected to raise
+        """Test if a ValidationError is raised.
+
+        The method is expected to raise
         wtforms.validators.ValidationError when it detects
-        a blacklisted URL
+        a blacklisted URL.
         """
         url = 'http://blacklisted.com'
         self.set_up_matching_url(url)
@@ -135,8 +139,10 @@ class BlacklistValidatorTest(unittest.TestCase):
             self._test_assert_not_blacklisted(url)
 
     def test_assert_not_blacklisted_does_not_raise_an_error(self):
-        """ assert_not_blacklisted is expected not to raise
-        a ValidationError when it detects no blacklisted URL
+        """Test if no error is raised.
+
+        The method is expected not to raise any exception when it
+        detects no blacklisted URL.
         """
         try:
             self._test_assert_not_blacklisted()

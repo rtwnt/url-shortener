@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C0103
+
+"""Tests for view classes and functions."""
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 
@@ -10,7 +12,7 @@ from url_shortener.views import shorten_url, ShowURL
 
 
 class BaseViewTest(object):
-    """ A class providing mocks used by all tested view functions """
+    """A class providing mocks used by all tested view functions."""
 
     def setUp(self):
         self.render_template_patcher = patch(
@@ -25,7 +27,7 @@ class BaseViewTest(object):
 
 
 class RedirectPatchMixin(object):
-    """ A mixin providing a mock for flask.redirect function """
+    """A mixin providing a mock for flask.redirect function."""
 
     def setUp(self):
         self.redirect_patcher = patch('url_shortener.views.redirect')
@@ -40,6 +42,8 @@ class RedirectPatchMixin(object):
 
 
 class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
+    """Tests for shorten_url function."""
+
     def setUp(self):
         self.form_class_mock = Mock()
         self.form_mock = self.form_class_mock()
@@ -66,6 +70,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         super(ShortenURLTest, self).tearDown()
 
     def _call(self):
+        """Call tested function with all arguments."""
         return shorten_url(
             self.target_url_class_mock,
             self.form_class_mock,
@@ -73,6 +78,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         )
 
     def test_gets_or_creates_a_target_url(self):
+        """Test if get_or_create method of target URL class is called."""
         self._call()
 
         self.target_url_class_mock.get_or_create.assert_called_once_with(
@@ -80,25 +86,25 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         )
 
     def test_registers_new_short_url(self):
+        """Test if commit_changes function is called."""
         self._call()
         self.assertTrue(self.commit_changes_mock.called)
 
     def test_redirects_to_the_same_route(self):
+        """Test if a user is redirected to form page."""
         self._call()
         self.url_for_mock.assert_called_once_with('url_shortener.shorten_url')
         redirect_url = self.url_for_mock.return_value
         self.redirect_mock.assert_called_once_with(redirect_url)
 
     def test_returns_redirect_response(self):
+        """Test if a redirection result is returned."""
         expected = self.redirect_mock.return_value
         actual = self._call()
         self.assertEqual(expected, actual)
 
     def test_prepares_success_message(self):
-        """ When session contains alias of a previously generated
-        short URL, shorten_url is expected to prepare a
-        proper message
-        """
+        """Test if a message with specified elements is prepared."""
         url_mock = self.target_url_class_mock.get_or_create.return_value
 
         self._call()
@@ -112,9 +118,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         assert_called('Preview available at', url_mock.preview_url, '')
 
     def test_flashes_success_message(self):
-        """ When session contains alias of a previously generated
-        short URL, shorten_url is expected to flash the success message
-        """
+        """Test if all elements of the success message are flashed."""
         message_mock = self.markup_mock.return_value.format.return_value
 
         self._call()
@@ -123,6 +127,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.assertEqual(3, self.flash_mock.call_count)
 
     def test_renders_form_template(self):
+        """Test if render_template is called for a GET request."""
         self.form_mock.validate_on_submit.return_value = False
         self._call()
         self.render_template_mock.assert_called_once_with(
@@ -131,6 +136,7 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         )
 
     def test_returns_rendered_template(self):
+        """Test if rendered template is returned for a GET request."""
         self.form_mock.validate_on_submit.return_value = False
         expected = self.render_template_mock.return_value
         actual = self._call()
@@ -138,13 +144,17 @@ class ShortenURLTest(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
 
 class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
-    """Tests for ShowURL class
+    """Tests for ShowURL class view.
 
-    :cvar PREVIEW_NOT_PREVIEW_SETUP: parameters for tests differing only with
-    the value of 'preview' constructor argument
-    :cvar WHEN_PREVIEW_SETUP: parameters for tests differing in combinations
-    of conditions expected to lead to rendering and returning of a preview
-    template
+    :cvar PREVIEW_NOT_PREVIEW_SETUP: parameters for tests differing only
+    with the value of 'preview' constructor argument
+    :cvar WHEN_PREVIEW_SETUP: parameters for tests differing in
+    combinations of conditions expected to lead to rendering and
+    returning of a preview template
+    :ivar validator_mock: mock for a BlacklistValidator instance to be
+    used by the view instance
+    :ivar get_msg_if_blacklisted_mock: a mock for get_msg_if_blacklisted
+    method of blacklist validator.
     """
 
     PREVIEW_NOT_PREVIEW_SETUP = [
@@ -168,16 +178,25 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.get_or_404_mock = self.target_url_class_mock.query.get_or_404
 
     def create_view_and_call_dispatch_request(self, preview, alias='abc'):
+        """Prepare view instance and call dispatch request method.
+
+        :param preview: a preview parameter of ShowURL constructor
+        :param alias: an alias parameter to be passed to the method
+        """
         obj = ShowURL(
             preview,
             self.target_url_class_mock,
             self.validator_mock
-        )
+            )
 
         return obj.dispatch_request(alias)
 
     @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
     def test_dispatch_request_queries_for_target_url_to(self, _, preview):
+        """Test if the method queries for target URL with the alias.
+
+        :param preview: a preview parameter for ShowURL constructor
+        """
         alias = 'xyz'
 
         self.create_view_and_call_dispatch_request(preview, alias)
@@ -186,6 +205,10 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
     def test_dispatch_request_raises_http_error_for(self, _, preview):
+        """Test for a HTTPError occurence.
+
+        :param preview: a preview parameter for ShowURL constructor
+        """
         self.get_or_404_mock.side_effect = HTTPException
 
         with self.assertRaises(HTTPException):
@@ -193,6 +216,10 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     @parameterized.expand(PREVIEW_NOT_PREVIEW_SETUP)
     def test_dispatch_request_validates_url(self, _, preview):
+        """Test if the URL is validated.
+
+        :param preview: a preview parameter for ShowURL constructor
+        """
         self.create_view_and_call_dispatch_request(preview)
         target_url = self.get_or_404_mock()
 
@@ -202,6 +229,11 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     @parameterized.expand(WHEN_PREVIEW_SETUP)
     def test_dispatch_request_renders_preview(self, _, preview, spam_msg):
+        """Test if the method calls render_preview.
+
+        :param preview: a preview parameter for ShowURL constructor
+        :param spam_msg: a message to be provided by the validator
+        """
         self.get_msg_if_blacklisted_mock.return_value = spam_msg
 
         self.create_view_and_call_dispatch_request(preview)
@@ -214,6 +246,11 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
 
     @parameterized.expand(WHEN_PREVIEW_SETUP)
     def test_dispatch_request_shows_preview(self, _, preview, spam_msg):
+        """Test if the method returns preview.
+
+        :param preview: a preview parameter for ShowURL constructor
+        :param spam_msg: a message to be provided by the validator
+        """
         self.get_msg_if_blacklisted_mock.return_value = spam_msg
 
         expected = self.render_template_mock()
@@ -222,11 +259,13 @@ class TestShowURL(RedirectPatchMixin, BaseViewTest, unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_dispatch_request_redirects(self):
+        """Test if redirect function is called."""
         self.create_view_and_call_dispatch_request(False)
 
         self.redirect_mock.assert_called_once_with(self.get_or_404_mock())
 
     def test_dispatch_request_returns_redirect(self):
+        """Test if the method returns result of redirection."""
         self.get_msg_if_blacklisted_mock.return_value = None
 
         expected = self.redirect_mock()

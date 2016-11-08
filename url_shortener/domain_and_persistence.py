@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module contains code belonging to domain and
-persistence layers
-"""
+"""Elements of domain and persistence layers."""
 from bisect import bisect_left
 from math import log, floor
 from random import randint, choice
@@ -19,24 +17,26 @@ from sqlalchemy.exc import IntegrityError
 
 
 class AlphabetValueError(ValueError):
-    """The value of alias alphabet is incorrect"""
+    """The value of alias alphabet is incorrect."""
 
 
 class CharacterValueError(ValueError):
-    """The alphabet doesn't contain the character"""
+    """The alphabet doesn't contain the character."""
 
 
 class AliasValueError(ValueError):
-    """The value of alias is incorrect """
+    """The value of alias is incorrect."""
 
 
 class AliasLengthValueError(ValueError):
-    """The value of alias-length related parameter is incorrect """
+    """The value of alias-length related parameter is incorrect."""
 
 
 class AliasAlphabet(object):
-    """ Represents an alphabet of characters used for creating
-    alias strings and provides methods for creating alias strings
+    """A character set for creating alias strings.
+
+    Represents an alphabet of characters used for creating
+    alias strings and provides methods for creating alias strings.
 
     :cvar INTAB: a string containing characters to be replaced
     with their homoglyphs, if they are present in a string
@@ -45,19 +45,20 @@ class AliasAlphabet(object):
     :cvar TRANSLATION: a translation table for replacing characters
     with their homoglyphs
     """
+
     INTAB = 'lIoBzZsSb9'
     OUTTAB = '110822556g'
     TRANSLATION = str.maketrans(INTAB, OUTTAB)
 
     def __init__(self, characters, min_length, max_length):
-        """Initialize a new instance
+        """Initialize a new instance.
 
         :param characters: a string containing characters to be
         inlcuded in the alphabet
 
         To avoid generating aliases with characters that can be
         confused with each other, characters specified in the INTAB
-        class property can't be specified as part of the alphabet.
+        class property can't be specified as members of the alphabet.
 
         :param min_length: a minimum length of a newly generated
         alias string
@@ -68,16 +69,17 @@ class AliasAlphabet(object):
         :raises AliasLengthValueError: if min_length and max_length
         don't fulfill the condition: 0 < min_length <= max_length
         """
-
         self._set_characters(characters)
         self._set_length_range(min_length, max_length)
 
     @classmethod
     def from_chars_with_homoglyphs(cls, characters, *args, **kwargs):
-        """Create a new instance using characters that may contain
-        unsupported, potentially confusing characters
+        """Create a new instance from unsanitized characters.
 
-        The potentially confusing characters are simply removed.
+        This method creates a new instance of the class using
+        characters that may contain unsupported, potentially confusing
+        elements. The potentially confusing characters are simply
+        removed.
 
         :param characters: a string containing characters to be
         inlcuded in the alphabet
@@ -95,8 +97,10 @@ class AliasAlphabet(object):
         return cls(characters, *args, **kwargs)
 
     def _set_characters(self, characters):
-        """Assign the characters to the instance and adjust
-        replacements for multiletter homoglyphs
+        """Set characters to be used by this object.
+
+        This method assigns the characters to the instance and adjusts
+        replacements for multiletter homoglyphs.
 
         :param characters: a string containing characters to be
         inlcuded in the alphabet.
@@ -123,12 +127,10 @@ class AliasAlphabet(object):
         }
 
     def _set_length_range(self, min_length, max_length):
-        """Set a min and max length of newly generated random aliases
+        """Set a min and max length of newly generated random aliases.
 
-        :param min_length: a minimum length of a newly generated
-        alias string
-        :param max_length: a maximum length of a newly generated
-        alias string
+        :param min_length: a minimum length of a newly generated alias
+        :param max_length: a maximum length of a newly generated alias
         :raises AliasLengthValueError: if min_length and max_length
         don't fulfill the condition: 0 < min_length <= max_length
         """
@@ -145,11 +147,11 @@ class AliasAlphabet(object):
         self._max_length = max_length
 
     def create_random(self):
-        """ Create a random alias for a preconfigured length range
+        """Create a random alias for a preconfigured length range.
 
-        The alias is generated as a string of randomly chosen length
-        value between self._min_length and self._max_length, consisting
-        of randomly chosen alphabet characters.
+        The alias is generated as a string of a random length between
+        self._min_length and self._max_length, consisting of randomly
+        chosen characters.
 
         After being generated, the string is sanitized by replacing
         multiletter homoglyphs that could be present in it. That may
@@ -166,8 +168,7 @@ class AliasAlphabet(object):
                 return alias
 
     def _replace_multiletter_homoglyphs(self, string):
-        """Get a string with multiletter homoglyphs replaced
-        by their single-character equivalents
+        """Get a string without potentially confusing subsequences.
 
         :param string: a string alias
         :return: a string alias with multiletter homoglyphs replaced
@@ -178,8 +179,7 @@ class AliasAlphabet(object):
         return string
 
     def from_string(self, string):
-        """Get a valid alias string without potentially confusing
-        characters
+        """Get an alias without potentially confusing characters.
 
         :param string: an original alias string
         :return: a string resulting from replacement of potentially
@@ -200,14 +200,14 @@ class AliasAlphabet(object):
         return string
 
     def __len__(self):
-        """Get the length of the alphabet
+        """Get the length of the alphabet.
 
         :returns: the length as a number of characters in the alphabet
         """
         return len(self._characters)
 
     def index(self, character):
-        """Get index of a character in the alphabet
+        """Get index of a character in the alphabet.
 
         :param character: a character whose index in the alphabet is
         to be returned
@@ -226,7 +226,7 @@ class AliasAlphabet(object):
         return index
 
     def __getitem__(self, index):
-        """Get a character corresponding to given index
+        """Get a character corresponding to given index.
 
         :param index: a postion of a character to be returned
         :returns: a character in the alphabet at the given index
@@ -235,18 +235,18 @@ class AliasAlphabet(object):
         return self._characters[index]
 
     def __str__(self):
+        """Get the alphabet as a string."""
         return self._characters
 
 
 class IntegerAlias(types.TypeDecorator):
-    """A custom database column type converting between integers
-    and alias strings
+    """A custom database column type representing alias value.
 
     :cvar impl: implementation type of the class
     :cvar _max_int_32: a maximum value of a 32 bit signed integer
 
-    This value is assumed as maximum allowed for the integers used
-    in generation because we assume the implementation type will
+    This value is treated as a maximum allowed one for the integers
+    used in generation because we assume the implementation type will
     translate into 32 bit signed integer type of underlying database
     engine used by the application.
     """
@@ -256,12 +256,11 @@ class IntegerAlias(types.TypeDecorator):
 
     @inject
     def __init__(self, alphabet):
-        """ Initialize a new instance
+        """Initialize a new instance.
 
         :param alphabet: an instance of AliasAlphabet to be used
         for convertion
         """
-
         base = len(alphabet)
         max_safe_length = int(floor(log(self._max_int_32, base)))
         max_length = alphabet._max_length
@@ -281,7 +280,7 @@ class IntegerAlias(types.TypeDecorator):
         super(IntegerAlias, self).__init__()
 
     def process_bind_param(self, value, dialect):
-        """Get integer representation of given string alias
+        """Get an integer representation of given alias string.
 
         :param value: an alias string
         :param dialect: an object implementing
@@ -304,7 +303,7 @@ class IntegerAlias(types.TypeDecorator):
     process_literal_param = process_bind_param
 
     def process_result_value(self, value, dialect):
-        """Get alias string for given integer
+        """Get an alias string for given integer.
 
         :param value: an integer representing alias string
         :param dialect: an object implementing
@@ -323,7 +322,7 @@ class IntegerAlias(types.TypeDecorator):
 
 
 class BaseTargetURL(object):
-    """A base class for classes representing target URLs
+    """A base for classes representing target URLs.
 
     :cvar _session: a database session to be used by the class
     :ivar _alias: a value representing a registered URL in short URLs
@@ -334,13 +333,14 @@ class BaseTargetURL(object):
     _alias = None
 
     def __init__(self, target):
-        """ Constructor
+        """Initialize a new instance.
 
         :param target: URL represented by the instance
         """
         self._value = target
 
     def __str__(self):
+        """Get this target URL as a string."""
         return self._value
 
     def _alternative_url(self, endpoint):
@@ -348,15 +348,17 @@ class BaseTargetURL(object):
 
     @cached_property
     def short_url(self):
+        """Get a short URL associated with this target URL."""
         return self._alternative_url('url_shortener.redirect_for')
 
     @cached_property
     def preview_url(self):
+        """Get a preview URL associated with this target URL."""
         return self._alternative_url('url_shortener.preview')
 
     @classmethod
     def get_or_create(cls, value):
-        """ Find an existing target URL or create a new one
+        """Find an existing target URL or create a new one.
 
         Existing target URLs can be found in database or in
         cache attached to database session.
@@ -388,7 +390,7 @@ commit_changes = Key('commit_changes')
 
 @inject
 def get_commit_changes(app: Flask, db: SQLAlchemy):
-    """Get commit_changes function that uses the objects passed here
+    """Get a function to be called to commit changes.
 
     :param app: an instance of Flask representing the current
     application
@@ -396,36 +398,37 @@ def get_commit_changes(app: Flask, db: SQLAlchemy):
     :returns: a function to be used for commiting changes
     """
     def commit():
-        """ Commits all changes stored in current database session
+        """Commit all changes stored in current database session.
 
-        The reason for implementing this method instead of simply calling
-        commit() on current database session is that the operation includes
-        shortening pending target URLs, which may cause some errors that
-        require handling.
+        The reason for implementing this method instead of simply
+        calling commit() on current database session is that
+        the operation includes shortening pending target URLs, which
+        may cause some errors that require handling.
 
-        The shortening is performed by persisting pending URLs, that is:
-        URLs represented by instances of TargetURL that have been added to
-        the database session. When it is sucessful, URLs are stored in
-        the database, each with a randomly generated alias assigned to it,
-        so the application can provide a short URL for each of them.
+        The shortening is performed by persisting pending URLs, that
+        is: URLs represented by instances of subclasses of
+        BaseTargetURL that have been added to the database session.
+        When it is sucessful, URLs are stored in the database, each
+        with a randomly generated alias assigned to it, so
+        the application can provide a short URL for each of them.
 
-        Because instances of TargetURL stored in database and managed by
-        current database session are guaranteed to be unique on their
-        "value" property, the only reason for IntegrityError to be raised
-        is an accidental generation of alias value that is already used
-        for another URL.
+        Because instances of TargetURL stored in database and managed
+        by current database session are guaranteed to be unique on
+        their "value" property, the only reason for IntegrityError to
+        be raised is an accidental generation of alias value that is
+        already used for another URL.
 
         Aliases are chosen randomly from a set of values with length
         falling between configurable minimum and maximum values. If
-        a significant number of aliases from this set is already in use,
-        integrity errors become more and more frequent.
+        a significant number of aliases from this set is already in
+        use, integrity errors become more and more frequent.
 
-        When a number of integrity errors occuring while handling a request
-        exceeds a configurable limit, the function logs a warning. By
-        paying attention to such occurences becoming more and more
-        frequent, administrators can know when it is necessary to increase
-        the range of available aliases by increasing their maximum or
-        decreasing their minimum length.
+        When a number of integrity errors occuring while handling
+        a request exceeds a configurable limit, the function logs
+        a warning. By paying attention to such occurences becoming more
+        and more frequent, administrators can realise when it is
+        necessary to increase the range of available aliases by
+        increasing their maximum or decreasing their minimum length.
         """
         integrity_error_count = 0
         while True:
@@ -449,15 +452,20 @@ target_url_class = Key('target_url_class')
 
 
 class DomainAndPersistenceModule(Module):
-    """An injector module responsible for configuring and binding
-    dependencies related to domain and persistence layers
+    """Configures injection of domain and persistence services.
 
-    It creates and binds an instance of SQLAlchemy, a mapped target URL
-    class and a function responsible for commiting changes. Both
-    SQLAlchemy instance and target URL class are created eagerly.
+    This class represents an injector module that creates and binds
+    an instance of SQLAlchemy, a mapped target URL class and a function
+    responsible for commiting changes. Both SQLAlchemy instance and
+    target URL class are created eagerly.
     """
 
     def __init__(self, app):
+        """Initialize a new instance.
+
+        :param app: an instance of Flask application for which
+        dependencies are being configured
+        """
         self.app = app
         # See http://flask-sqlalchemy.pocoo.org/2.1/config/
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -465,6 +473,11 @@ class DomainAndPersistenceModule(Module):
         self.db.create_all()
 
     def configure(self, binder):
+        """Configure dependencies.
+
+        :param binder: an instance of injector.Binder used for binding
+        interfaces to implementations
+        """
         binder.bind(SQLAlchemy, to=self.db, scope=singleton)
         binder.bind(
             target_url_class,
@@ -476,20 +489,19 @@ class DomainAndPersistenceModule(Module):
         binder.bind(commit_changes, to=get_commit_changes, scope=singleton)
 
     def get_target_url_class(self):
-        """Get a configured subclass of BaseTargetURL and db.Model
+        """Get a configured subclass of BaseTargetURL and db.Model.
 
-        :returns: a subclass of BaseTargetURL and db.Model to be used by
-        the application.
+        :returns: a subclass of BaseTargetURL and db.Model to be used
+        by the application.
         """
-
         integer_alias = IntegerAlias(self.get_alias_alphabet())
 
         class TargetURL(BaseTargetURL, self.db.Model):
-            """A class of URLs for which a short alias has been
-            provided or requested
+            """Represents a target URL expected to be shortened.
 
             :ivar _value: a value of a target URL
             """
+
             _session = self.db.session
 
             _alias = self.db.Column(
@@ -509,11 +521,11 @@ class DomainAndPersistenceModule(Module):
         return TargetURL
 
     def get_alias_alphabet(self):
-        """Get an instance of AliasAlphabet
+        """Get an instance of AliasAlphabet.
 
         :returns: an AliasAlphabet instance to be used by
         the application. The instance uses a combination of digits
-        and ascii lowercase characters to create its own character set,
+        and ASCII lowercase characters to create its own character set,
         and uses values of minimum and maximum new alias length options
         provided in config file.
         """

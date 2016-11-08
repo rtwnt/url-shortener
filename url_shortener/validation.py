@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""A module defining custom WTForms form validators"""
+"""Custom validators."""
 from injector import Module, singleton
 from spam_lists import (
     GoogleSafeBrowsing, HpHosts, GeneralizedURLTester, URLTesterChain,
@@ -12,14 +12,14 @@ from . import __version__, __title__
 
 
 class BlacklistValidator(object):
-    """A URL spam detector using configurable blacklists
+    """A URL spam detector using configurable blacklists.
 
     :ivar _msg_map: a dictionary mapping blacklists used by an instance
     of the class to validation messages associated with them
     """
 
     def __init__(self, composite_blacklist, default_message):
-        """ Initialize a new instance
+        """Initialize a new instance.
 
         :param composite_blacklist: an object representing multiple
         blacklist used by an instance of this class
@@ -37,17 +37,16 @@ class BlacklistValidator(object):
         * index is a position at which a new blacklist object is
         inserted
         * object is a blacklist object to be inserted
-        :param default_message: a default validation message to be provided
-        when a URL matches a blacklist that does not have its specific
-        validation message
+        :param default_message: a default validation message to be
+        provided when a URL matches a blacklist that does not have its
+        specific validation message
         """
         self._composite_blacklist = composite_blacklist
         self._msg_map = {}
         self.default_message = default_message
 
     def prepend(self, blacklist, message=None):
-        """Prepend an object representing a blacklist to
-        the URL tester chain
+        """Add a blacklist to the beginning of the chain.
 
         :param blacklist: represents a blacklist to be used to
         recognize spam URLs. This object must have
@@ -61,8 +60,7 @@ class BlacklistValidator(object):
             self._msg_map[blacklist] = message
 
     def get_msg_if_blacklisted(self, url):
-        """ Get a message if URL or one of its redirect addresses
-        is blacklisted
+        """Get a message if any response has a blacklisted URL.
 
         :param url: a URL address as a string
         :returns: a string message if the URL or its redirect addresses
@@ -72,11 +70,11 @@ class BlacklistValidator(object):
             return self._msg_map.get(match.source, self.default_message)
 
     def assert_not_blacklisted(self, form, field):
-        """Assert the URL value from the field is not blacklisted
+        """Assert the URL value from the field is not blacklisted.
 
         This method is a custom WTForms field validator. It supresses
-        InvalidURLError, because raising it is the responsibility
-        of wtforms.validators.URL.
+        InvalidURLError, because raising validaion errors is
+        the responsibility of wtforms.validators.URL.
 
         :param form: a form whose field is to be validated
         :param field: a field containing data to be validated
@@ -95,16 +93,25 @@ hp_hosts = HpHosts(__title__)
 
 
 class ValidationModule(Module):
-    """Injector module responsible for binding an instance of
-    BlacklistValidator class
+    """Configures an instance of BlacklistValidator as a dependency.
 
     The instance is created eagerly.
     """
 
     def __init__(self, app):
+        """Initialize a new instance.
+
+        :param app: an instance of Flask application for which
+        the dependency is to be provided.
+        """
         self.app = app
 
     def configure(self, binder):
+        """Configure dependencies.
+
+        :param binder: an instance of injector.Binder used for binding
+        interfaces to implementations
+        """
         binder.bind(
             BlacklistValidator,
             to=self.get_blacklist_url_validator(),
@@ -112,6 +119,7 @@ class ValidationModule(Module):
         )
 
     def get_gsb_client(self):
+        """Get an instance of Google Safe Browsing Lookup API client."""
         gsb_client = GoogleSafeBrowsing(
             __title__,
             __version__,
@@ -123,7 +131,7 @@ class ValidationModule(Module):
         return gsb_client
 
     def get_custom_host_list(self, name, classification, option):
-        """Get a custom host blacklist or whitelist
+        """Get a custom host blacklist or whitelist.
 
         :param name: a name of the list to be returned
         :param classification: a classificatory term applied to items
@@ -148,6 +156,7 @@ class ValidationModule(Module):
         return host_list
 
     def get_blacklist_url_validator(self):
+        """Get a BlacklistValidator object to be provided."""
         return BlacklistValidator(
             GeneralizedURLTester(
                 URLTesterChain(

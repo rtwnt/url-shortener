@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 url-shortener
 ==============
@@ -31,7 +32,7 @@ from .validation import ValidationModule
 
 
 def _set_up_logging(app):
-    """Set up logging for given Flask application object
+    """Set up logging for given Flask application object.
 
     :param app: an application for which the function will
     set up logging
@@ -45,13 +46,12 @@ def _set_up_logging(app):
 
 
 def _get_injector(app):
-    """Set up and return an instance of FlaskInjector
+    """Set up and return an instance of FlaskInjector.
 
     :param app: an application for which the function will set up
     the injector
     :return: an instance of FlaskInjector to be used by the application
     """
-
     return FlaskInjector(
         app=app,
         modules=[
@@ -64,20 +64,19 @@ def _get_injector(app):
 
 
 def get_app_and_db(configuration, from_envvar=False):
-    """Get application instance and database object used by it
+    """Get an instance of the application and its database object.
 
     :param configuration: a string value referring to a file from which
     configuration options will be loaded. This value may be either
     the name of the file, or name of an environment variable set to
     the name of configuration file
     :param from_envvar: if True: configuration parameter will
-    be treated as name of an evnironment variable pointing to
-    the configuration file, if False: it will be treated as name of
+    be treated as the name of an environment variable pointing to
+    the configuration file, if False: it will be treated as the name of
     the configuration file itself.
-    :returns: a tuple with application object as its first and
+    :returns: a tuple with Flask application object as its first and
     database object as its second element
     """
-
     app = Flask(__name__)
     app.config.from_object('url_shortener.default_config')
     if from_envvar:
