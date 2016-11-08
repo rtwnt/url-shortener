@@ -83,7 +83,7 @@ class AliasAlphabetTest(unittest.TestCase):
             self.MIN_LEN,
             self.MAX_LEN
         )
-        self.assertEqual(self.CHARS, instance._characters)
+        self.assertEqual(self.CHARS, str(instance))
 
     @parameterized.expand([
         (3, 'cd33d', 'cd3'),
