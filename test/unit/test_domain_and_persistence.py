@@ -38,12 +38,6 @@ class AliasAlphabetTest(unittest.TestCase):
         )
         self.choice_mock = self.choice_patcher.start()
 
-        self.tested_instance = AliasAlphabet(
-            self.CHARS,
-            self.MIN_LEN,
-            self.MAX_LEN
-        )
-
     def tearDown(self):
         self.randint_patcher.stop()
         self.choice_patcher.stop()
