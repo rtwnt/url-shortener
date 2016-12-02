@@ -125,6 +125,10 @@ footer {
     border-color: #6D9B34;
 }
 
+input {
+  font-size: 1em;
+}
+
 /** Media rules **/
 
 @media all and (min-width: 768px) {
