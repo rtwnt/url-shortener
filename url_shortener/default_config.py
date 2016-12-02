@@ -56,8 +56,8 @@ hosts. URLs with them will not be tested against blacklist.
 SQLALCHEMY_DATABASE_URI = (
     'dialect+driver://username:password@host:port/database'
 )
-MIN_NEW_ALIAS_LENGTH = 1
-MAX_NEW_ALIAS_LENGTH = 4
+MIN_NEW_ALIAS_LENGTH = 3
+MAX_NEW_ALIAS_LENGTH = 5
 SECRET_KEY = 'a secret key'
 LOG_FILE = None
 INTEGRITY_ERROR_LIMIT = 10
