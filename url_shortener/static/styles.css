@@ -35,6 +35,7 @@ input, .g-recaptcha div {
 }
 
 input[type="text"] {
+    height: 2em;
     width: calc(100% - 10px);
 }
 
