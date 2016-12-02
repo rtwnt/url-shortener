@@ -109,10 +109,6 @@ footer {
     background-color: #F4D06F;
 }
 
-#flashes {
-    list-style-type: none;
-}
-
 .warning, #flashes, #validation-errors {
     border: 1px solid black;
     border-radius: 3px;
@@ -124,6 +120,7 @@ footer {
 }
 
 #flashes {
+    list-style-type: none;
     background-color: #C5E89B;
     border-color: #6D9B34;
 }
