@@ -3,126 +3,126 @@
 /** Layout **/
 
 html {
-    height: 100%;
+  height: 100%;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    min-height: 100%;
-    padding: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 100%;
+  padding: 0;
 }
 
 header, footer {
-    padding: 0.2em 0;
+  padding: 0.2em 0;
 }
 
 #content {
-    flex: 1;
-    margin: 0 auto;
-    padding: 0.5em 0 0.2em 0;
-    width: 95%;
+  flex: 1;
+  margin: 0 auto;
+  padding: 0.5em 0 0.2em 0;
+  width: 95%;
 }
 
 h1, form, small {
-    display: block;
-    text-align: center;
+  display: block;
+  text-align: center;
 }
 
 input, .g-recaptcha div {
-    margin: 0 auto 0.5em;
+  margin: 0 auto 0.5em;
 }
 
 input[type="text"] {
-    height: 2em;
-    width: calc(100% - 10px);
+  height: 2em;
+  width: calc(100% - 10px);
 }
 
 input[type="submit"] {
-    height: 2.4em;
-    width: 19em;
+  height: 2.4em;
+  width: 19em;
 }
 
 
 .warning, #flashes, #validation-errors {
-    padding: 0.5em 1em 0.5em 2em;
-    margin: 0 0 0.5em;
+  padding: 0.5em 1em 0.5em 2em;
+  margin: 0 0 0.5em;
 }
 
 #flashes {
-    padding-left: 1em;
+  padding-left: 1em;
 }
 
 .truncated {
-    display: inline-block;
-    vertical-align: bottom;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .indented {
-    margin: 1em 2em;
+  margin: 1em 2em;
 }
 
 .wrapped {
-    /* source: https://css-tricks.com/snippets/css/
-    prevent-long-urls-from-breaking-out-of-container/;*/
+  /* source: https://css-tricks.com/snippets/css/
+   prevent-long-urls-from-breaking-out-of-container/;*/
 
-    /* These are technically the same, but use both */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    -ms-word-break: break-all;
-    /* This is the dangerous one in WebKit, as it breaks things wherever */
-    word-break: break-all;
-    /* Instead use this non-standard one: */
-    word-break: break-word;
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
 
-    /* Adds a hyphen where the word breaks, if supported (No Blink) */
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-    /**word-break: break-all;**/
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /**word-break: break-all;**/
 }
 
 /** Theme **/
 
 body {
-    background-color: #FFF8F0;
-    font-family: 'Open Sans', sans-serif;
+  background-color: #FFF8F0;
+  font-family: 'Open Sans', sans-serif;
 }
 
 header, header > a {
-    background-color: #392F5A;
-    color: #FFF8F0;
-    text-decoration: none;
+  background-color: #392F5A;
+  color: #FFF8F0;
+  text-decoration: none;
 }
 
 h1 {
-    font-size: 1.2em;
+  font-size: 1.2em;
 }
 
 footer {
-    background-color: #F4D06F;
+  background-color: #F4D06F;
 }
 
 .warning, #flashes, #validation-errors {
-    border: 1px solid black;
-    border-radius: 3px;
+  border: 1px solid black;
+  border-radius: 3px;
 }
 
 .warning, #validation-errors {
-    background-color: #FFB2AA;
-    border-color: #AA4439;
+  background-color: #FFB2AA;
+  border-color: #AA4439;
 }
 
 #flashes {
-    list-style-type: none;
-    background-color: #C5E89B;
-    border-color: #6D9B34;
+  list-style-type: none;
+  background-color: #C5E89B;
+  border-color: #6D9B34;
 }
 
 input {
@@ -132,42 +132,40 @@ input {
 /** Media rules **/
 
 @media all and (min-width: 768px) {
+  h1 {
+    font-size: 1.5em;
+  }
 
-    h1 {
-        font-size: 1.5em;
-    }
+  header, footer {
+    padding: 0.4em 0;
+  }
 
-    header, footer {
-        padding: 0.4em 0;
-    }
+  #content {
+    width: 70%;
+  }
 
-    #content {
-        width: 70%;
-    }
-
-    .truncated {
-        width: 78%;
-    }
+  .truncated {
+    width: 78%;
+  }
 }
 
 @media all and (min-width: 980px) {
 
-    h1 {
-        font-size: 2em;
-    }
+  h1 {
+    font-size: 2em;
+  }
 
-    header, footer {
-        padding: 0.7em 0;
-    }
+  header, footer {
+    padding: 0.7em 0;
+  }
 
-    #content {
-        width: 60%;
-    }
+  #content {
+    width: 60%;
+  }
 
-    .truncated {
-        width: 80%;
-    }
-
+  .truncated {
+    width: 80%;
+  }
 }
 
 @media all and (min-width: 1280px) {
