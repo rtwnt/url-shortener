@@ -122,12 +122,12 @@ class AliasAlphabet(object):
         self._characters = ''.join(sorted(characters))
 
         homoglyphs = {'rn': 'm', 'vv': 'w', 'cj': 'g', 'ci': 'a', 'c1': 'd'}
-        self._homoglyphs = {}
+        self._replacement_map = {}
         for string, char in homoglyphs.items():
             if char in characters:
-                self._homoglyphs[string] = char
+                self._replacement_map[string] = char
             elif all(c in characters for c in string):
-                self._homoglyphs[char] = string
+                self._replacement_map[char] = string
 
 
     def _set_length_range(self, min_length, max_length):
@@ -178,7 +178,7 @@ class AliasAlphabet(object):
         :return: a string alias with multiletter homoglyphs replaced
         by their single-character equivalents
         """
-        for orig, repl in self._homoglyphs.items():
+        for orig, repl in self._replacement_map.items():
             string = string.replace(orig, repl)
         return string
 
