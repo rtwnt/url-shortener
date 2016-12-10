@@ -121,9 +121,9 @@ class AliasAlphabet(object):
 
         self._characters = ''.join(sorted(characters))
 
-        homoglyphs = {'rn': 'm', 'vv': 'w', 'cj': 'g', 'ci': 'a', 'c1': 'd'}
+        equivalents = {'rn': 'm', 'vv': 'w', 'cj': 'g', 'ci': 'a', 'c1': 'd'}
         self._replacement_map = {}
-        for string, char in homoglyphs.items():
+        for string, char in equivalents.items():
             if char in characters:
                 self._replacement_map[string] = char
             elif all(c in characters for c in string):
