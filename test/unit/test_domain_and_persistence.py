@@ -24,7 +24,7 @@ class AliasAlphabetTest(unittest.TestCase):
     :cvar tested_instance: instance of AliasAlphabet to be used during tests
     """
 
-    CHARS = '12345acdivw'
+    CHARS = '12345acdinrvw'
     MIN_LEN = 2
     MAX_LEN = 6
     tested_instance = AliasAlphabet(CHARS, MIN_LEN, MAX_LEN)
@@ -139,7 +139,8 @@ class AliasAlphabetTest(unittest.TestCase):
         ('with_homoglyphs', 'al23', 'a123'),
         ('with_multiletter_homoglyphs', 'ac144', 'ad44'),
         ('with_homoglyphs_of_both_types', 'lc144', '1d44'),
-        ('with_homoglyphs_of_both_types', 'cl44', 'd44')
+        ('with_homoglyphs_of_both_types', 'cl44', 'd44'),
+        ('with_a_homoglyph_replacement_not_in_the_alphabet', 'acrn', 'acrn')
     ])
     def test_from_string(self, _, string, expected):
         """Test return values of the method for given strings.
