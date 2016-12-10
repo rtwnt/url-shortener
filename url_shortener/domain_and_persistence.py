@@ -122,9 +122,13 @@ class AliasAlphabet(object):
         self._characters = ''.join(sorted(characters))
 
         homoglyphs = {'rn': 'm', 'vv': 'w', 'cj': 'g', 'ci': 'a', 'c1': 'd'}
-        self._homoglyphs = {
-            g: r for g, r in homoglyphs.items() if r in characters
-        }
+        self._homoglyphs = {}
+        for string, char in homoglyphs.items():
+            if char in characters:
+                self._homoglyphs[string] = char
+            elif all(c in characters for c in string):
+                self._homoglyphs[char] = string
+
 
     def _set_length_range(self, min_length, max_length):
         """Set a min and max length of newly generated random aliases.

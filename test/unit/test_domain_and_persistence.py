@@ -140,7 +140,8 @@ class AliasAlphabetTest(unittest.TestCase):
         ('with_multiletter_homoglyphs', 'ac144', 'ad44'),
         ('with_homoglyphs_of_both_types', 'lc144', '1d44'),
         ('with_homoglyphs_of_both_types', 'cl44', 'd44'),
-        ('with_a_homoglyph_replacement_not_in_the_alphabet', 'acrn', 'acrn')
+        ('with_a_homoglyph_replacement_not_in_the_alphabet', 'acrn', 'acrn'),
+        ('with_a_char_replaced_by_a_multiletter_homoglyph', 'acm', 'acrn')
     ])
     def test_from_string(self, _, string, expected):
         """Test return values of the method for given strings.
