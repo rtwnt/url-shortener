@@ -701,6 +701,36 @@ class DomainAndPersistenceModule(Module):
 
         return TargetURL
 
+    def get_alias_factory(self):
+        """Get an instance of AliasFactory.
+
+        :returns: an object to be used by the application for creating
+        alias values. It uses a combination of digits and ASCII
+        lowercase characters to create its own character set,
+        and uses values of minimum and maximum new alias length options
+        provided in config file.
+        """
+        min_new_alias_length = self.app.config['MIN_NEW_ALIAS_LENGTH']
+        max_new_alias_length = self.app.config['MAX_NEW_ALIAS_LENGTH']
+
+        alias_factory = AliasFactory(
+            digits + ascii_lowercase,
+            min_new_alias_length,
+            max_new_alias_length
+        )
+
+        self.app.logger.info(
+            "The application will generate aliases from {} to {} characters "
+            "long.\n\nThe following characters will be used in aliases: {}"
+            "".format(
+                min_new_alias_length,
+                max_new_alias_length,
+                alias_factory.alphabet
+            )
+        )
+
+        return alias_factory
+
     def get_alias_alphabet(self):
         """Get an instance of AliasAlphabet.
 
