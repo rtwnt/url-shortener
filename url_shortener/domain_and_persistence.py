@@ -107,6 +107,15 @@ class AliasFactory(object):
         self._max_length = max_length
 
     @property
+    def max_new_alias_length(self):
+        """Get the maximum length of newly generated alias strings.
+
+
+        :returns: the value of the setting for this factory
+        """
+        return self._max_length
+
+    @property
     def alphabet(self):
         """Get characters that can be used to represent an alias.
 
