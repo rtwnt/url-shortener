@@ -444,13 +444,14 @@ class IntegerAliasTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.alphabet_mock = MagicMock()
+        self.alias_factory_mock = MagicMock()
+        self.alphabet_mock = self.alias_factory_mock.alphabet
         """We set the length to 10 so that each digit of integer corresponds
         to a character in string
         """
         self.alphabet_mock.__len__.return_value = 10
-        self.alphabet_mock._max_length = 4
-        self.tested_instance = IntegerAlias(self.alphabet_mock)
+        self.alias_factory_mock._max_length = 4
+        self.tested_instance = IntegerAlias(self.alias_factory_mock)
 
     def test_init_raises_alphabet_value_error(self):
         """Test for expected occurence of AlphabetValueError.
@@ -459,16 +460,16 @@ class IntegerAliasTest(unittest.TestCase):
         the alphabet passed to it allows for generating aliases that
         would be converted to integers larger than max int32.
         """
-        alphabet_mock = MagicMock()
-        alphabet_mock.__len__.return_value = 32
-        alphabet_mock._max_length = 10
+        alias_factory_mock = MagicMock()
+        alias_factory_mock.alphabet.__len__.return_value = 32
+        alias_factory_mock._max_length = 10
 
-        self.assertRaises(AlphabetValueError, IntegerAlias, alphabet_mock)
+        self.assertRaises(AlphabetValueError, IntegerAlias, alias_factory_mock)
 
     def test_process_bind_param(self):
         """Test if the method converts a string to an integer."""
         string = 'abxy7'
-        self.alphabet_mock.from_string.return_value = string
+        self.alias_factory_mock.from_string.return_value = string
         expected = 81132
         self.alphabet_mock.index.side_effect = [
             int(i) for i in reversed(str(expected))
@@ -483,7 +484,7 @@ class IntegerAliasTest(unittest.TestCase):
         The method is expected to raise AliasValueError if
         AliasAlphabet.from_string raises it.
         """
-        self.alphabet_mock.from_string.side_effect = AliasValueError
+        self.alias_factory_mock.from_string.side_effect = AliasValueError
         self.assertRaises(
             AliasValueError,
             self.tested_instance.process_bind_param,

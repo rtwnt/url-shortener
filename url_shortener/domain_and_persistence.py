@@ -436,19 +436,20 @@ class IntegerAlias(types.TypeDecorator):
     _max_int_32 = 2**31 - 1
 
     @inject
-    def __init__(self, alphabet):
+    def __init__(self, alias_factory):
         """Initialize a new instance.
 
-        :param alphabet: an instance of AliasAlphabet to be used
-        for convertion
+        :param alias_factory: an instance of AliasFactory to be used
+        by the object
         """
-        base = len(alphabet)
+        self._alphabet = alias_factory.alphabet
+        base = len(self._alphabet)
         max_safe_length = int(floor(log(self._max_int_32, base)))
-        max_length = alphabet._max_length
+        max_length = alias_factory._max_length
 
         if max_length > max_safe_length:
             raise AlphabetValueError(
-                'The alias alphabet can be used to generate strings of'
+                'The alias factory can be used to generate strings of'
                 ' a length up to {} characters, but such aliases can not be'
                 ' converted to an integer smaller than max int32'.format(
                     max_length
@@ -456,7 +457,7 @@ class IntegerAlias(types.TypeDecorator):
             )
 
         self._base = base
-        self._alphabet = alphabet
+        self._alias_factory = alias_factory
 
         super(IntegerAlias, self).__init__()
 
@@ -473,7 +474,7 @@ class IntegerAlias(types.TypeDecorator):
         of the alphabet
         """
         integer = 0
-        valid_alias = self._alphabet.from_string(value)
+        valid_alias = self._alias_factory.from_string(value)
 
         for exponent, char in enumerate(reversed(valid_alias)):
             digit_value = self._alphabet.index(char)
@@ -675,7 +676,7 @@ class DomainAndPersistenceModule(Module):
         :returns: a subclass of BaseTargetURL and db.Model to be used
         by the application.
         """
-        integer_alias = IntegerAlias(self.get_alias_alphabet())
+        alias_factory = self.get_alias_factory()
 
         class TargetURL(BaseTargetURL, self.db.Model):
             """Represents a target URL expected to be shortened.
@@ -687,9 +688,9 @@ class DomainAndPersistenceModule(Module):
 
             _alias = self.db.Column(
                 'alias',
-                integer_alias,
+                IntegerAlias(alias_factory),
                 primary_key=True,
-                default=integer_alias._alphabet.create_random
+                default=alias_factory.create_random
             )
 
             _value = self.db.Column(
