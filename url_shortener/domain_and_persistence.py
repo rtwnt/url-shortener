@@ -243,7 +243,7 @@ class IntegerAlias(types.TypeDecorator):
         self._alphabet = alias_factory.alphabet
         base = len(self._alphabet)
         max_safe_length = int(floor(log(self._max_int_32, base)))
-        max_length = alias_factory._max_length
+        max_length = alias_factory.max_new_alias_length
 
         if max_length > max_safe_length:
             raise AlphabetValueError(

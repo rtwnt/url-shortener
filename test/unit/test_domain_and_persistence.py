@@ -249,7 +249,7 @@ class IntegerAliasTest(unittest.TestCase):
         to a character in string
         """
         self.alphabet_mock.__len__.return_value = 10
-        self.alias_factory_mock._max_length = 4
+        self.alias_factory_mock.max_new_alias_length = 4
         self.tested_instance = IntegerAlias(self.alias_factory_mock)
 
     def test_init_raises_alphabet_value_error(self):
@@ -261,7 +261,7 @@ class IntegerAliasTest(unittest.TestCase):
         """
         alias_factory_mock = MagicMock()
         alias_factory_mock.alphabet.__len__.return_value = 32
-        alias_factory_mock._max_length = 10
+        alias_factory_mock.max_new_alias_length = 10
 
         self.assertRaises(AlphabetValueError, IntegerAlias, alias_factory_mock)
 
