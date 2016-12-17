@@ -110,7 +110,6 @@ class AliasFactory(object):
     def max_new_alias_length(self):
         """Get the maximum length of newly generated alias strings.
 
-
         :returns: the value of the setting for this factory
         """
         return self._max_length
@@ -206,7 +205,8 @@ class AliasFactory(object):
         :raises AliasValueError: if the string generated from
         the original string contains characters that are not included in
         the self.alphabet value and are not homoglyphs of any of
-        its values"""
+        its values
+        """
         string = self._replace_homoglyphs(string)
 
         unexpected_chars = [x for x in string if x not in self.alphabet]
