@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Elements of domain and persistence layers."""
 from bisect import bisect_left
+from collections import OrderedDict
 from math import log, floor
 from random import randint, choice
 import re
@@ -70,6 +71,142 @@ def homoglyph_replacement_map(replacement_characters):
                 homoglyph_replacement[string] = replacement
 
     return homoglyph_replacement
+
+
+class AliasFactory(object):
+    """A factory of valid alias strings.
+
+    :param characters: a sequence of characters that can appear in
+    a string. This sequence may include homoglyphs - they will be
+    recognized automatically and treated internally as identical.
+    :param min_length: a minimum length of a newly generated
+    alias string
+    :param max_length: a maximum length of a newly generated
+    alias string
+    """
+
+    def __init__(self, characters, min_length, max_length):
+        """Initialize a new instance.
+
+        :raises AliasLengthValueError: if min_length and max_length
+        don't fulfill the condition: 0 < min_length <= max_length
+        """
+        self._homoglyph_replacement = {}
+        self._alphabet = ''
+        self.alphabet = characters
+        if not 0 < min_length <= max_length:
+            raise AliasLengthValueError(
+                'The length limits are incorrect = the condition'
+                ' 0 < min_length <= max_length is not fulfilled for'
+                ' min_length = {} and max_length = {}'.format(
+                    min_length,
+                    max_length
+                )
+            )
+        self._min_length = min_length
+        self._max_length = max_length
+
+    @property
+    def alphabet(self):
+        """Get characters that can be used to represent an alias.
+
+        :returns: the characters as a string, including characters
+        representing their homoglyphs, but only one for each group
+        of homoglyphs.
+        """
+        return self._alphabet
+
+    @alphabet.setter
+    def alphabet(self, value):
+        """Set characters that can appear in an alias.
+
+        This method sets both the value of self._alphabet attribute
+        (accessible as self.alphabet) and the value of
+        self._homoglyph_replacement attribute.
+
+        The homoglyph_replacement attribute maps homoglyphs to strings
+        representing them in alias values that are newly generated
+        or created from strings. The mappings are ordered by length
+        of both key and value to prevent homoglyph replacement resulting
+        in an introduction of longer homoglyphs that were replaced in
+        a previous iteration (for example: 'c1' being replaced with
+        'd' and then 'cl' being transformed into 'c1' by replacing
+        'l' with '1').
+
+        The values in the map are the shortest and the alphabetically
+        smallest homoglyphs whose characters were all included in  the
+        value argument.
+
+        The self._alphabet attribute is going to include all
+        non-homoglyph characters included in the value and all
+        single-character homoglyphs from
+        self._homoglyph_replacement.values().
+        """
+        homoglyph_replacement = homoglyph_replacement_map(value)
+        self._homoglyph_replacement = OrderedDict(
+            sorted(
+                ((s, r) for s, r in homoglyph_replacement.items()),
+                key=lambda i: list(map(len, i))
+            )
+        )
+        replaced = self._homoglyph_replacement.keys()
+        self._alphabet = ''.join(
+            sorted(c for c in set(value) if c not in replaced)
+        )
+
+    def _replace_homoglyphs(self, string):
+        """Get a string without potentially confusing subsequences.
+
+        :param string: a string alias
+        :return: a string with all homoglyphs replaced by their
+        representations
+        """
+        for orig, repl in self._homoglyph_replacement.items():
+            string = string.replace(orig, repl)
+
+        return string
+
+    def create_random(self):
+        """Create a random alias for a preconfigured length range.
+
+        The alias is generated as a string of a random length between
+        self._min_length and self._max_length, consisting of randomly
+        chosen characters included in self.alphabet value.
+
+        After being generated, the string is rewritten by replacing
+        multiletter homoglyphs that could be present in it. That may
+        shorten the alias, so its length is tested and, if it happens
+        to be shorter than the minimum, the generation is repeated.
+
+        :return: a randomly generated alias string
+        """
+        while True:
+            length = randint(self._min_length, self._max_length)
+            alias = ''.join(choice(self.alphabet) for i in range(length))
+            alias = self._replace_homoglyphs(alias)
+            if len(alias) >= self._min_length:
+                return alias
+
+    def from_string(self, string):
+        """Get an alias without potentially confusing characters.
+
+        :param string: an original alias string
+        :return: a string resulting from replacement of potentially
+        confusing substrings with their homoglyphs included in
+        the self.alphabet value
+        :raises AliasValueError: if the string generated from
+        the original string contains characters that are not included in
+        the self.alphabet value and are not homoglyphs of any of
+        its values"""
+        string = self._replace_homoglyphs(string)
+
+        unexpected_chars = [x for x in string if x not in self.alphabet]
+        if unexpected_chars:
+            raise AliasValueError(
+                "The string '{}' contains unsupported characters: "
+                "{}".format(string, ', '.join(unexpected_chars))
+            )
+        return string
 
 
 class AliasAlphabet(object):

@@ -2,6 +2,7 @@
 
 """Tests for domain and persistence-related classes and functions."""
 # pylint: disable=C0103
+from collections import OrderedDict
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 
@@ -11,7 +12,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from url_shortener.domain_and_persistence import (
     AliasValueError, AliasLengthValueError, IntegrityError, get_commit_changes,
     AliasAlphabet, AlphabetValueError, CharacterValueError, IntegerAlias,
-    BaseTargetURL, homoglyph_replacement_map
+    BaseTargetURL, homoglyph_replacement_map, AliasFactory
 )
 
 
@@ -42,6 +43,194 @@ class HomoglyphReplacementMapTest(unittest.TestCase):
         actual = list(homoglyph_replacement_map('rnw9lad6vjcb'))
 
         self.assertCountEqual(expected, actual)
+
+
+class AliasFactoryTest(unittest.TestCase):
+    """Tests for AliasFactory class.
+
+    :cvar CHARS: value of characters parameter for tested instance
+    :cvar HOMOGLYPH_REPLACEMENT: a map of homoglyphs to their
+    replacements to be returned by a mock of homoglyph_replacement_map
+    function
+    :cvar MIN_LEN: value of min_length parameter for tested instance
+    :cvar MAX_LEN: value of max_length parameter for tested instance
+    :cvar tested_instance: instance of AliasAlphabet to be used
+    during tests
+    """
+
+    CHARS = '12345acdinrvw'
+    HOMOGLYPH_REPLACEMENT = {
+        'l': '1',
+        'I': '1',
+        's': '5',
+        'S': '5',
+        'z': '2',
+        'Z': '2',
+        'ci': 'a',
+        'c1': 'd',
+        'cI': 'd',
+        'cl': 'd',
+        'm': 'rn',
+        'vv': 'w'
+    }
+
+    MIN_LEN = 2
+    MAX_LEN = 6
+
+    def setUp(self):
+        self.randint_patcher = patch(
+            'url_shortener.domain_and_persistence.randint'
+        )
+        self.randint_mock = self.randint_patcher.start()
+
+        self.choice_patcher = patch(
+            'url_shortener.domain_and_persistence.choice'
+        )
+        self.choice_mock = self.choice_patcher.start()
+
+        self.homoglyph_replacement_map_patcher = patch(
+            'url_shortener.domain_and_persistence.homoglyph_replacement_map'
+        )
+
+        self.homoglyph_replacement_map_mock = (
+            self.homoglyph_replacement_map_patcher.start()
+        )
+
+        self.homoglyph_replacement_map_mock.return_value = (
+            self.HOMOGLYPH_REPLACEMENT
+        )
+
+        self.tested_instance = AliasFactory(
+            self.CHARS,
+            self.MIN_LEN,
+            self.MAX_LEN
+        )
+
+    def tearDown(self):
+        self.randint_patcher.stop()
+        self.choice_patcher.stop()
+        self.homoglyph_replacement_map_patcher.stop()
+
+    @parameterized.expand([
+        ('min > max', 5, 4),
+        ('min = 0', 0, 4),
+        ('min < 0', -2, 4),
+    ])
+    def test_init_raises_alias_length_value_error(self, _, min_len, max_len):
+        """Test for expected occurence of AliasLengthValueError.
+
+        The constructor is expected to raise AliasLengthValueError
+        for min_length and max_length not fulfilling
+        0 < min_length <= max_length condition.
+
+        :param min_len: value of min_length parameter of AliasAlphabet
+        constructor
+        :param max_len: value of max_length parameter of AliasAlphabet
+        constructor
+        """
+        self.assertRaises(
+            AliasLengthValueError,
+            AliasFactory,
+            self.CHARS,
+            min_len,
+            max_len
+        )
+
+    @parameterized.expand([
+        ('no_homoglyphs', 'racdinv', 'acdinrv'),
+        ('multiletter_homoglyphs', 'acrnvv', 'acnrv'),
+        ('homoglyphs', '1azcdl2', '12acd')
+    ])
+    def test_alphabet_for_chars_with(self, _, chars, expected):
+        """Test if the alphabet attribute has expected value.
+
+        :param chars: characters to be used for an instance of the
+        tested class
+        :param expected: an expected value of the attribute for
+        given characters
+        """
+        factory = AliasFactory(chars, self.MIN_LEN, self.MAX_LEN)
+
+        self.assertEqual(expected, factory.alphabet)
+
+    @parameterized.expand([
+        (3, 'cd33d', 'cd3'),
+        (4, 'ici23', 'ia2'),
+        (5, 'ici4512', 'ia45')
+    ])
+    def test_create_random_of_length(self, init_len, init_choice, expected):
+        """Test create_random method for expected results.
+
+        For given alias lengths and character choices, the method
+        is expected to return predictable values.
+
+        :param init_len: initial length value to be provided by the mock
+        of the randint function
+        :param init_choice: initial choice of characters to be provided
+        by the mock of the choice function
+        :param expected: a final alias string expected for given setup
+        """
+        self.randint_mock.return_value = init_len
+        self.choice_mock.side_effect = init_choice
+
+        actual = self.tested_instance.create_random()
+
+        self.assertEqual(expected, actual)
+
+    def test_create_random_for_first_result_shorter_than_min_length(self):
+        """Test the method for generating a long enough alias value.
+
+        If, after elimination of multi-letter homoglyphs, the first
+        randomly generated value happens to be shorter than
+        pre-configured min_length, the method is expected to create
+        another one, until it creates a value of length in
+        the configured range.
+        """
+        self.randint_mock.side_effect = self.MIN_LEN, self.MIN_LEN + 1
+        self.choice_mock.side_effect = 'civv4'
+        expected = 'w4'
+
+        actual = self.tested_instance.create_random()
+
+        self.assertEqual(expected, actual)
+
+    @parameterized.expand([
+        ('no_homoglyphs', 'acd12', 'acd12'),
+        ('homoglyphs', 'al23', 'a123'),
+        ('multiletter_homoglyphs', 'ac144', 'ad44'),
+        ('homoglyphs_of_both_types', 'lc144', '1d44'),
+        ('homoglyphs_of_both_types', 'cl44', 'd44'),
+        ('a_homoglyph_replacement_not_in_the_alphabet', 'acrn', 'acrn'),
+        ('a_char_replaced_by_a_multiletter_homoglyph', 'acm', 'acrn')
+    ])
+    def test_from_string_with(self, _, string, expected):
+        """Test return values of the method for given strings.
+
+        For given strings, the method is expected to return predictable
+        values, with potentially confusig characters replaced by their
+        homoglyphs included in the alphabet attribute.
+
+        :param string: a string alias that can contain potentially
+        confusing characters
+        :param expected: a value of alias expected to be returned
+        """
+        actual = self.tested_instance.from_string(string)
+
+        self.assertEqual(expected, actual)
+
+    def test_from_string_raises_alias_value_error(self):
+        """Test the method for expected occurence of AliasValueError.
+
+        The method is expected to raise AliasValueError if the string
+        argument contains characters that are not part of the alphabet
+        and are not homoglyphs of characters that are members of
+        the alphabet.
+        """
+        self.assertRaises(
+            AliasValueError,
+            self.tested_instance.from_string,
+            'xyz'
+        )
 
 
 class AliasAlphabetTest(unittest.TestCase):
