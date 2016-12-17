@@ -731,29 +731,3 @@ class DomainAndPersistenceModule(Module):
         )
 
         return alias_factory
-
-    def get_alias_alphabet(self):
-        """Get an instance of AliasAlphabet.
-
-        :returns: an AliasAlphabet instance to be used by
-        the application. The instance uses a combination of digits
-        and ASCII lowercase characters to create its own character set,
-        and uses values of minimum and maximum new alias length options
-        provided in config file.
-        """
-        alphabet = AliasAlphabet.from_chars_with_homoglyphs(
-            digits + ascii_lowercase,
-            self.app.config['MIN_NEW_ALIAS_LENGTH'],
-            self.app.config['MAX_NEW_ALIAS_LENGTH']
-        )
-
-        self.app.logger.info(
-            "Providing an instance of AliasAlphabet. It contains"
-            " the following characters:\n{0}.\n\nIt can be used to generate"
-            " aliases from {0._min_length} to {0._max_length}"
-            " characters long.".format(
-                alphabet
-            )
-        )
-
-        return alphabet
