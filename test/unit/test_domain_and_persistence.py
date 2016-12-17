@@ -11,8 +11,37 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from url_shortener.domain_and_persistence import (
     AliasValueError, AliasLengthValueError, IntegrityError, get_commit_changes,
     AliasAlphabet, AlphabetValueError, CharacterValueError, IntegerAlias,
-    BaseTargetURL
+    BaseTargetURL, homoglyph_replacement_map
 )
+
+
+class HomoglyphReplacementMapTest(unittest.TestCase):
+    """Tests for homoglyph_replacement_map function."""
+
+    def test_homoglyph_replacement_map(self):
+        """Test if an expected value is returned.
+
+        The expected value is a dict mapping a string to its shortest
+        and alphabetically smallest homoglyph with all characters
+        included in the replacement_characters argument of the function
+        """
+        expected = {
+            'm': 'rn',
+            'vv': 'w',
+            'cj': '9',
+            'g': '9',
+            'ci': 'a',
+            '1': 'l',
+            'I': 'l',
+            'c1': 'd',
+            'cI': 'd',
+            'cl': 'd',
+            'b': '6'
+        }
+
+        actual = list(homoglyph_replacement_map('rnw9lad6vjcb'))
+
+        self.assertCountEqual(expected, actual)
 
 
 class AliasAlphabetTest(unittest.TestCase):

@@ -3,6 +3,7 @@
 from bisect import bisect_left
 from math import log, floor
 from random import randint, choice
+import re
 from string import ascii_lowercase, digits
 
 from cached_property import cached_property
@@ -30,6 +31,45 @@ class AliasValueError(ValueError):
 
 class AliasLengthValueError(ValueError):
     """The value of alias-length related parameter is incorrect."""
+
+
+def homoglyph_replacement_map(replacement_characters):
+    """Get a map of homoglyphs to their replacements.
+
+    :param replacement_characters: a string containing characters of
+    which a replacement string must be composed
+    :returns: a dictionary with keys being the homoglyphs to be replaced
+    and their values being the homoglyphs to replace them.
+
+    Both the original and replacement are chosen from the same group of
+    homoglyphs, and the replacement is chosen for all the other
+    strings in its group. The replacement is the shortest and
+    alphabetically smallest combination of the replacement characters
+    in its group.
+
+    If there is no replacement in a homoglyph group, no strings
+    belonging to that group are included in the result.
+    """
+    homoglyph_groups = [
+        ('rn', 'm'), ('vv', 'w'), ('9', 'cj', 'g'), ('ci', 'a'), '1Il',
+        ('c1', 'cI', 'cl', 'd'), '0O', '8B', '2zZ', '5sS', '6b'
+    ]
+
+    pattern = re.compile('^[{}]+$'.format(replacement_characters))
+
+    homoglyph_replacement = {}
+    for group in homoglyph_groups:
+        sorted_homoglyphs = sorted(sorted(group), key=len)
+        replacement = next(
+            (s for s in sorted_homoglyphs if pattern.match(s)), None
+        )
+        if replacement is None:
+            continue
+        for string in group:
+            if string != replacement:
+                homoglyph_replacement[string] = replacement
+
+    return homoglyph_replacement
 
 
 class AliasAlphabet(object):
